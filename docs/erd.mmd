@@ -1,0 +1,46 @@
+erDiagram
+  users ||--o{ organizer_applications : submits
+  users ||--o| organizers : "is (approved)"
+  organizer_applications ||--o| organizers : "becomes"
+  organizers ||--o{ trips : organizes
+  destinations ||--o{ trips : "hosts"
+  categories ||--o{ trips : "classifies"
+  destinations }o--o{ categories : "destination_categories"
+  trips ||--o{ trip_images : has
+  trips ||--o{ registrations : receives
+  users ||--o{ registrations : makes
+  users ||--o{ saved_trips : bookmarks
+  trips ||--o{ saved_trips : "saved in"
+  trips ||--o{ reviews : "reviewed in"
+  users ||--o{ reviews : writes
+  users ||--o{ notifications : receives
+  users ||--o{ support_requests : opens
+  users ||--o{ reports : files
+  trips ||--o{ cost_records : "priced by"
+  destinations ||--o{ cost_records : "priced by"
+  users ||--o{ audit_logs : "actor of"
+  users { int id PK
+    text email UK
+    text role "traveler|organizer|admin"
+    int is_active }
+  organizers { int id PK
+    int user_id FK
+    text status "approved|suspended" }
+  trips { int id PK
+    int organizer_id FK
+    int destination_id FK
+    int category_id FK
+    text trip_date
+    int price
+    int capacity
+    text registration_deadline
+    text status }
+  registrations { int id PK
+    int trip_id FK
+    int user_id FK
+    int seats
+    text status "pending|approved|rejected|cancelled|waitlisted" }
+  cost_records { int id PK
+    text cost_type
+    int amount
+    text source_type "organizer|official|community|system_estimate|unknown" }

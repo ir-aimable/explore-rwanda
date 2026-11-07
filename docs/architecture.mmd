@@ -1,0 +1,16 @@
+flowchart LR
+  V[Visitor / Traveler / Organizer / Admin<br/>React + TypeScript + plain CSS] -->|fetch /api, httpOnly cookie| API
+  subgraph Server["Node.js + Express (TypeScript)"]
+    API[Routes + validation zod] --> MW[Auth, role checks, rate limits]
+    MW --> SVC[Services]
+    SVC --> AI[AI assistant: NLP intent, ranking, messages RW/EN]
+    SVC --> DISC[Central discovery engine]
+    AI --> DISC
+    SVC --> NOTI[Notifications and reminders]
+    SVC --> AUD[Audit log]
+  end
+  DISC --> DB[(SQLite via better-sqlite3<br/>foreign keys, transactions)]
+  SVC --> DB
+  SVC -.optional.-> OLL[Ollama local model<br/>wording only]
+  SVC -.optional.-> WX[Open-Meteo weather]
+  API --> UP[(uploads/ images)]

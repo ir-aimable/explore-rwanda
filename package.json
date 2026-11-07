@@ -1,0 +1,19 @@
+{
+  "name": "explore-rwanda",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Explore Rwanda: Local Tourism Discovery and AI-Based Trip Organizer",
+  "scripts": {
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "db:init": "npm run db:init --prefix server",
+    "db:seed": "npm run db:seed --prefix server",
+    "db:reset": "npm run db:reset --prefix server",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "dev": "concurrently -n server,client -c green,yellow \"npm:dev:server\" \"npm:dev:client\"",
+    "build": "npm run build --prefix client && npm run build --prefix server",
+    "start": "npm run start --prefix server",
+    "test": "npm test --prefix server"
+  },
+  "devDependencies": { "concurrently": "^9.0.1" }
+}
