@@ -19,9 +19,28 @@ export interface Intent {
   lowCost: boolean;
   easy: boolean; challenging: boolean;
   wantsAvailability: boolean;
-  action: 'search' | 'greeting' | 'blocked_action' | 'blocked_private' | 'help';
+  action: 'search' | 'greeting' | 'blocked_action' | 'blocked_private' | 'help' | 'small_talk' | 'recommend' | 'unknown';
+  social: Social[];       // conversational cues found in the message (can co-exist with a search)
   detected: string[];     // human-readable list of what was understood
 }
+
+export type Social = 'greeting' | 'how_are_you' | 'feeling_good' | 'thanks' | 'bye' | 'who' | 'affirm' | 'compliment';
+// Conversational cues (English + Kinyarwanda). Matched on normalized tokens, so "how's" becomes "how s".
+const SOCIAL: [Social, RegExp][] = [
+  ['how_are_you', /\b(how are (you|u|ya|things)|how r (u|you)|how s it going|how is it going|how do you do|how have you been|how is your day|how s your day|what s up|whats up|wassup|sup|amakuru|umeze ute|mumeze mute|bite|amakuru yawe|amakuru yanyu)\b/],
+  ['greeting', /\b(hi|hii+|hello|helo|hey|heya|hiya|yo|greetings|good (morning|afternoon|evening|day)|morning|muraho|mwiriwe|mwaramutse|waramutse|wiriwe|uraho|bonjour|salut|hola)\b/],
+  ['feeling_good', /\b(i m (fine|good|great|well|ok|okay)|im (fine|good|great|well|ok|okay)|i am (fine|good|great|well|ok|okay|doing well)|doing (well|good|great|fine)|all good|not bad|pretty good|ndaho|meze neza|ni meza|ni sawa|ni byiza|turaho|ndi mwiza)\b/],
+  ['thanks', /\b(thank you|thanks|thank u|thanx|thx|ty|cheers|appreciate it|much appreciated|murakoze|urakoze|merci|asante)\b/],
+  ['bye', /\b(bye|byee|goodbye|good bye|see you|see ya|take care|good night|have a nice day|murabeho|urabeho|mwirirwe|wirirwe|ijoro ryiza|tuzongera|turongera kuvugana)\b/],
+  ['who', /\b(who are you|what are you|what is your name|what s your name|your name|are you (a )?(bot|robot|human|real|person|ai)|uri nde|witwa nde|uri iki|izina ryawe)\b/],
+  ['compliment', /\b(you are (great|awesome|amazing|smart|helpful|the best|cool)|you re (great|awesome|amazing|smart|helpful|the best|cool)|good job|well done|great job|love (it|this|you)|uri mwiza|urashoboye|uri umuhanga)\b/],
+  ['affirm', /^(ok|okay|k|cool|nice|great|awesome|perfect|alright|all right|yes|yeah|yep|sure|fine|good|sounds good|ego|yego|yee|sawa|nibyo|ni byo|ni byiza)( (thanks|thank you|then|cool))?$/],
+];
+export function detectSocial(text: string): Social[] {
+  const t = tokens(text);
+  return SOCIAL.filter(([, re]) => re.test(t)).map(([k]) => k);
+}
+const RECOMMEND = /\b(recommend|recommendation|suggest|suggestion|ideas?|surprise me|anything|popular|best (trip|trips|place|places|thing)|top (trips|places)|what should i do|where should i go|where can i go|what can i do|what to do|im bored|i m bored|i am bored|bored|plan (a|my) trip|plan something|inama|ndagira inama|mpa inama|ni he heza|najya he|nakora iki|ndarambiwe)\b/;
 
 export const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’‘`´]/g, "'");
 const tokens = (s: string) => norm(s).replace(/[^a-z0-9' ]+/g, ' ').replace(/'/g, ' ').replace(/\s+/g, ' ').trim();
@@ -181,7 +200,7 @@ export function parseIntent(raw: string, lex: Lexicon, today = todayStr()): Inte
   const t = tokens(text);
   const intent: Intent = {
     raw: text, currency: 'RWF', lowCost: false, easy: false, challenging: false, wantsAvailability: false,
-    action: 'search', detected: [],
+    action: 'search', social: detectSocial(text), detected: [],
   };
 
   // Safety: the assistant is read-only. Detect attempts to make it act or reveal private data.
@@ -241,9 +260,13 @@ export function parseIntent(raw: string, lex: Lexicon, today = todayStr()): Inte
 
   const nothing = !intent.category && !intent.location && !intent.origin && intent.budget === undefined && !intent.date && !intent.people && !intent.lowCost && !intent.wantsAvailability && !intent.easy && !intent.challenging;
   if (nothing) {
-    if (/\b(hi|hello|hey|hola|muraho|mwiriwe|mwaramutse|bonjour|yo|salut|sawa)\b/.test(t) && t.split(' ').length <= 6) intent.action = 'greeting';
-    else if (/\b(help|how|what can|what do|ubufasha|ufasha|nshobora|wakora iki)\b/.test(t)) intent.action = 'help';
-    else if (/\b(trip|trips|travel|visit|go|explore|activity|activities|somewhere|place|places|urugendo|gusura|ahantu|jya|genda|ngiye)\b/.test(t)) intent.action = 'search';
+    const wantsTrip = /\b(trip|trips|travel|visit|go|explore|activity|activities|somewhere|place|places|urugendo|ingendo|gusura|ahantu|jya|genda|ngiye)\b/.test(t);
+    const asksHelp = /\b(help|what can you do|what do you do|how does (this|it) work|how do i|how to use|ubufasha|mfasha|ufasha|wakora iki|ukora iki)\b/.test(t);
+    if (RECOMMEND.test(t)) intent.action = 'recommend';
+    else if (asksHelp) intent.action = 'help';
+    else if (wantsTrip) intent.action = 'search';
+    else if (intent.social.length) intent.action = intent.social.length === 1 && intent.social[0] === 'greeting' ? 'greeting' : 'small_talk';
+    else intent.action = 'unknown';
   }
   return intent;
 }

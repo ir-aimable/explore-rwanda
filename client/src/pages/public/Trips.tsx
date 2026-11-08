@@ -7,6 +7,8 @@ import { useI18n } from '../../i18n';
 import { api, qs } from '../../services/api';
 import type { Category, Trip } from '../../types';
 import { SearchSuggest } from './Home';
+import { HeroImage } from '../../components/Cover';
+import { Icon } from '../../components/Icon';
 import { Link } from 'react-router-dom';
 
 export default function Trips() {
@@ -23,24 +25,34 @@ export default function Trips() {
   const items: Trip[] = (res.data?.trips || []).filter((x: Trip) => !onlyOpen || x.is_open);
   return (
     <>
-      <div className="page-head"><div className="container"><h1>{t('trips.title')}</h1><p className="muted" style={{ margin: 0 }}>{t('trips.sub')}</p></div></div>
-      <div className="container section-tight">
-        <form className="card filters" onSubmit={(e) => { e.preventDefault(); update('q', q); }}>
-          <div className="field span-all"><label htmlFor="tq">{t('c.search')}</label>
-            <div className="ask-bar"><SearchSuggest id="tq" value={q} onChange={setQ} placeholder={t('trips.search_ph')} /><button className="btn">{t('c.search')}</button></div></div>
-          <div className="field"><label htmlFor="tc">{t('trips.activity')}</label>
-            <select id="tc" value={get('category')} onChange={(e) => update('category', e.target.value)}><option value="">{t('c.all')}</option>{cats.data?.items.map((c) => <option key={c.id} value={c.slug}>{lang === 'rw' ? c.name_rw : c.name_en}</option>)}</select></div>
-          <div className="field"><label htmlFor="tp">{t('trips.max_price')}</label><input id="tp" inputMode="numeric" value={get('max_price')} onChange={(e) => update('max_price', e.target.value.replace(/\D/g, ''))} /></div>
-          <div className="field"><label htmlFor="td">{t('trips.date')}</label><input id="td" type="date" value={get('date')} onChange={(e) => update('date', e.target.value)} /></div>
-          <div className="field"><label htmlFor="ts">{t('trips.sort')}</label><select id="ts" value={sort} onChange={(e) => setSort(e.target.value)}><option value="date">{t('trips.sort.date')}</option><option value="price_asc">{t('trips.sort.price_asc')}</option><option value="price_desc">{t('trips.sort.price_desc')}</option></select></div>
-          <label className="check span-all"><input type="checkbox" checked={onlyOpen} onChange={(e) => setOnlyOpen(e.target.checked)} />{t('trips.only_open')}</label>
-          {key && <div className="span-all"><button type="button" className="link-btn" onClick={() => { setSp({}); setQ(''); }}>{t('c.clear')}</button></div>}
+      <section className="banner">
+        <HeroImage src="/images/trips-hero.jpg" slug="wildlife" seed={3} />
+        <div className="banner-in" style={{ paddingBottom: 128 }}>
+          <span className="t-script kicker">{t('poster.trips.top')}</span>
+          <h1 className="t-poster">{t('trips.title')}</h1>
+          <p>{t('trips.hero_sub')}</p>
+        </div>
+      </section>
+      <div className="container">
+        <form className="card filter-bar overlap" onSubmit={(e) => { e.preventDefault(); update('q', q); }} role="search">
+          <div className="fb-q"><Icon name="search" /><label htmlFor="tq" className="sr-only">{t('c.search')}</label><SearchSuggest id="tq" value={q} onChange={setQ} placeholder={t('trips.search_ph')} /></div>
+          <select aria-label={t('trips.activity')} value={get('category')} onChange={(e) => update('category', e.target.value)}><option value="">{t('c.all')} · {t('trips.activity')}</option>{cats.data?.items.map((c) => <option key={c.id} value={c.slug}>{lang === 'rw' ? c.name_rw : c.name_en}</option>)}</select>
+          <input className="fb-price" aria-label={t('trips.max_price')} placeholder={t('trips.max_price')} inputMode="numeric" value={get('max_price')} onChange={(e) => update('max_price', e.target.value.replace(/\D/g, ''))} />
+          <input type="date" aria-label={t('trips.date')} value={get('date')} onChange={(e) => update('date', e.target.value)} />
+          <button className="btn">{t('c.search')}</button>
         </form>
+        <div className="filter-extra">
+          <label className="check"><input type="checkbox" checked={onlyOpen} onChange={(e) => setOnlyOpen(e.target.checked)} />{t('trips.only_open')}</label>
+          <div className="row" style={{ gap: 8 }}>
+            {key && <button type="button" className="link-btn small" onClick={() => { setSp({}); setQ(''); }}>{t('c.clear')}</button>}
+            <select style={{ width: 'auto', minHeight: 38, borderRadius: 999 }} aria-label={t('trips.sort')} value={sort} onChange={(e) => setSort(e.target.value)}><option value="date">{t('trips.sort.date')}</option><option value="price_asc">{t('trips.sort.price_asc')}</option><option value="price_desc">{t('trips.sort.price_desc')}</option></select>
+          </div>
+        </div>
         <Loader loading={res.loading} error={res.error} reload={res.reload}>
           {res.data?.understood?.length > 0 && <div className="understood small"><span className="muted">{t('trips.understood')}:</span>{res.data.understood.map((u: string) => <span key={u} className="pill pill-grey">{u}</span>)}</div>}
           <p className="muted small">{t('trips.results', { n: items.length })}</p>
-          {items.length ? <div className="grid grid-cards">{items.map((x) => <TripCard key={x.id} trip={x} />)}</div> : (
-            <div className="stack"><Empty>{t('trips.none')}</Empty>
+          {items.length ? <div className="grid grid-cards" style={{ paddingBottom: 40 }}>{items.map((x) => <TripCard key={x.id} trip={x} />)}</div> : (
+            <div className="stack" style={{ paddingBottom: 40 }}><Empty>{t('trips.none')}</Empty>
               {res.data?.hints?.length > 0 && <ul className="small">{res.data.hints.map((h: string) => <li key={h}>{h}</li>)}</ul>}
               {res.data?.destinations?.length > 0 && <div className="card card-pad"><h4>{t('trips.suggestions_title')}</h4><div className="pills">{res.data.destinations.map((d: any) => <Link key={d.id} to={d.link} className="pill">{d.name}</Link>)}</div></div>}
             </div>)}

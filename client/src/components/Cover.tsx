@@ -40,12 +40,32 @@ export function Scene({ slug = 'hiking', seed = 1, className, hero }: { slug?: s
   );
 }
 
-export function Cover({ src, slug, seed = 1, alt = '', children }: { src?: string | null; slug?: string; seed?: number; alt?: string; children?: React.ReactNode }) {
-  const [bad, setBad] = useState(false);
+/** Image slot: tries each candidate URL in order; if none loads it shows the illustrated
+ * placeholder scene. In development a small label tells you which file to add. */
+export function Cover({ src, srcs, slug, seed = 1, alt = '', children, className, hint }: {
+  src?: string | null; srcs?: (string | null | undefined)[]; slug?: string; seed?: number; alt?: string; children?: React.ReactNode; className?: string; hint?: string;
+}) {
+  const list = [src, ...(srcs || [])].filter((x): x is string => !!x);
+  const [idx, setIdx] = useState(0);
+  const cur = list[idx];
+  const want = hint || [...list].reverse().find((x) => x.startsWith('/images/'));
   return (
-    <div className="cover">
-      {src && !bad ? <img src={src} alt={alt} loading="lazy" onError={() => setBad(true)} /> : <Scene slug={slug} seed={seed} />}
+    <div className={`cover ${className || ''}`}>
+      {cur ? <img key={cur} src={cur} alt={alt} loading="lazy" onError={() => setIdx((i) => i + 1)} /> : <Scene slug={slug} seed={seed} />}
+      {!cur && import.meta.env.DEV && want && <span className="img-hint" title="Drop an image at this path in client/public">+ {want}</span>}
       {children}
     </div>
   );
 }
+
+/** Full-bleed background image for hero banners, with a gradient + scene fallback. */
+export function HeroImage({ src, slug = 'hiking', seed = 5 }: { src: string; slug?: string; seed?: number }) {
+  const [ok, setOk] = useState(true);
+  return (
+    <div className="hero-bg" aria-hidden="true">
+      {ok ? <img src={src} alt="" onError={() => setOk(false)} /> : <><Scene slug={slug} seed={seed} />{import.meta.env.DEV && <span className="img-hint">+ {src}</span>}</>}
+    </div>
+  );
+}
+
+export const destImage = (slug?: string) => (slug ? `/images/destinations/${slug}.jpg` : undefined);

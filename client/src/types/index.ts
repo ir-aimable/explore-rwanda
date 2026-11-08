@@ -25,7 +25,7 @@ export interface Rec {
 }
 export interface AssistantReply {
   message: string; understood: string[]; trips: Rec[]; alternatives: Rec[]; alternatives_title?: string; destinations: { id: number; name: string; region: string; link: string; image_path: string | null }[];
-  destinations_note?: string; hints: string[]; clarification?: { question: string; options: string[] }; engine: string; context: unknown;
+  destinations_note?: string; hints: string[]; clarification?: { question: string; options: string[] }; suggestions?: string[]; engine: string; context: unknown;
 }
 export interface User {
   id: number; full_name: string; email: string; phone: string | null; role: 'traveler' | 'organizer' | 'admin'; preferred_language: 'rw' | 'en';

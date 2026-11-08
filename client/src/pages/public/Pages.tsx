@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Assistant } from '../../components/Assistant';
 import { TripCard } from '../../components/Cards';
+import { HeroImage } from '../../components/Cover';
 import { Field, Loader } from '../../components/ui';
 import { homeFor, useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/Toast';
@@ -15,7 +16,7 @@ const fieldErrors = (e: unknown): Record<string, string> => (e instanceof ApiErr
 export function Planner() {
   const { t } = useI18n(); const [sp] = useSearchParams();
   return (<><div className="page-head"><div className="container"><h1>{t('ai.title')}</h1><p className="muted" style={{ margin: 0 }}>{t('ai.sub')}</p></div></div>
-    <div className="container section-tight"><Assistant initial={sp.get('q') || undefined} /></div></>);
+    <div className="container" style={{ paddingBottom: 40 }}><Assistant initial={sp.get('q') || undefined} /></div></>);
 }
 
 export function About() {
@@ -49,6 +50,14 @@ export function Contact() {
     </div></>);
 }
 
+function AuthFrame({ children }: { children: React.ReactNode }) {
+  const { t } = useI18n();
+  return (<div className="auth-page">
+    <div className="auth-art"><HeroImage src="/images/auth.jpg" slug="hiking" seed={11} /><div className="cap"><span className="t-script kicker">{t('poster.auth.top')}</span><h2 className="t-poster">{t('brand.name')}</h2><p style={{ color: '#e2ece4' }}>{t('brand.tagline')}</p></div></div>
+    <div className="auth-wrap">{children}</div>
+  </div>);
+}
+
 export function Login() {
   const { t, tx } = useI18n(); const { login } = useAuth(); const nav = useNavigate(); const [sp] = useSearchParams();
   const [email, setEmail] = useState(''); const [password, setPassword] = useState(''); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
@@ -58,14 +67,14 @@ export function Login() {
     catch (x) { setErr(tx('err.' + (x instanceof ApiError ? (x.code === 'validation_error' ? 'invalid_credentials' : x.code) : 'generic'), t('err.generic'))); }
     setBusy(false);
   }
-  return (<div className="auth-wrap"><h1 style={{ fontSize: '2rem' }}>{t('auth.login_title')}</h1><p className="muted">{t('auth.login_sub')}</p>
+  return (<AuthFrame><h1 style={{ fontSize: '2rem' }}>{t('auth.login_title')}</h1><p className="muted">{t('auth.login_sub')}</p>
     <form className="stack" onSubmit={submit}>
       {err && <div className="notice notice-red" role="alert">{err}</div>}
       <Field label={t('c.email')}><input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></Field>
       <Field label={t('c.password')}><input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required /></Field>
-      <button className="btn" disabled={busy}>{t('auth.login_btn')}</button>
+      <button className="btn btn-block" disabled={busy}>{t('auth.login_btn')}</button>
     </form>
-    <p style={{ marginTop: 16 }}>{t('auth.no_account')} <Link to="/register">{t('nav.register')}</Link></p></div>);
+    <p style={{ marginTop: 16 }}>{t('auth.no_account')} <Link to="/register">{t('nav.register')}</Link></p></AuthFrame>);
 }
 
 export function Register() {
@@ -77,15 +86,15 @@ export function Register() {
     setBusy(false);
   }
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
-  return (<div className="auth-wrap"><h1 style={{ fontSize: '2rem' }}>{t('auth.register_title')}</h1><p className="muted">{t('auth.register_sub')}</p>
+  return (<AuthFrame><h1 style={{ fontSize: '2rem' }}>{t('auth.register_title')}</h1><p className="muted">{t('auth.register_sub')}</p>
     <form className="stack" onSubmit={submit}>
       <Field label={t('auth.full_name')} error={err.full_name}><input autoComplete="name" value={f.full_name} onChange={set('full_name')} required /></Field>
       <Field label={t('c.email')} error={err.email}><input type="email" autoComplete="email" value={f.email} onChange={set('email')} required /></Field>
       <Field label={`${t('c.phone')} (${t('c.optional')})`} error={err.phone}><input type="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} /></Field>
       <Field label={t('c.password')} error={err.password} hint={t('auth.pw_hint')}><input type="password" autoComplete="new-password" value={f.password} onChange={set('password')} required minLength={8} /></Field>
-      <button className="btn" disabled={busy}>{t('auth.register_btn')}</button>
+      <button className="btn btn-block" disabled={busy}>{t('auth.register_btn')}</button>
     </form>
-    <p style={{ marginTop: 16 }}>{t('auth.have_account')} <Link to="/login">{t('nav.login')}</Link></p></div>);
+    <p style={{ marginTop: 16 }}>{t('auth.have_account')} <Link to="/login">{t('nav.login')}</Link></p></AuthFrame>);
 }
 
 export function BecomeOrganizer() {

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Empty, Field, Loader, Modal, Status, useConfirm } from '../../components/ui';
+import { Empty, Field, Kpi, Loader, Modal, Status, useConfirm } from '../../components/ui';
+import { Icon } from '../../components/Icon';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/Toast';
 import { useLoad } from '../../hooks/useLoad';
@@ -8,19 +9,30 @@ import { useI18n } from '../../i18n';
 import { ApiError, api } from '../../services/api';
 
 export function TravelerHome() {
-  const { t, tx } = useI18n(); const { user } = useAuth();
+  const { t, tx, fmtDate } = useI18n(); const { user } = useAuth();
   const regs = useLoad(() => api.get<{ items: any[] }>('/registrations/mine'), []);
   const elig = useLoad(() => api.get<{ items: any[] }>('/reviews/eligible'), []);
   const saved = useLoad(() => api.get<{ items: any[] }>('/saved'), []);
   const app = user?.application;
-  return (<div className="stack"><h2>{t('dash.overview')}</h2><p>{user?.full_name}</p>
-    <div className="stats">
-      <div className="stat"><b>{regs.data?.items.length ?? '–'}</b><span>{t('tr.registrations')}</span></div>
-      <div className="stat warn"><b>{regs.data?.items.filter((r) => r.status === 'pending').length ?? '–'}</b><span>{tx('rs.pending')}</span></div>
-      <div className="stat"><b>{saved.data?.items.length ?? '–'}</b><span>{t('tr.saved')}</span></div>
-      <div className="stat"><b>{elig.data?.items.length ?? '–'}</b><span>{t('tr.reviews')}</span></div></div>
-    <div className="card card-pad"><h3>{t('tr.apply_status')}</h3>
-      {app ? <p style={{ margin: 0 }}>{app.organizer_name}: <Status kind="as" value={app.status} />{app.review_note ? ` – ${app.review_note}` : ''}</p> : <p style={{ margin: 0 }}><Link to="/become-organizer">{t('nav.organizer_apply')}</Link></p>}</div></div>);
+  return (<div className="stack">
+    <div className="dash-head"><div><h1>{t('dash.welcome', { name: user?.full_name.split(' ')[0] || '' })}</h1><p>{t('dash.welcome_sub')}</p></div><Link className="btn" to="/trips"><Icon name="search" size={16} />{t('nav.trips')}</Link></div>
+    <div className="kpis">
+      <Kpi icon="clipboard" value={regs.data?.items.length} label={t('tr.registrations')} />
+      <Kpi icon="clock" tone="gold" value={regs.data?.items.filter((r) => r.status === 'pending').length} label={tx('rs.pending')} />
+      <Kpi icon="heart" value={saved.data?.items.length} label={t('tr.saved')} />
+      <Kpi icon="star" tone="gold" value={elig.data?.items.length} label={t('tr.reviews')} />
+    </div>
+    <div className="dash-cols">
+      <div className="card card-pad"><div className="panel-head"><h3>{t('tr.registrations')}</h3><Link className="see-all small" to="/traveler/registrations">{t('dash.view_all')} <Icon name="arrowRight" size={14} /></Link></div>
+        {regs.data?.items.length ? regs.data.items.slice(0, 5).map((r) => <div key={r.id} className="list-row"><span className="kpi" style={{ padding: 0, border: 0, boxShadow: 'none' }}><span className="ic"><Icon name="mountain" size={18} /></span></span>
+          <div className="grow"><strong><Link to={`/trips/${r.trip_id}`}>{r.title}</Link></strong><span className="small muted">{fmtDate(r.trip_date)} · {r.destination_name}</span></div><Status kind="rs" value={r.status} /></div>)
+          : <Empty><Link to="/trips">{t('nav.trips')}</Link></Empty>}
+      </div>
+      <div className="card card-pad"><div className="panel-head"><h3>{t('tr.apply_status')}</h3></div>
+        {app ? <p style={{ margin: 0 }}>{app.organizer_name}: <Status kind="as" value={app.status} />{app.review_note ? ` – ${app.review_note}` : ''}</p> : <><p className="muted small">{t('home.org.d')}</p><Link className="btn btn-gold btn-sm" to="/become-organizer">{t('nav.organizer_apply')}</Link></>}
+      </div>
+    </div>
+  </div>);
 }
 
 export function MyRegistrations() {

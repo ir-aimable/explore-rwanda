@@ -1,5 +1,5 @@
 // All assistant wording (Kinyarwanda + English) lives here. Facts are injected from the database.
-import type { Intent } from './nlp.js';
+import type { Intent, Social } from './nlp.js';
 import { weekdayName } from './nlp.js';
 
 type Lang = 'rw' | 'en';
@@ -53,17 +53,54 @@ export function understoodText(i: Intent, lang: Lang, catName?: string): string[
   return out;
 }
 
+const ASK = (lang: Lang) => L(lang, 'Explore Rwanda yagufasha ite ku rugendo rwawe?', 'How can Explore Rwanda help you with your trip?');
+
+/** One short, friendly line per conversational cue, in the order they should be said. */
+const SOCIAL_LINE: Record<Social, (lang: Lang) => string> = {
+  greeting: (lang) => L(lang, 'Muraho! 👋', 'Hello! 👋'),
+  how_are_you: (lang) => L(lang, 'Ndaho neza, urakoze kubaza! 😊', 'I am fine, thank you for asking! 😊'),
+  feeling_good: (lang) => L(lang, 'Nishimiye kubyumva!', 'Glad to hear that!'),
+  thanks: (lang) => L(lang, 'Nta kibazo, ni ibyishimo kugufasha!', 'You are welcome, happy to help!'),
+  compliment: (lang) => L(lang, 'Urakoze cyane, ni wowe mwiza!', 'Thank you, that is very kind of you!'),
+  who: (lang) => L(lang,
+    'Ndi Umufasha wa Explore Rwanda: ngufasha kubona ingendo zifunguye, ahantu heza, ibiciro n’imyanya isigaye mu Rwanda.',
+    'I am the Explore Rwanda Assistant. I help you find open trips, great places, prices and available spaces across Rwanda.'),
+  affirm: (lang) => L(lang, 'Ni byiza!', 'Great!'),
+  bye: (lang) => L(lang, 'Murabeho! Mugire urugendo rwiza mu Rwanda.', 'Goodbye! Have a wonderful time exploring Rwanda.'),
+};
+const ORDER: Social[] = ['greeting', 'how_are_you', 'feeling_good', 'thanks', 'compliment', 'who', 'affirm', 'bye'];
+/** Short opener used before search results, e.g. "Hello! I am fine, thank you for asking!" */
+export function socialOpener(social: Social[], lang: Lang) {
+  return ORDER.filter((k) => social.includes(k) && k !== 'bye' && k !== 'affirm').map((k) => SOCIAL_LINE[k](lang)).join(' ');
+}
+
 export const msg = {
   greeting: (lang: Lang) => L(lang,
-    'Muraho! Ndi umufasha wa Explore Rwanda. Mbwira icyo ushaka, urugero: “Mfite RWF 10,000 muri weekend. Nakwiga he gutembera ku musozi?”',
-    'Hello! I am the Explore Rwanda trip assistant. Tell me what you want, for example: “I have RWF 10,000 this weekend. Where can I go hiking?”'),
+    'Muraho! 👋 Ndi Umufasha wa Explore Rwanda. Mbwira icyo ushaka gukora, ahantu, itariki cyangwa amafaranga ufite, nkushakire ingendo zifunguye. Cyangwa uhitemo kimwe muri ibi:',
+    'Hello! 👋 I am the Explore Rwanda Assistant. Tell me what you would like to do, where, when or your budget, and I will find open trips for you. Or pick one of these:'),
+  smallTalk: (social: Social[], lang: Lang) => {
+    // "I'm good, thanks" answers our question, so the thanks there is not a thank-you to reply to.
+    const cues = social.includes('feeling_good') ? social.filter((k) => k !== 'thanks' && k !== 'affirm') : social;
+    const lines = ORDER.filter((k) => cues.includes(k)).map((k) => SOCIAL_LINE[k](lang));
+    if (social.includes('bye')) return [...lines.filter((x) => x !== SOCIAL_LINE.bye(lang)), SOCIAL_LINE.bye(lang), L(lang, 'Garuka igihe cyose ushaka gutegura urugendo.', 'Come back any time you are planning a trip.')].join(' ');
+    return `${lines.join(' ')} ${ASK(lang)} ${L(lang, 'Dore ibitekerezo bike:', 'Here are a few ideas:')}`;
+  },
   help: (lang: Lang) => L(lang,
-    'Nshobora gushakisha ingendo zifunguye mu bubiko bw’urubuga hakurikijwe igikorwa, ahantu, itariki, ingengo y’imari n’umubare w’abantu. Sinshobora guhindura amakuru cyangwa kwemeza abiyandikishije.',
-    'I can search the open trips on the platform by activity, place, date, budget and group size. I cannot change data or approve registrations.'),
+    'Nshimishijwe no kugufasha! Mbwira mu magambo yawe icyo ushaka: igikorwa (urugero gutembera ku musozi, koga, inyamaswa), ahantu, itariki n’amafaranga ufite. Nzakwereka ingendo zifunguye, ibiciro n’imyanya isigaye. (Sinshobora guhindura amakuru cyangwa kwemeza abiyandikishije.)',
+    'Happy to help! Just tell me in your own words what you are looking for: an activity (hiking, swimming, safari…), a place, a date and your budget. I will show you open trips with real prices and spaces left. (I cannot change data or approve registrations.)'),
+  recommend: (lang: Lang, n: number) => (n
+    ? L(lang,
+      `Dore ingendo ${n} nkugiriye inama, zifunguye kandi zifite imyanya. Nshobora kuzitoranya neza nimbwira igikorwa, itariki cyangwa amafaranga ufite.`,
+      `Here ${n === 1 ? 'is a trip' : `are ${n} trips`} I would recommend right now, open and with spaces left. Tell me an activity, a date or your budget and I can narrow it down.`)
+    : L(lang, 'Ubu nta rugendo rufunguye ruhari, ariko dore ahantu heza ushobora gutekerezaho.', 'There are no open trips right now, but here are some great places to consider.')),
+  unknown: (lang: Lang) => L(lang,
+    'Simbyumvise neza 🤔, ariko nakwishimira kugufasha gutegura urugendo! Nshobora gushaka ingendo hakurikijwe igikorwa, ahantu, itariki cyangwa amafaranga. Gerageza kimwe muri ibi:',
+    'I am not sure I understood that 🤔, but I would love to help you plan something! I can find trips by activity, place, date or budget. Try one of these:'),
+  suggestionsTitle: (lang: Lang) => L(lang, 'Ushobora kandi kugerageza:', 'You could also try:'),
   clarify: (lang: Lang) => ({
     question: L(lang,
       'Nshaka kugufasha neza. Ni ikihe gikorwa ushaka (urugero gutembera ku musozi, koga), kandi ufite ingengo y’imari cyangwa itariki runaka?',
-      'I want to help properly. Which activity do you want (for example hiking or swimming), and do you have a budget or date in mind?'),
+      'I would love to help! What kind of activity are you in the mood for (for example hiking or swimming), and do you have a budget or date in mind?'),
     options: lang === 'rw'
       ? ['Gutembera ku musozi muri weekend', 'Koga munsi ya RWF 15,000', 'Ibidukikije ku cyumweru']
       : ['Hiking this weekend', 'Swimming under RWF 15,000', 'A nature activity on Sunday'],
@@ -78,8 +115,8 @@ export const msg = {
     `Dore ingendo ${n} ${catName ? `za “${catName}” ` : ''}zihuye n’ibyo wasabye, zifite imyanya.`,
     `Here ${n === 1 ? 'is 1 open trip' : `are ${n} open trips`}${catName ? ` for “${catName}”` : ''} matching your request.`),
   none: (lang: Lang) => L(lang,
-    'Nta rugendo rufunguye ruhuye n’ibyo wasabye ubu.',
-    'I could not find an open trip that matches your request right now.'),
+    'Mbabarira, nta rugendo rufunguye ruhuye n’ibyo wasabye ubu, ariko dore ibyagufasha:',
+    'Sorry, I could not find an open trip that matches your request right now, but here is what might help:'),
   alternativesTitle: (lang: Lang) => L(lang, 'Izindi nzira: ingendo zirengeje ingengo y’imari yawe', 'Alternatives: trips above your budget'),
   destinationsNote: (lang: Lang) => L(lang,
     'Ahantu hakurikira ni ibitekerezo gusa — si ingendo ziteguwe. Ntiwemeza ko hari urugendo ruhari.',

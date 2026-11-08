@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Empty, Field, Loader, Status, useConfirm } from '../../components/ui';
+import { Avatar, Empty, Field, Kpi, Loader, Status, useConfirm } from '../../components/ui';
+import { Icon } from '../../components/Icon';
+import { Cover, destImage } from '../../components/Cover';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/Toast';
 import { useLoad } from '../../hooks/useLoad';
@@ -10,15 +12,32 @@ import type { Category, Destination, Trip } from '../../types';
 import { Stars } from '../../components/ui';
 
 export function OrganizerHome() {
-  const { t } = useI18n(); const { user } = useAuth();
+  const { t, fmtDate } = useI18n(); const { user } = useAuth();
   const { data, loading, error, reload } = useLoad(() => api.get<any>('/organizer/me'), []);
-  return (<div className="stack"><h2>{t('dash.overview')}</h2>
+  const regs = useLoad(() => api.get<{ items: any[] }>('/registrations/manage?status=&q='), []);
+  const trips = useLoad(() => api.get<{ items: any[] }>('/trips/manage/mine'), []);
+  return (<div className="stack">
     {user?.organizer?.status === 'suspended' && <div className="notice notice-red">{t('org.suspended')}</div>}
-    <Loader loading={loading} error={error} reload={reload}>{data && (<>
-      <p>{data.organizer.display_name}</p>
-      <div className="stats"><div className="stat"><b>{data.stats.total}</b><span>{t('org.stat.trips')}</span></div><div className="stat"><b>{data.stats.published ?? 0}</b><span>{t('org.stat.published')}</span></div>
-        <div className="stat"><b>{data.stats.drafts ?? 0}</b><span>{t('org.stat.drafts')}</span></div><div className="stat warn"><b>{data.stats.pending}</b><span>{t('org.stat.pending')}</span></div><div className="stat"><b>{data.stats.confirmed}</b><span>{t('org.stat.confirmed')}</span></div></div>
-      <div className="row"><Link className="btn" to="/organizer/trips/new">{t('org.create_trip')}</Link><Link className="btn btn-ghost" to="/organizer/registrations">{t('org.pending')}</Link></div></>)}</Loader></div>);
+    <Loader loading={loading} error={error} reload={reload}>{data && (<div className="stack">
+      <div className="dash-head"><div><h1>{t('dash.welcome', { name: data.organizer.display_name })}</h1><p>{t('dash.welcome_sub')}</p></div><Link className="btn" to="/organizer/trips/new"><Icon name="plus" size={16} />{t('org.create_trip')}</Link></div>
+      <div className="kpis">
+        <Kpi icon="mountain" value={data.stats.total} label={t('org.stat.trips')} />
+        <Kpi icon="checkCircle" value={data.stats.published ?? 0} label={t('org.stat.published')} />
+        <Kpi icon="list" value={data.stats.drafts ?? 0} label={t('org.stat.drafts')} />
+        <Kpi icon="clock" tone="gold" value={data.stats.pending} label={t('org.stat.pending')} />
+        <Kpi icon="users" value={data.stats.confirmed} label={t('org.stat.confirmed')} />
+      </div>
+      <div className="dash-cols">
+        <div className="card card-pad"><div className="panel-head"><h3>{t('org.registrations')}</h3><Link className="see-all small" to="/organizer/registrations">{t('dash.view_all')} <Icon name="arrowRight" size={14} /></Link></div>
+          {regs.data?.items.length ? regs.data.items.slice(0, 5).map((r) => <div key={r.id} className="list-row"><Avatar name={r.full_name} />
+            <div className="grow"><strong>{r.full_name}</strong><span className="small muted">{r.title} · {fmtDate(r.created_at.slice(0, 10))}</span></div><Status kind="rs" value={r.status} /></div>) : <Empty>{t('org.no_regs')}</Empty>}
+        </div>
+        <div className="card card-pad"><div className="panel-head"><h3>{t('org.my_trips')}</h3><Link className="see-all small" to="/organizer/trips">{t('dash.view_all')} <Icon name="arrowRight" size={14} /></Link></div>
+          {trips.data?.items.length ? trips.data.items.slice(0, 4).map((x) => <div key={x.id} className="list-row"><span style={{ width: 54, flex: 'none', borderRadius: 8, overflow: 'hidden' }}><Cover src={x.cover_image} srcs={[destImage(x.destination.slug)]} slug={x.category.slug} seed={x.id} /></span>
+            <div className="grow"><strong>{x.title}</strong><span className="small muted">{fmtDate(x.trip_date)} · {x.approved_seats}/{x.capacity}</span></div><Link className="btn btn-ghost btn-sm" to={`/organizer/trips/${x.id}/registrations`}>{t('c.view')}</Link></div>) : <Empty>{t('org.no_trips')}</Empty>}
+        </div>
+      </div>
+    </div>)}</Loader></div>);
 }
 
 export function ManageTrips({ admin }: { admin?: boolean }) {

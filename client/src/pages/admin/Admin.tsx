@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Empty, Field, Loader, Modal, Status, useConfirm } from '../../components/ui';
+import { Avatar, Donut, Empty, Field, Kpi, Loader, Modal, Status, useConfirm } from '../../components/ui';
+import { Icon } from '../../components/Icon';
 import { useToast } from '../../contexts/Toast';
 import { useLoad } from '../../hooks/useLoad';
 import { useI18n } from '../../i18n';
@@ -13,16 +14,30 @@ export function AdminHome() {
   const { t, tx, fmtDate } = useI18n();
   const { data, loading, error, reload } = useLoad(() => api.get<any>('/admin/stats'), []);
   const S = data?.stats;
-  const cards: [string, number, boolean?][] = S ? [['ad.stat.users', S.users_total], ['ad.stat.travelers', S.travelers], ['ad.stat.organizers', S.organizers], ['ad.stat.pending_apps', S.pending_applications, S.pending_applications > 0],
-    ['ad.stat.approved_orgs', S.approved_organizers], ['ad.stat.suspended_orgs', S.suspended_organizers], ['ad.stat.published', S.trips_published], ['ad.stat.upcoming', S.trips_upcoming], ['ad.stat.completed', S.trips_completed], ['ad.stat.cancelled', S.trips_cancelled],
+  const more: [string, number, boolean?][] = S ? [['ad.stat.approved_orgs', S.approved_organizers], ['ad.stat.suspended_orgs', S.suspended_organizers], ['ad.stat.published', S.trips_published],
     ['ad.stat.regs', S.registrations_total], ['ad.stat.pending_regs', S.registrations_pending, S.registrations_pending > 0], ['ad.stat.admins', S.admins], ['ad.stat.support', S.open_support, S.open_support > 0], ['ad.stat.reports', S.open_reports, S.open_reports > 0]] : [];
-  return (<div className="stack"><h2>{t('dash.overview')}</h2><Loader loading={loading} error={error} reload={reload}>
-    <div className="stats">{cards.map(([k, v, w]) => <div key={k} className={`stat ${w ? 'warn' : ''}`}><b>{v}</b><span>{t(k as any)}</span></div>)}</div>
-    <div className="card card-pad"><h3>{t('ad.shortcuts')}</h3><div className="row"><Link className="btn btn-sm" to="/admin/applications">{t('ad.applications')}</Link><Link className="btn btn-ghost btn-sm" to="/admin/trips/new">{t('org.create_trip')}</Link><Link className="btn btn-ghost btn-sm" to="/admin/destinations">{t('ad.destinations')}</Link><Link className="btn btn-ghost btn-sm" to="/admin/users">{t('ad.users')}</Link></div></div>
-    <div className="grid grid-2">
-      <div className="card card-pad"><h3>{t('ad.recent_regs')}</h3>{data?.recent_registrations.map((r: any) => <div key={r.id} className="small" style={{ padding: '4px 0', borderBottom: '1px solid var(--line)' }}>{r.full_name} → {r.title} <Status kind="rs" value={r.status} /></div>)}</div>
-      <div className="card card-pad"><h3>{t('ad.recent_activity')}</h3>{data?.recent_audit.map((a: any) => <div key={a.id} className="small" style={{ padding: '4px 0', borderBottom: '1px solid var(--line)' }}><code>{a.action}</code> · {a.actor_email} <span className="muted">{fmtDate(a.created_at.slice(0, 10))}</span></div>)}</div></div>
-    <span className="sr-only">{tx('c.done')}</span></Loader></div>);
+  return (<div className="stack">
+    <div className="dash-head"><div><h1>{tx('role.admin', 'Admin')} · {t('dash.overview')}</h1><p>{t('ad.overview_sub')}</p></div>
+      <div className="row"><Link className="btn btn-sm" to="/admin/applications">{t('ad.applications')}</Link><Link className="btn btn-ghost btn-sm" to="/admin/trips/new">{t('org.create_trip')}</Link></div></div>
+    <Loader loading={loading} error={error} reload={reload}>{S && (<div className="stack">
+      <div className="kpis">
+        <Kpi icon="users" value={S.users_total} label={t('ad.stat.users')} />
+        <Kpi icon="user" value={S.travelers} label={t('ad.stat.travelers')} />
+        <Kpi icon="shield" value={S.organizers} label={t('ad.stat.organizers')} />
+        <Kpi icon="flag" tone="gold" value={S.pending_applications} label={t('ad.stat.pending_apps')} />
+      </div>
+      <div className="dash-cols">
+        <div className="card card-pad"><div className="panel-head"><h3>{t('ad.recent_regs')}</h3><Link className="see-all small" to="/admin/registrations">{t('dash.view_all')} <Icon name="arrowRight" size={14} /></Link></div>
+          {data.recent_registrations.length ? data.recent_registrations.map((r: any) => <div key={r.id} className="list-row"><Avatar name={r.full_name} /><div className="grow"><strong>{r.full_name}</strong><span className="small muted">{r.title} · {fmtDate(r.created_at.slice(0, 10))}</span></div><Status kind="rs" value={r.status} /></div>) : <Empty>{t('c.none')}</Empty>}
+        </div>
+        <div className="card card-pad"><div className="panel-head"><h3>{t('ad.trip_status')}</h3><Link className="see-all small" to="/admin/trips">{t('dash.view_all')} <Icon name="arrowRight" size={14} /></Link></div>
+          <Donut label={t('ad.trips')} data={[{ label: t('ad.stat.upcoming'), value: S.trips_upcoming, color: '#1e6b3a' }, { label: t('ad.stat.completed'), value: S.trips_completed, color: '#e0a800' }, { label: t('ad.stat.cancelled'), value: S.trips_cancelled, color: '#c0392b' }]} />
+        </div>
+      </div>
+      <div className="kpis">{more.map(([k, v, w]) => <div key={k} className={`stat ${w ? 'warn' : ''}`}><b>{v}</b><span>{t(k as any)}</span></div>)}</div>
+      <div className="card card-pad"><div className="panel-head"><h3>{t('ad.recent_activity')}</h3><Link className="see-all small" to="/admin/audit">{t('dash.view_all')} <Icon name="arrowRight" size={14} /></Link></div>
+        {data.recent_audit.map((a: any) => <div key={a.id} className="list-row small"><Icon name="history" size={16} /><div className="grow"><code>{a.action}</code> · {a.actor_email}</div><span className="muted">{fmtDate(a.created_at.slice(0, 10))}</span></div>)}</div>
+    </div>)}<span className="sr-only">{tx('c.done')}</span></Loader></div>);
 }
 
 export function Users() {

@@ -11,16 +11,16 @@ import { Notifications, ProfileForm } from './pages/Shared';
 import { MyRegistrations, MyReviews, MySupport, SavedTrips, TravelerHome } from './pages/traveler/Traveler';
 
 const travelerLinks: DashLink[] = [
-  { to: '/traveler', label: 'dash.overview', end: true }, { to: '/traveler/registrations', label: 'tr.registrations' }, { to: '/traveler/saved', label: 'tr.saved' }, { to: '/traveler/reviews', label: 'tr.reviews' },
-  { to: '/traveler/notifications', label: 'dash.notifications' }, { to: '/traveler/support', label: 'dash.support' }, { to: '/traveler/profile', label: 'dash.profile' }];
+  { icon: 'grid', to: '/traveler', label: 'dash.overview', end: true }, { icon: 'clipboard', to: '/traveler/registrations', label: 'tr.registrations' }, { icon: 'heart', to: '/traveler/saved', label: 'tr.saved' }, { icon: 'star', to: '/traveler/reviews', label: 'tr.reviews' },
+  { icon: 'bell', to: '/traveler/notifications', label: 'dash.notifications' }, { icon: 'help', to: '/traveler/support', label: 'dash.support' }, { icon: 'user', to: '/traveler/profile', label: 'dash.profile' }];
 const organizerLinks: DashLink[] = [
-  { to: '/organizer', label: 'dash.overview', end: true }, { to: '/organizer/trips', label: 'org.my_trips' }, { to: '/organizer/trips/new', label: 'org.create_trip' }, { to: '/organizer/registrations', label: 'org.registrations' },
-  { to: '/organizer/reviews', label: 'org.reviews' }, { to: '/organizer/notifications', label: 'dash.notifications' }, { to: '/organizer/profile', label: 'dash.profile' }, { to: '/traveler/profile', label: 'dash.change_password' }];
+  { icon: 'grid', to: '/organizer', label: 'dash.overview', end: true }, { icon: 'mountain', to: '/organizer/trips', label: 'org.my_trips' }, { icon: 'plus', to: '/organizer/trips/new', label: 'org.create_trip' }, { icon: 'clipboard', to: '/organizer/registrations', label: 'org.registrations' },
+  { icon: 'star', to: '/organizer/reviews', label: 'org.reviews' }, { icon: 'bell', to: '/organizer/notifications', label: 'dash.notifications' }, { icon: 'user', to: '/organizer/profile', label: 'dash.profile' }, { icon: 'shield', to: '/traveler/profile', label: 'dash.change_password' }];
 const adminLinks: DashLink[] = [
-  { to: '/admin', label: 'dash.overview', end: true }, { to: '/admin/users', label: 'ad.users', group: 'ad.users' }, { to: '/admin/applications', label: 'ad.applications', group: 'ad.users' }, { to: '/admin/organizers', label: 'ad.organizers', group: 'ad.users' },
-  { to: '/admin/destinations', label: 'ad.destinations', group: 'ad.trips' }, { to: '/admin/trips', label: 'ad.trips', group: 'ad.trips' }, { to: '/admin/registrations', label: 'ad.registrations', group: 'ad.trips' },
-  { to: '/admin/reviews', label: 'ad.reviews', group: 'ad.settings' }, { to: '/admin/support', label: 'ad.support', group: 'ad.settings' }, { to: '/admin/categories', label: 'ad.categories', group: 'ad.settings' }, { to: '/admin/announcements', label: 'ad.announcements', group: 'ad.settings' },
-  { to: '/admin/audit', label: 'ad.audit', group: 'ad.settings' }, { to: '/admin/settings', label: 'ad.settings', group: 'ad.settings' }, { to: '/admin/notifications', label: 'dash.notifications', group: 'ad.settings' }, { to: '/admin/profile', label: 'dash.profile', group: 'ad.settings' }];
+  { icon: 'grid', to: '/admin', label: 'dash.overview', end: true }, { icon: 'users', to: '/admin/users', label: 'ad.users', group: 'ad.users' }, { icon: 'flag', to: '/admin/applications', label: 'ad.applications', group: 'ad.users' }, { icon: 'shield', to: '/admin/organizers', label: 'ad.organizers', group: 'ad.users' },
+  { icon: 'pin', to: '/admin/destinations', label: 'ad.destinations', group: 'ad.trips' }, { icon: 'mountain', to: '/admin/trips', label: 'ad.trips', group: 'ad.trips' }, { icon: 'clipboard', to: '/admin/registrations', label: 'ad.registrations', group: 'ad.trips' },
+  { icon: 'star', to: '/admin/reviews', label: 'ad.reviews', group: 'ad.settings' }, { icon: 'help', to: '/admin/support', label: 'ad.support', group: 'ad.settings' }, { icon: 'tag', to: '/admin/categories', label: 'ad.categories', group: 'ad.settings' }, { icon: 'megaphone', to: '/admin/announcements', label: 'ad.announcements', group: 'ad.settings' },
+  { icon: 'history', to: '/admin/audit', label: 'ad.audit', group: 'ad.settings' }, { icon: 'settings', to: '/admin/settings', label: 'ad.settings', group: 'ad.settings' }, { icon: 'bell', to: '/admin/notifications', label: 'dash.notifications', group: 'ad.settings' }, { icon: 'user', to: '/admin/profile', label: 'dash.profile', group: 'ad.settings' }];
 
 export default function App() {
   return (

@@ -106,7 +106,7 @@ db.transaction(() => {
   reg(tFull, t2, 'approved'); reg(tFull, t3, 'approved'); reg(tDone, t1, 'approved');
 
   db.prepare("INSERT INTO announcements (title_rw,title_en,body_rw,body_en) VALUES (?,?,?,?)")
-    .run('Ikaze kuri Explore Rwanda', 'Welcome to Explore Rwanda', 'Aya ni amakuru y’icyitegererezo yo kwerekana urubuga.', 'This platform currently shows demonstration data for academic presentation.');
+    .run('Ikaze kuri Explore Rwanda', 'Welcome to Explore Rwanda', 'Aya ni amakuru y’icyitegererezo yo kwerekana urubuga.', 'This platform currently shows demonstration data.');
 })();
 
 console.log('\n[seed] Demo data created (all flagged is_demo).');

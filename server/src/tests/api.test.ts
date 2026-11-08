@@ -553,6 +553,22 @@ test('AI assistant and intelligent search', async () => {
     const before = tids(await ask('hiking this saturday')); assert.ok(before.includes(ids.hikeCheap));
     await org1.post(`/trips/${ids.hikeCheap}/cancel`); assert.ok(!tids(await ask('hiking this saturday')).includes(ids.hikeCheap));
   });
+  await T('AI-18', 'Small talk gets a friendly reply that steers back to trip planning, with live suggestions', '"How are you?" -> "I am fine"; thanks/bye/who handled; suggestion chips return real trips', async () => {
+    const j = await ask('How are you?');
+    assert.equal(j.intent.action, 'small_talk'); assert.match(j.message, /I am fine/); assert.match(j.message, /How can Explore Rwanda help you with your trip\?/);
+    assert.equal(j.trips.length, 0); assert.ok(j.suggestions.length >= 2);
+    for (const chip of j.suggestions) assert.ok((await ask(chip)).trips.length > 0, `chip "${chip}" returns trips`);
+    assert.match((await ask('thanks!')).message, /welcome/i);
+    assert.match((await ask('who are you?')).message, /Explore Rwanda Assistant/);
+    const bye = await ask('bye, see you'); assert.match(bye.message, /Goodbye/); assert.equal(bye.suggestions.length, 0);
+    assert.match((await ask('Amakuru?', undefined, 'rw')).message, /Ndaho neza/);
+    const mixed = await ask('Hi! hiking this saturday'); assert.match(mixed.message, /^Hello!/); assert.ok(mixed.trips.length > 0);
+    return `How are you? -> ${j.message}`;
+  });
+  await T('AI-19', 'Open requests for ideas get real recommendations; nonsense gets a friendly fallback', 'recommend -> open trips only; unknown -> suggestions, no trips', async () => {
+    const r = await ask('Where should I go?'); assert.equal(r.intent.action, 'recommend'); assert.ok(r.trips.length > 0 && r.trips.every((t: any) => t.remaining_spaces > 0));
+    const u = await ask('tell me a joke'); assert.equal(u.intent.action, 'unknown'); assert.equal(u.trips.length, 0); assert.ok(u.suggestions.length > 0);
+  });
   await T('AI-17', 'Central search endpoint reuses the same engine (text + filters + suggestions)', '/search?q=... returns same intent; suggest returns real titles', async () => {
     const r = (await anon.get('/search?q=swimming%20under%2015k')).json; assert.equal(r.intent.category, 'swimming'); assert.deepEqual(r.trips.map((t: any) => t.id), [ids.swim]);
     const f = (await anon.get('/search?category=nature&max_price=5000')).json; assert.deepEqual(f.trips.map((t: any) => t.id), [ids.nature]);

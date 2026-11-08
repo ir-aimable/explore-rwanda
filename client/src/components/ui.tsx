@@ -1,3 +1,4 @@
+import { Icon, type IconName } from './Icon';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useI18n } from '../i18n';
 import { ApiError } from '../services/api';
@@ -70,5 +71,36 @@ export function Status({ kind, value }: { kind: 'st' | 'rs' | 'as' | 'ss' | 'rol
 export function Stars({ n }: { n: number }) { return <span className="stars" aria-label={`${n} / 5`}>{'★'.repeat(Math.round(n))}{'☆'.repeat(5 - Math.round(n))}</span>; }
 
 export function Logo() {
-  return (<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="3" fill="#1f4d3a" /><path d="M3 25l8-12 5 6 4-5 9 11z" fill="#c9a24a" /><circle cx="23" cy="9" r="3" fill="#f6ecd2" /></svg>);
+  return <img className="logo-img" src="/images/logo-sm.png" srcSet="/images/logo-sm.png 1x, /images/logo.png 4x" alt="" width={160} height={146} />;
+}
+
+export const initials = (name?: string) => (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join('');
+export function Avatar({ name, size }: { name?: string; size?: 'lg' }) { return <span className={`avatar ${size || ''}`} aria-hidden="true">{initials(name)}</span>; }
+
+
+/** KPI tile: icon, big number, label. */
+export function Kpi({ icon, value, label, tone }: { icon: IconName; value: number | string | undefined; label: string; tone?: 'gold' | 'red' }) {
+  return (<div className={`kpi ${tone || ''}`}><span className="ic"><Icon name={icon} size={20} /></span><div><b>{value ?? '–'}</b><span>{label}</span></div></div>);
+}
+
+/** Part-to-whole donut with a labelled legend (values always visible, hover shows a tooltip). */
+export function Donut({ data, label }: { data: { label: string; value: number; color: string }[]; label: string }) {
+  const total = data.reduce((a, d) => a + d.value, 0);
+  const r = 42, c = 2 * Math.PI * r, gap = total > 0 && data.filter((d) => d.value > 0).length > 1 ? 2 : 0;
+  let off = 0;
+  return (
+    <div className="donut-wrap">
+      <svg width="150" height="150" viewBox="0 0 100 100" role="img" aria-label={`${label}: ${data.map((d) => `${d.label} ${d.value}`).join(', ')}`}>
+        <circle cx="50" cy="50" r={r} fill="none" stroke="var(--mist)" strokeWidth="13" />
+        {total > 0 && data.map((d) => {
+          const len = (d.value / total) * c; const seg = Math.max(0, len - gap);
+          const el = d.value > 0 ? <circle key={d.label} cx="50" cy="50" r={r} fill="none" stroke={d.color} strokeWidth="13" strokeDasharray={`${seg} ${c - seg}`} strokeDashoffset={-off} transform="rotate(-90 50 50)"><title>{`${d.label}: ${d.value} (${Math.round((d.value / total) * 100)}%)`}</title></circle> : null;
+          off += len; return el;
+        })}
+        <text x="50" y="49" textAnchor="middle" style={{ font: '400 16px var(--font-display)', fill: 'var(--ink)' }}>{total}</text>
+        <text x="50" y="62" textAnchor="middle" style={{ font: '500 7px var(--font-body)', fill: 'var(--ink-soft)' }}>{label}</text>
+      </svg>
+      <ul className="legend">{data.map((d) => <li key={d.label}><i style={{ background: d.color }} />{d.label}<b>{d.value}{total > 0 && <span className="muted" style={{ fontWeight: 500 }}> · {Math.round((d.value / total) * 100)}%</span>}</b></li>)}</ul>
+    </div>
+  );
 }
