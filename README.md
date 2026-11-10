@@ -1,5 +1,5 @@
 # Explore Rwanda
-**Explore more. Go together.** Local Tourism Discovery and AI-Based Trip Organizer...
+**Explore more. Go together.** Local Tourism Discovery and AI-Based Trip Organizer.
 
 Travelers discover destinations and organized trips, ask an AI-style assistant for suggestions, and register. Organizers apply, get approved, publish trips and manage participants. Administrators supervise everything, and every sensitive action is audit-logged.
 
