@@ -1,8 +1,8 @@
 # Explore Rwanda - Automated Test Report
 
-Generated: 2026-11-07T16:44:16.738Z by `npm test` (server/src/tests). Results below are produced by the test run itself, not written by hand.
+Generated: 2026-11-10T14:51:54.936Z by `npm test` (server/src/tests). Results below are produced by the test run itself, not written by hand.
 
-**Total: 98 | Passed: 98 | Failed: 0**
+**Total: 111 | Passed: 111 | Failed: 0**
 
 | Test ID | Description | Expected result | Actual result | Pass/Fail | Notes |
 |---|---|---|---|---|---|
@@ -76,6 +76,8 @@ Generated: 2026-11-07T16:44:16.738Z by `npm test` (server/src/tests). Results be
 | ADM-17 | Category and announcement management, settings update | HTTP 2xx and persisted | Matched expected result (all assertions passed) | PASS |  |
 | ADM-18 | Support request: visitor submits, admin replies, signed-in author is notified | HTTP 201 / 200 / notification | Matched expected result (all assertions passed) | PASS |  |
 | ADM-19 | Cost records: organizer-only source for organizers; unknown cost stored without amount | organizer 201 (organizer source), 403 (official source); admin 201 | Matched expected result (all assertions passed) | PASS |  |
+| TR-01 | Default starting locations exist; admin saves, clears and adds prices | Kigali, Musanze, Rubavu, Muhanga, Kayonza, Rwamagana; upsert, null clears, estimates for every located pair | Matched expected result (all assertions passed) | PASS |  |
+| TR-02 | Admins add other starting locations; known places are located on the map; defaults cannot be removed; only admins | Huye located; duplicate 409; default delete 403; traveler 403 | Matched expected result (all assertions passed) | PASS |  |
 | SEC-07 | SQL injection strings in search/filter/login do not break queries or leak data | No 500; users table intact | Matched expected result (all assertions passed) | PASS |  |
 | SEC-08 | Uploading a non-image disguised as PNG is rejected | HTTP 400 invalid_file_type | Matched expected result (all assertions passed) | PASS |  |
 | SEC-09 | A genuine PNG upload by the owner is accepted; by another organizer is refused | 201 then 403 | Matched expected result (all assertions passed) | PASS |  |
@@ -99,8 +101,19 @@ Generated: 2026-11-07T16:44:16.738Z by `npm test` (server/src/tests). Results be
 | AI-14 | Kinyarwanda request is understood and answered in Kinyarwanda | hiking, 10000, weekend; message in rw | Matched expected result (all assertions passed) | PASS |  |
 | AI-15 | Follow-up refinement uses previous context ("what about Sunday?") | Keeps hiking+budget, switches to Sunday -> none, with hints | Matched expected result (all assertions passed) | PASS |  |
 | AI-16 | Results are database-grounded: cancelling a trip removes it from recommendations at once | Cheap Sat Hike disappears after cancel | Matched expected result (all assertions passed) | PASS |  |
+| AI-18 | Small talk gets a friendly reply that steers back to trip planning, with live suggestions | "How are you?" -> "I am fine"; thanks/bye/who handled; suggestion chips return real trips | How are you? -> I am fine, thank you for asking! 😊 How can Explore Rwanda help you with your trip? Here are a few ideas: | PASS |  |
+| AI-19 | Open requests for ideas get real recommendations; nonsense gets a friendly fallback | recommend -> open trips only; unknown -> suggestions, no trips | Matched expected result (all assertions passed) | PASS |  |
+| AI-20 | Regression: available trip with an unknown cost is NOT reported as no match; short follow-ups keep the search | Bigogwe -> UNCONFIRMED; "Musanze" -> destination/origin question; "Destination" keeps activity/budget/date; "Under 5k" updates only the budget | MATCHED_AVAILABLE_AFFORDABILITY_UNCONFIRMED -> clarification -> MATCHED_AVAILABLE_AFFORDABILITY_UNCONFIRMED -> MATCHED_ABOVE_BUDGET | PASS |  |
+| AI-21 | Result states come from the database: full, registration closed, other date, confirmed vs unconfirmed, genuine no match | Each query returns its own state; unbookable trips are never listed as recommendations | Matched expected result (all assertions passed) | PASS |  |
+| AI-22 | Short follow-ups and quick replies update the active search | "Three people", "With transport", "This weekend", thanks, "Change starting location" + "Kigali"; a complete new request starts fresh | Matched expected result (all assertions passed) | PASS |  |
+| AI-23 | No exact match: the closest open trips are offered as a question, and the conversation continues | "boating under 15k" → closest options (different activity) + "Would you like to try…?"; "This weekend" acknowledges the update; the activity chip switches and finds the trip | Matched expected result (all assertions passed) | PASS |  |
+| AI-24 | A month ("in <month>") filters by date; with nothing that month, the closest dates are offered clearly | All results fall in the month, or the reply says none run then and proposes other dates | Matched expected result (all assertions passed) | PASS |  |
+| AI-25 | Transport not in the trip price: the assistant adds public transport from where the traveller starts | Fare table from Musanze (cheaper) vs Kigali; no origin = trip start, assumed; "I'm in Musanze" sets the origin; organizer transport from far away is replaced | Musanze 2000, Kigali 6000, Rubavu ≈1200 (24 km) | PASS |  |
+| AI-26 | Places on the map: "near <town>" finds destinations close to it | "hiking near Musanze" returns trips at Test Bigogwe with a distance reason | Matched expected result (all assertions passed) | PASS |  |
 | AI-17 | Central search endpoint reuses the same engine (text + filters + suggestions) | /search?q=... returns same intent; suggest returns real titles | Matched expected result (all assertions passed) | PASS |  |
 | AI-18 | Works with no external AI provider configured | engine === rules | Matched expected result (all assertions passed) | PASS |  |
 | NLP-01 | Budget extraction formats | 10k, RWF 10,000, 15 000 frw, "under 20000", "budget of 5k", 12.5k | Matched expected result (all assertions passed) | PASS |  |
 | NLP-02 | People extraction | "for two people", "2 people", "group of 4", "for 10,000" is NOT people | Matched expected result (all assertions passed) | PASS |  |
 | NLP-03 | Date interpretation relative to a fixed Wednesday | weekend=Sat..Sun, next weekend, tomorrow, sunday, next week, ISO date | Matched expected result (all assertions passed) | PASS |  |
+| GEO-01 | Built-in map of Rwanda | Old names resolve; Musanze is closer to Bigogwe than Kigali; fares grow with distance; "I'm in X" / "ndi i X" set the starting location | Matched expected result (all assertions passed) | PASS |  |
+| NLP-04 | Month interpretation | "in december", "next month", "this month", "mu Kuboza", past month = next year, "may I" is not a month | Matched expected result (all assertions passed) | PASS |  |

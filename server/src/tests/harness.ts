@@ -14,9 +14,10 @@ process.env.DISABLE_RATE_LIMIT = 'true';
 process.env.OLLAMA_URL = '';
 process.env.WEATHER_ENABLED = 'false';
 
-const { createApp } = await import('../app.js');
+const { createApp, ready } = await import('../app.js');
 export const { setFixedNow } = await import('../lib/time.js');
 export const { db } = await import('../database/db.js');
+await ready();
 const server = createApp().listen(0);
 export const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}/api`;
 export const closeServer = () => { server.close(); };

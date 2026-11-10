@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const PALETTE: Record<string, { sky: [string, string]; far: string; mid: string; near: string; sun: string }> = {
   hiking: { sky: ['#f6ecd2', '#e4efe8'], far: '#8fb09b', mid: '#4f7f65', near: '#1f4d3a', sun: '#c9a24a' },
@@ -64,6 +64,31 @@ export function HeroImage({ src, slug = 'hiking', seed = 5 }: { src: string; slu
   return (
     <div className="hero-bg" aria-hidden="true">
       {ok ? <img src={src} alt="" onError={() => setOk(false)} /> : <><Scene slug={slug} seed={seed} />{import.meta.env.DEV && <span className="img-hint">+ {src}</span>}</>}
+    </div>
+  );
+}
+
+/** Home hero: images cross-fade (soft blur-to-sharp fade-in), each shown for its own duration,
+ *  while the whole background drifts slowly and continuously. */
+export function HeroSlideshow({ slides, slug = 'hiking', seed = 5 }: { slides: { src: string; ms: number }[]; slug?: string; seed?: number }) {
+  const [broken, setBroken] = useState<Record<string, boolean>>({});
+  const live = slides.filter((s) => !broken[s.src]);
+  const [i, setI] = useState(0);
+  const cur = live.length ? i % live.length : 0;
+  useEffect(() => {
+    if (live.length < 2) return;
+    const id = window.setTimeout(() => setI((n) => (n + 1) % live.length), live[cur].ms);
+    return () => window.clearTimeout(id);
+  }, [cur, live.length]);
+  if (!live.length) return <HeroImage src={slides[0]?.src || ''} slug={slug} seed={seed} />;
+  return (
+    <div className="hero-bg hero-slides" aria-hidden="true">
+      <div className="hero-drift">
+        {live.map((s, k) => (
+          <img key={s.src} src={s.src} alt="" className={k === cur ? 'on' : ''} loading={k === 0 ? 'eager' : 'lazy'}
+            onError={() => setBroken((b) => ({ ...b, [s.src]: true }))} />
+        ))}
+      </div>
     </div>
   );
 }

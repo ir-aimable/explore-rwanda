@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { DashLayout, PublicLayout, RequireAuth, RequireRole, type DashLink } from './layouts/Layouts';
-import { AdminHome, AdminDestinations, AdminSupport, Announcements, Applications, AuditLog, Categories, Organizers, ReviewsReports, SettingsPage, Users } from './pages/admin/Admin';
+import { AdminHome, AdminDestinations, TransportPrices, AdminSupport, Announcements, Applications, AuditLog, Categories, Organizers, ReviewsReports, SettingsPage, Users } from './pages/admin/Admin';
 import { AllRegistrations, ManageTrips, OrganizerHome, OrganizerProfileEdit, OrganizerReviews, TripForm, TripRegistrations } from './pages/organizer/Organizer';
 import { Destinations, DestinationDetail } from './pages/public/Destinations';
 import Home from './pages/public/Home';
@@ -18,7 +18,7 @@ const organizerLinks: DashLink[] = [
   { icon: 'star', to: '/organizer/reviews', label: 'org.reviews' }, { icon: 'bell', to: '/organizer/notifications', label: 'dash.notifications' }, { icon: 'user', to: '/organizer/profile', label: 'dash.profile' }, { icon: 'shield', to: '/traveler/profile', label: 'dash.change_password' }];
 const adminLinks: DashLink[] = [
   { icon: 'grid', to: '/admin', label: 'dash.overview', end: true }, { icon: 'users', to: '/admin/users', label: 'ad.users', group: 'ad.users' }, { icon: 'flag', to: '/admin/applications', label: 'ad.applications', group: 'ad.users' }, { icon: 'shield', to: '/admin/organizers', label: 'ad.organizers', group: 'ad.users' },
-  { icon: 'pin', to: '/admin/destinations', label: 'ad.destinations', group: 'ad.trips' }, { icon: 'mountain', to: '/admin/trips', label: 'ad.trips', group: 'ad.trips' }, { icon: 'clipboard', to: '/admin/registrations', label: 'ad.registrations', group: 'ad.trips' },
+  { icon: 'pin', to: '/admin/destinations', label: 'ad.destinations', group: 'ad.trips' }, { icon: 'map', to: '/admin/transport', label: 'ad.transport', group: 'ad.trips' }, { icon: 'mountain', to: '/admin/trips', label: 'ad.trips', group: 'ad.trips' }, { icon: 'clipboard', to: '/admin/registrations', label: 'ad.registrations', group: 'ad.trips' },
   { icon: 'star', to: '/admin/reviews', label: 'ad.reviews', group: 'ad.settings' }, { icon: 'help', to: '/admin/support', label: 'ad.support', group: 'ad.settings' }, { icon: 'tag', to: '/admin/categories', label: 'ad.categories', group: 'ad.settings' }, { icon: 'megaphone', to: '/admin/announcements', label: 'ad.announcements', group: 'ad.settings' },
   { icon: 'history', to: '/admin/audit', label: 'ad.audit', group: 'ad.settings' }, { icon: 'settings', to: '/admin/settings', label: 'ad.settings', group: 'ad.settings' }, { icon: 'bell', to: '/admin/notifications', label: 'dash.notifications', group: 'ad.settings' }, { icon: 'user', to: '/admin/profile', label: 'dash.profile', group: 'ad.settings' }];
 
@@ -52,7 +52,7 @@ export default function App() {
       <Route element={<RequireRole roles={['admin']} />}>
         <Route path="/admin" element={<DashLayout links={adminLinks} title="Admin" />}>
           <Route index element={<AdminHome />} /><Route path="users" element={<Users />} /><Route path="applications" element={<Applications />} /><Route path="organizers" element={<Organizers />} />
-          <Route path="destinations" element={<AdminDestinations />} /><Route path="trips" element={<ManageTrips admin />} /><Route path="trips/new" element={<TripForm admin />} /><Route path="trips/:id/edit" element={<TripForm admin />} />
+          <Route path="destinations" element={<AdminDestinations />} /><Route path="transport" element={<TransportPrices />} /><Route path="trips" element={<ManageTrips admin />} /><Route path="trips/new" element={<TripForm admin />} /><Route path="trips/:id/edit" element={<TripForm admin />} />
           <Route path="trips/:id/registrations" element={<TripRegistrations admin />} /><Route path="registrations" element={<AllRegistrations admin />} /><Route path="reviews" element={<ReviewsReports />} />
           <Route path="support" element={<AdminSupport />} /><Route path="categories" element={<Categories />} /><Route path="announcements" element={<Announcements />} /><Route path="audit" element={<AuditLog />} />
           <Route path="settings" element={<SettingsPage />} /><Route path="notifications" element={<Notifications />} /><Route path="profile" element={<ProfileForm />} />

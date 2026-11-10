@@ -1,6 +1,7 @@
 // Rule-based natural-language understanding for English + Kinyarwanda trip requests.
 // Pure functions (no DB access) so they are unit-testable. The DB-backed lexicon is passed in.
 import { addDays, todayStr, weekday } from '../../lib/time.js';
+import { placeTerms } from '../geo/rwanda.js';
 
 export interface Lexicon {
   categories: { slug: string; names: string[] }[];
@@ -14,8 +15,15 @@ export interface Intent {
   location?: string;      // destination / area wanted
   origin?: string;        // travelling from
   budget?: number; currency: 'RWF';
+  /** 'total' (default): the budget must cover the whole trip. 'activity': only the advertised price. */
+  budgetType?: 'total' | 'activity';
+  transportIncluded?: boolean; // "with transport", "transport included"
+  /** How a place in the message was introduced: "to/in X" (destination), "from X" (origin), or bare "X". */
+  placeRole?: 'destination' | 'origin' | 'bare';
   people?: number;
   date?: DateRange;
+  /** Soft preference: rank by closeness to this place without requiring it (used when the place itself has no trip). */
+  near?: string;
   lowCost: boolean;
   easy: boolean; challenging: boolean;
   wantsAvailability: boolean;
@@ -137,6 +145,36 @@ function mondayOfNextWeek(from: string) {
   return addDays(from, toMon);
 }
 
+// Kinyarwanda month names (the leading "u" is often dropped after "mu": "mu Kuboza").
+const MONTHS_RW = ['mutarama', 'gashyantare', 'werurwe', 'mata', 'gicurasi', 'kamena', 'nyakanga', 'kanama', 'nzeri|nzeli', 'u?kwakira', 'u?gushyingo', 'u?kuboza'];
+const lastDay = (y: number, m: number) => new Date(Date.UTC(y, m + 1, 0)).getUTCDate(); // m: 0-11
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/** A whole month: today until the end of the month for the current one, the full month otherwise. */
+export function monthRange(y: number, m: number, today = todayStr()): DateRange {
+  const first = `${y}-${pad(m + 1)}-01`, last = `${y}-${pad(m + 1)}-${pad(lastDay(y, m))}`;
+  return { dateFrom: first < today ? today : first, dateTo: last, label: `${y}-${pad(m + 1)}`, labelKey: 'date_month' };
+}
+
+/** "in December", "december 2026", "next month", "this month", "mu Kuboza", "ukwezi gutaha". */
+function extractMonth(t: string, today: string): DateRange | undefined {
+  const y = Number(today.slice(0, 4)), cm = Number(today.slice(5, 7)) - 1;
+  if (/\b(next month|ukwezi gutaha|ukwezi kuzaza|ukwezi gutaha)\b/.test(t)) return cm === 11 ? monthRange(y + 1, 0, today) : monthRange(y, cm + 1, today);
+  if (/\b(this month|uku kwezi|ukwezi kwa none)\b/.test(t)) return monthRange(y, cm, today);
+  for (let i = 0; i < 12; i++) {
+    // "may" is also a verb ("may I join?"): only accept it with a time word or a year
+    const en = i === 4 ? '(?<=\\b(?:in|during|for|this|next|of|early|late|mid|end of) )may(?= 20\\d\\d)?|may(?= 20\\d\\d)' : MONTHS[i] + (MONTHS[i].length > 5 ? `|${MONTHS[i].slice(0, 3)}${i === 8 ? 't?' : ''}` : '');
+    const rw = i === 3 ? '(?<=\\b(?:mu|ukwa|kwa) )mata' : MONTHS_RW[i];
+    const mm = t.match(new RegExp(`\\b(?:${en}|${rw})\\b(?: (20\\d\\d))?`));
+    if (!mm) continue;
+    let year = mm[1] ? Number(mm[1]) : y;
+    if (!mm[1] && i < cm) year = y + 1; // a past month means next year's
+    if (`${year}-${pad(i + 1)}-${pad(lastDay(year, i))}` < today) return undefined;
+    return monthRange(year, i, today);
+  }
+  return undefined;
+}
+
 export function extractDate(text: string, today = todayStr()): DateRange | undefined {
   const t = tokens(text);
   const has = (re: RegExp) => re.test(t);
@@ -159,6 +197,8 @@ export function extractDate(text: string, today = todayStr()): DateRange | undef
       }
     }
   }
+  const month = extractMonth(t, today);
+  if (month) return month;
   if (has(/\b(today|uyu munsi)\b/)) return { dateFrom: today, dateTo: today, label: today, labelKey: 'date_today', exact: true };
   if (has(/\b(tomorrow|ejo hazaza|ejo)\b/)) { const d = addDays(today, 1); return { dateFrom: d, dateTo: d, label: d, labelKey: 'date_tomorrow', exact: true }; }
   const nextWeek = has(/\b(next week|icyumweru gitaha|icyumweru kizaza)\b/);
@@ -216,6 +256,8 @@ export function parseIntent(raw: string, lex: Lexicon, today = todayStr()): Inte
 
   intent.budget = extractBudget(text);
   if (intent.budget !== undefined) intent.detected.push('budget');
+  if (/\b(activity price only|price only|ticket only|just the (trip|activity|ticket)( price)?|trip price only|excluding transport|igiciro cy urugendo gusa)\b/.test(t)) { intent.budgetType = 'activity'; intent.detected.push('budget_type'); }
+  if (/\b(with transport|transport included|includes? transport|including transport|transport provided|pick ?up included|harimo transport|hari transport)\b/.test(t)) { intent.transportIncluded = true; intent.detected.push('transport'); }
   intent.people = extractPeople(text);
   if (intent.people) intent.detected.push('people');
   intent.date = extractDate(text, today);
@@ -239,18 +281,25 @@ export function parseIntent(raw: string, lex: Lexicon, today = todayStr()): Inte
   if (best && lex.categories.some((c) => c.slug === best!.slug)) { intent.category = best.slug; intent.detected.push('activity'); }
 
   // Origin ("from Kigali", "ngiye kuva i Kigali")
-  const originM = t.match(/(?:\bfrom|\bkuva(?: i| mu)?|\bdepart(?:ing)? from|\bleaving)\s+([a-z]+(?: [a-z]+)?)/);
+  // Also "I'm in Musanze", "I live in Huye", "ndi i Musanze", "ntuye i Rubavu", "mvuye i Kigali": where the traveller is.
+  const originM = t.match(/(?:\bfrom|\bkuva(?: i| mu)?|\bdepart(?:ing)? from|\bleaving|\bi m (?:in|at|based in|staying in)|\bim (?:in|at)|\bi am (?:in|at|based in|staying in)|\bi (?:live|stay) in|\bbased in|\bstaying in|\b(?:ndi|ntuye|mba|nturuka|ndaturuka|mvuye|tuvuye|turi|dutuye) (?:i|mu|ku))\s+([a-z]+(?: [a-z]+)?)/);
   const sortedLoc = [...lex.locations].sort((a, b) => b.term.length - a.term.length);
   if (originM) {
     const frag = originM[1];
-    const hit = sortedLoc.find((l) => frag.startsWith(l.term) || l.term.startsWith(frag.split(' ')[0]));
+    // Exact place first ("musanze" is Musanze, not "Musanze Caves"), then a name the fragment starts with
+    const hit = sortedLoc.find((l) => frag === l.term || frag.startsWith(l.term + ' ')) ?? sortedLoc.find((l) => l.term.startsWith(frag.split(' ')[0]));
     intent.origin = hit ? hit.canonical : frag.split(' ')[0].replace(/^./, (c) => c.toUpperCase());
     intent.detected.push('origin');
   }
   // Destination: any known location term in the text, excluding the origin phrase
   const withoutOrigin = originM ? t.replace(originM[0], ' ') : t;
   const locHit = sortedLoc.find((l) => l.term.length >= 4 && new RegExp(`(^| )${l.term}( |$)`).test(withoutOrigin));
-  if (locHit) { intent.location = locHit.canonical; intent.detected.push('location'); }
+  if (locHit) {
+    intent.location = locHit.canonical; intent.detected.push('location');
+    const before = withoutOrigin.split(new RegExp(`(^| )${locHit.term}( |$)`))[0].trim();
+    intent.placeRole = /\b(to|in|at|near|around|visit|visiting|towards|into|i|mu|ku|hafi ya|kujya)$/.test(before) ? 'destination' : 'bare';
+  }
+  if (intent.origin && !intent.location) intent.placeRole = 'origin';
 
   intent.lowCost = /\b(cheap|cheapest|low cost|low-cost|affordable|budget friendly|inexpensive|bidahenze|bihendutse|igiciro gito)\b/.test(t) || /\blow ?cost\b/.test(t);
   if (intent.lowCost) intent.detected.push('low_cost');
@@ -258,7 +307,7 @@ export function parseIntent(raw: string, lex: Lexicon, today = todayStr()): Inte
   intent.challenging = /\b(challenging|hard|difficult|tough|adventurous|bigoye)\b/.test(t);
   intent.wantsAvailability = /\b(available|availability|still have|spaces|seats|spots|open|ahari|umwanya|imyanya)\b/.test(t);
 
-  const nothing = !intent.category && !intent.location && !intent.origin && intent.budget === undefined && !intent.date && !intent.people && !intent.lowCost && !intent.wantsAvailability && !intent.easy && !intent.challenging;
+  const nothing = !intent.category && !intent.location && !intent.origin && intent.budget === undefined && !intent.date && !intent.people && !intent.lowCost && !intent.wantsAvailability && !intent.easy && !intent.challenging && !intent.transportIncluded;
   if (nothing) {
     const wantsTrip = /\b(trip|trips|travel|visit|go|explore|activity|activities|somewhere|place|places|urugendo|ingendo|gusura|ahantu|jya|genda|ngiye)\b/.test(t);
     const asksHelp = /\b(help|what can you do|what do you do|how does (this|it) work|how do i|how to use|ubufasha|mfasha|ufasha|wakora iki|ukora iki)\b/.test(t);
@@ -274,7 +323,7 @@ export function parseIntent(raw: string, lex: Lexicon, today = todayStr()): Inte
 /** True when nothing useful (no filter at all) was understood from a search request. */
 export function needsClarification(i: Intent) {
   if (i.action !== 'search') return false;
-  return !i.category && !i.location && !i.origin && i.budget === undefined && !i.date && !i.people && !i.lowCost && !i.wantsAvailability && !i.easy && !i.challenging;
+  return !i.category && !i.location && !i.origin && i.budget === undefined && !i.date && !i.people && !i.lowCost && !i.wantsAvailability && !i.easy && !i.challenging && !i.transportIncluded;
 }
 
 /** Follow-up merge: a short message with no activity/location refines the previous request. */
@@ -303,6 +352,8 @@ export function buildLexicon(cats: any[], dests: any[], trips: { starting_locati
     tokens(d.region).split(' ').forEach((w) => add(w, cap(w)));
   }
   for (const t of trips) add(t.starting_location, t.starting_location);
+  // The built-in map of Rwanda: every town, area and site, with old names (Ruhengeri, Gisenyi, Butare…)
+  for (const p of placeTerms()) add(p.term, p.canonical);
   // Common Rwandan place aliases that only help when a matching record exists
   const alias: Record<string, string> = { gisenyi: 'Rubavu', rubavu: 'Rubavu', kibuye: 'Karongi', karongi: 'Karongi', ruhengeri: 'Musanze', volcanoes: 'Musanze', kivu: 'Lake Kivu' };
   for (const [k, v] of Object.entries(alias)) { if (![...locs.values()].some((c) => norm(c).includes(norm(v)))) continue; add(k, v); }

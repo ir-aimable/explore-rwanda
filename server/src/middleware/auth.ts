@@ -19,12 +19,12 @@ export function setSessionCookie(res: Response, userId: number) {
 }
 
 /** Loads the user fresh from the DB each request so role/active changes take effect immediately. */
-export function loadUser(req: Request, _res: Response, next: NextFunction) {
+export async function loadUser(req: Request, _res: Response, next: NextFunction) {
   const token = req.cookies?.[COOKIE];
   if (!token) return next();
   try {
     const p = jwt.verify(token, env.jwtSecret) as unknown as { sub: string };
-    const u = db.prepare(`SELECT u.id,u.email,u.role,u.full_name,u.is_active,o.id AS organizerId,o.status AS organizerStatus
+    const u = await db.prepare(`SELECT u.id,u.email,u.role,u.full_name,u.is_active,o.id AS organizerId,o.status AS organizerStatus
       FROM users u LEFT JOIN organizers o ON o.user_id=u.id WHERE u.id=?`).get(Number(p.sub)) as any;
     if (u && u.is_active) {
       req.user = { id: u.id, email: u.email, role: u.role, full_name: u.full_name,

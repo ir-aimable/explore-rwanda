@@ -12,7 +12,7 @@ Travelers discover destinations and organized trips, ask an AI-style assistant f
 - Kinyarwanda is the default language, English is available (`client/src/i18n`).
 
 ## 2. Stack
-React + TypeScript + Vite + plain CSS + React Router + fetch | Node.js + Express + TypeScript | SQLite (better-sqlite3) | bcrypt, JWT in httpOnly cookie, zod validation, helmet, express-rate-limit, multer.
+React + TypeScript + Vite + plain CSS + React Router + fetch | Node.js + Express + TypeScript | SQLite: a local file in development (better-sqlite3), hosted Turso/libSQL on Vercel | Vercel Blob for uploaded photos on Vercel | bcrypt, JWT in httpOnly cookie, zod validation, helmet, express-rate-limit, multer.
 
 ## 3. Requirements
 Node.js 20+ (tested on 22), npm, Git. No database server needed.
@@ -29,6 +29,32 @@ npm run dev                   # API on :4000, web app on :5173
 Open http://localhost:5173. Single-process mode (as used for the demo): `npm run build` then `npm start` and open http://localhost:4000 (the server serves `client/dist`).
 
 Individually: `npm run dev:server`, `npm run dev:client`. Reset everything: `npm run db:reset`, then init and seed again.
+
+### Deploy on Vercel (everything on Vercel)
+The website is served from Vercel's CDN and the whole Express API runs as one Vercel Function (`api/index.mjs`, built from `server/`). Vercel functions have no permanent disk, so production data lives in two hosted services that have free tiers and are available from the Vercel Marketplace:
+
+| Data | Local development | On Vercel |
+|---|---|---|
+| Database | SQLite file `server/data/explore-rwanda.db` | **Turso** (hosted SQLite/libSQL), same schema and SQL |
+| Uploaded photos | `uploads/` folder | **Vercel Blob** (public URLs stored in the database) |
+| Daily housekeeping (completed trips, reminders) | hourly timer | **Vercel Cron** → `/api/cron/daily` (see `vercel.json`) |
+
+1. Push the repository to GitHub, then in Vercel: **Add New → Project** → import it. Keep the root directory as the repository root; `vercel.json` sets the install, build, output, rewrites and cron.
+2. **Database:** in the project, **Storage → Create → Turso** (Marketplace) and connect it to the project. This adds `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`. Pick a database region close to the Vercel function region.
+3. **Photos:** **Storage → Create → Blob** and connect it. This adds `BLOB_READ_WRITE_TOKEN`.
+4. **Environment variables** (Settings → Environment Variables):
+   - `JWT_SECRET`: a long random string (`node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`)
+   - `ADMIN_EMAIL`, `ADMIN_PASSWORD` (10+ characters): the first administrator, created automatically on the first request
+   - `CRON_SECRET`: any long random string (Vercel sends it to the cron endpoint)
+   - optional: `CLIENT_ORIGIN` (your site URL), `WEATHER_ENABLED`, `GOOGLE_MAPS_API_KEY`
+5. **Deploy.** The tables are created on the first request. Check `https://<your-site>/api/health`: it should say `"database":"turso","uploads":"vercel-blob"`.
+6. **Demo data (optional):** from your computer, with the Turso values from the Vercel project settings:
+   ```bash
+   cd server
+   TURSO_DATABASE_URL=libsql://... TURSO_AUTH_TOKEN=... DEMO_PASSWORD=... npm run db:seed
+   ```
+
+Notes: the demo trip dates are relative to the day you seed, so re-seed before a presentation (create a fresh Turso database first). Rate limits are kept per function instance. Free tiers have usage limits; check the Turso and Vercel pricing pages.
 
 ## 5. Configuration (`.env`)
 See `.env.example`. Secrets are only read from environment variables. `JWT_SECRET` is required in production. No default credentials are shipped: the admin is created from `ADMIN_EMAIL`/`ADMIN_PASSWORD` (min 10 characters); the seed uses `DEMO_PASSWORD` or generates a random one and prints it once. Optional: `OLLAMA_URL` (local model rephrases the assistant's intro sentence only), `WEATHER_ENABLED`.
@@ -72,6 +98,7 @@ Main endpoints (all under `/api`): `auth/{register,login,logout,me,profile,passw
 
 ## 12. Troubleshooting
 - `better-sqlite3` install error: use Node 20/22 LTS and rerun `npm run install:all`.
+- Vercel: `/api/health` fails with "TURSO_DATABASE_URL is not set": connect the Turso database to the project (step 2) and redeploy. Photos fail to upload: connect a Blob store (step 3).
 - Blank admin login: run `npm run db:init` after setting `ADMIN_EMAIL`/`ADMIN_PASSWORD`.
 - Trips look expired: demo dates are relative to the seed day; reseed.
 - Weather says unavailable: the server cannot reach open-meteo.com, or the trip date is more than 15 days away. Trip pages are unaffected.

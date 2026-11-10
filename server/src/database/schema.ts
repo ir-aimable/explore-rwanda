@@ -214,6 +214,27 @@ CREATE TABLE IF NOT EXISTS cost_records (
 CREATE INDEX IF NOT EXISTS idx_cost_trip ON cost_records(trip_id);
 CREATE INDEX IF NOT EXISTS idx_cost_dest ON cost_records(destination_id);
 
+-- Starting locations for public transport (default: Kigali, Musanze, Rubavu, Muhanga, Kayonza, Rwamagana; admins add more).
+CREATE TABLE IF NOT EXISTS transport_hubs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE COLLATE NOCASE,
+  latitude REAL,
+  longitude REAL,
+  is_default INTEGER NOT NULL DEFAULT 0 CHECK (is_default IN (0,1)),
+  sort_order INTEGER NOT NULL DEFAULT 100,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- One-way public transport fare per person from a starting location to a destination (set by admins).
+CREATE TABLE IF NOT EXISTS hub_fares (
+  destination_id INTEGER NOT NULL REFERENCES destinations(id) ON DELETE CASCADE,
+  hub_id INTEGER NOT NULL REFERENCES transport_hubs(id) ON DELETE CASCADE,
+  amount INTEGER NOT NULL CHECK (amount >= 0),
+  updated_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (destination_id, hub_id)
+);
+
 CREATE TABLE IF NOT EXISTS announcements (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title_rw TEXT NOT NULL,

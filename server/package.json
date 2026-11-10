@@ -6,13 +6,16 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
-    "build": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
     "db:init": "tsx src/database/init.ts",
     "db:seed": "tsx src/database/seed.ts",
     "db:reset": "tsx src/database/reset.ts",
-    "test": "tsx --test src/tests/*.test.ts"
+    "test": "tsx --test src/tests/*.test.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@libsql/hrana-client": "0.10.0",
+    "@vercel/blob": "2.8.0",
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^11.5.0",
     "cookie-parser": "^1.4.7",
@@ -36,5 +39,8 @@
     "@types/node": "^22.8.0",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

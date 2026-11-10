@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Avatar, Donut, Empty, Field, Kpi, Loader, Modal, Status, useConfirm } from '../../components/ui';
 import { Icon } from '../../components/Icon';
@@ -213,4 +213,96 @@ export function SettingsPage() {
       <label className="check" style={{ alignSelf: 'end' }}><input type="checkbox" checked={f.allow_organizer_applications === 'true'} onChange={(e) => setF({ ...f, allow_organizer_applications: String(e.target.checked) })} />{t('ad.set_apps')}</label>
       <div className="span2"><button className="btn">{t('c.save')}</button></div></form>)}</Loader>
     {cfg.data && <div className="notice" style={{ marginTop: 16 }}><strong>{t('ad.sources')}</strong><br />{t('ad.sources_d', { w: onoff(cfg.data.weather_enabled), o: onoff(cfg.data.ollama_enabled), m: onoff(cfg.data.maps_embed_enabled) })}</div>}</>);
+}
+
+interface TransportTable {
+  hubs: { id: number; name: string; is_default: boolean; located: boolean }[];
+  destinations: { id: number; name: string; region: string; located: boolean; closest: { id: number; name: string; km: number }[] }[];
+  fares: { destination_id: number; hub_id: number; amount: number }[];
+  estimates: { destination_id: number; hub_id: number; km: number; amount: number }[];
+  fare_per_km: number;
+}
+
+/** Public transport fares: destinations x starting locations. Used by the assistant when a trip price excludes transport. */
+export function TransportPrices() {
+  const { t, money } = useI18n(); const toast = useToast(); const { ask, dialog } = useConfirm();
+  const { data, loading, error, reload } = useLoad(() => api.get<TransportTable>('/admin/transport'), []);
+  const [edits, setEdits] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+  const [f, setF] = useState({ name: '', latitude: '', longitude: '' }); const [err, setErr] = useState<Record<string, string>>({});
+  const key = (d: number, h: number) => `${d}:${h}`;
+  const fare = useMemo(() => new Map((data?.fares || []).map((x) => [key(x.destination_id, x.hub_id), x.amount])), [data]);
+  const est = useMemo(() => new Map((data?.estimates || []).map((x) => [key(x.destination_id, x.hub_id), x])), [data]);
+  const value = (k: string) => (k in edits ? edits[k] : fare.get(k)?.toString() ?? '');
+  const changed = Object.entries(edits).filter(([k, v]) => (v === '' ? null : Number(v)) !== (fare.get(k) ?? null));
+
+  async function save() {
+    if (!changed.length) return;
+    setSaving(true);
+    try {
+      const r = await api.put<{ saved: number; cleared: number }>('/admin/transport/fares', { fares: changed.map(([k, v]) => {
+        const [destination_id, hub_id] = k.split(':').map(Number);
+        return { destination_id, hub_id, amount: v === '' ? null : Math.round(Number(v)) };
+      }) });
+      toast.ok(t('ad.tr_saved', { n: r.saved + r.cleared })); setEdits({}); reload();
+    } catch (x) { toast.fail(x); } finally { setSaving(false); }
+  }
+  function fill() {
+    const next = { ...edits };
+    for (const [k, e] of est) if (!fare.has(k) && !(k in next)) next[k] = String(e.amount);
+    setEdits(next);
+  }
+  async function addHub(e: React.FormEvent) {
+    e.preventDefault(); setErr({});
+    const body: any = { name: f.name.trim() };
+    if (f.latitude !== '' || f.longitude !== '') { body.latitude = Number(f.latitude); body.longitude = Number(f.longitude); }
+    try {
+      const r = await api.post<{ located: boolean; matched: string | null }>('/admin/transport/hubs', body);
+      if (r.located) toast.ok(t('ad.tr_located', { p: r.matched || body.name })); else toast.ok(t('ad.tr_not_located'));
+      setF({ name: '', latitude: '', longitude: '' }); reload();
+    } catch (x) { setErr(errs(x)); toast.fail(x); }
+  }
+
+  return (<>
+    <div className="dash-head"><div><h2>{t('ad.transport')}</h2><p className="muted" style={{ maxWidth: 820 }}>{t('ad.transport_sub')}</p></div></div>
+    <Loader loading={loading} error={error} reload={reload}>{data && (<div className="stack">
+      <div className="row spread">
+        <div className="row">
+          <button className="btn" disabled={!changed.length || saving} onClick={save}>{t('ad.tr_save')}</button>
+          <button className="btn btn-ghost" onClick={fill}>{t('ad.tr_fill')}</button>
+          {changed.length > 0 && <span className="small muted">{t('ad.tr_unsaved', { n: changed.length })}</span>}
+        </div>
+        <span className="small muted">{t('ad.tr_rate', { r: data.fare_per_km })}</span>
+      </div>
+      {data.destinations.length === 0 ? <Empty>{t('ad.tr_no_dests')}</Empty> : (
+        <div className="table-wrap"><table className="t fare-table"><thead><tr>
+          <th>{t('ad.tr_destination')}</th>
+          {data.hubs.map((h) => <th key={h.id}><div className="row" style={{ gap: 6, flexWrap: 'nowrap' }}>{h.name}
+            {h.is_default ? <span className="pill pill-grey">{t('ad.tr_default')}</span>
+              : <button className="btn btn-ghost btn-sm" aria-label={`${t('c.delete')} ${h.name}`} title={t('c.delete')} onClick={() => ask(t('c.confirm_delete'), async () => { try { await api.del(`/admin/transport/hubs/${h.id}`); reload(); } catch (x) { toast.fail(x); } })}><Icon name="x" size={13} /></button>}
+          </div>{!h.located && <div className="small" style={{ fontWeight: 400 }}>{t('ad.tr_not_located')}</div>}</th>)}
+        </tr></thead><tbody>
+          {data.destinations.map((d) => (<tr key={d.id}>
+            <td><strong>{d.name}</strong><div className="small muted">{d.region}</div>
+              {d.closest.length > 0 && <div className="small muted">{t('ad.tr_closest')}: {d.closest.map((c) => `${c.name} (${c.km} km)`).join(', ')}</div>}</td>
+            {data.hubs.map((h) => {
+              const k = key(d.id, h.id), e = est.get(k), v = value(k);
+              return (<td key={h.id} className={`${d.closest[0]?.id === h.id ? 'closest' : ''} ${k in edits && changed.some(([c]) => c === k) ? 'dirty' : ''}`}>
+                <input type="number" min={0} step={100} inputMode="numeric" aria-label={`${d.name} – ${h.name}`} value={v}
+                  placeholder={e ? String(e.amount) : '–'} onChange={(ev) => setEdits({ ...edits, [k]: ev.target.value })} />
+                {e && <div className="small muted">{t('ad.tr_est', { n: money(e.amount), km: e.km })}</div>}
+              </td>);
+            })}
+          </tr>))}
+        </tbody></table></div>)}
+      <form className="card card-pad stack" onSubmit={addHub}>
+        <h3 style={{ margin: 0 }}>{t('ad.tr_add_start')}</h3>
+        <div className="row">
+          <Field label={t('c.name')} error={err.name}><input value={f.name} placeholder={t('ad.tr_start_name')} onChange={(e) => setF({ ...f, name: e.target.value })} required minLength={2} maxLength={40} /></Field>
+          <Field label={t('ad.tr_lat')} error={err.latitude}><input type="number" step="any" value={f.latitude} onChange={(e) => setF({ ...f, latitude: e.target.value })} /></Field>
+          <Field label={t('ad.tr_lng')} error={err.longitude}><input type="number" step="any" value={f.longitude} onChange={(e) => setF({ ...f, longitude: e.target.value })} /></Field>
+          <button className="btn" style={{ alignSelf: 'end' }}><Icon name="plus" size={14} /> {t('c.create')}</button>
+        </div>
+      </form>
+    </div>)}</Loader>{dialog}</>);
 }

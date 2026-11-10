@@ -35,7 +35,7 @@ export function shapeTrip(row: any, opts: { includePrivate?: boolean } = {}) {
   const remaining = Math.max(0, row.capacity - row.approved_seats);
   const out: any = {
     id: row.id, title: row.title, description: row.description, cover_image: row.cover_image,
-    destination: { id: row.destination_id, name: row.destination_name, slug: row.destination_slug, region: row.destination_region },
+    destination: { id: row.destination_id, name: row.destination_name, slug: row.destination_slug, region: row.destination_region, latitude: row.dest_lat, longitude: row.dest_lng },
     category: { id: row.category_id, slug: row.category_slug, name_rw: row.category_name_rw, name_en: row.category_name_en },
     organizer: { id: row.organizer_id, display_name: row.organizer_name, verified: row.organizer_status === 'approved' },
     starting_location: row.starting_location, meeting_point: row.meeting_point,
@@ -60,10 +60,12 @@ export interface TripFilters {
   maxPrice?: number; minPrice?: number; date?: string; dateFrom?: string; dateTo?: string;
   weekdays?: number[]; minSeats?: number; availableOnly?: boolean; organizerId?: number;
   sort?: 'date' | 'price_asc' | 'price_desc'; limit?: number; offset?: number;
+  /** Internal use only (counts, search snapshot): no page-size cap. */
+  unlimited?: boolean;
 }
 
 /** PUBLIC listing: only published trips of approved organizers that have not started. */
-export function listPublicTrips(f: TripFilters) {
+export async function listPublicTrips(f: TripFilters) {
   const where = [`t.status='published'`, `o.status='approved'`, `(t.trip_date || 'T' || t.start_time) > ?`];
   const args: any[] = [nowStr()];
   const add = (sql: string, ...a: any[]) => { where.push(sql); args.push(...a); };
@@ -83,7 +85,7 @@ export function listPublicTrips(f: TripFilters) {
   }
   const order = f.sort === 'price_asc' ? 't.price ASC, t.trip_date ASC'
     : f.sort === 'price_desc' ? 't.price DESC' : 't.trip_date ASC, t.start_time ASC';
-  let rows = db.prepare(`${BASE} WHERE ${where.join(' AND ')} ORDER BY ${order}`).all(...args) as any[];
+  let rows = await db.prepare(`${BASE} WHERE ${where.join(' AND ')} ORDER BY ${order}`).all(...args) as any[];
   let shaped = rows.map((r) => shapeTrip(r));
   if (f.weekdays?.length) {
     shaped = shaped.filter((t) => f.weekdays!.includes(new Date(t.trip_date + 'T00:00:00Z').getUTCDay()));
@@ -92,25 +94,25 @@ export function listPublicTrips(f: TripFilters) {
   if (f.minSeats) shaped = shaped.filter((t) => t.is_open && t.remaining_spaces >= f.minSeats!);
   const total = shaped.length;
   const offset = f.offset ?? 0;
-  const limit = Math.min(f.limit ?? 24, 100);
+  const limit = f.unlimited ? Infinity : Math.min(f.limit ?? 24, 100);
   return { total, items: shaped.slice(offset, offset + limit) };
 }
 
-export function getTripRow(id: number) {
-  return db.prepare(`${BASE} WHERE t.id=?`).get(id) as any | undefined;
+export async function getTripRow(id: number) {
+  return await db.prepare(`${BASE} WHERE t.id=?`).get(id) as any | undefined;
 }
-export function getTrip(id: number, opts: { includePrivate?: boolean } = {}) {
-  const r = getTripRow(id);
+export async function getTrip(id: number, opts: { includePrivate?: boolean } = {}) {
+  const r = await getTripRow(id);
   return r ? shapeTrip(r, opts) : undefined;
 }
-export function listTripsRaw(where: string, ...args: any[]) {
-  return (db.prepare(`${BASE} ${where}`).all(...args) as any[]);
+export async function listTripsRaw(where: string, ...args: any[]) {
+  return (await db.prepare(`${BASE} ${where}`).all(...args) as any[]);
 }
-export function tripImages(tripId: number) {
-  return (db.prepare('SELECT id,path FROM trip_images WHERE trip_id=? ORDER BY id').all(tripId) as any[]);
+export async function tripImages(tripId: number) {
+  return (await db.prepare('SELECT id,path FROM trip_images WHERE trip_id=? ORDER BY id').all(tripId) as any[]);
 }
-export function tripCosts(tripId: number, destinationId: number) {
-  return db.prepare(`SELECT id,cost_type,label,amount,currency,source_type,source_note,
+export async function tripCosts(tripId: number, destinationId: number) {
+  return await db.prepare(`SELECT id,cost_type,label,amount,currency,source_type,source_note,
       CASE WHEN trip_id IS NULL THEN 'destination' ELSE 'trip' END AS scope
     FROM cost_records WHERE trip_id=? OR (trip_id IS NULL AND destination_id=?) ORDER BY scope DESC, id`).all(tripId, destinationId);
 }

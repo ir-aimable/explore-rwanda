@@ -89,5 +89,12 @@ export const assistantSchema = z.object({
     location: z.string().max(100).optional(), people: z.number().int().min(1).max(10).optional(),
     date: z.object({ dateFrom: date, dateTo: date, weekdays: z.array(z.number().int().min(0).max(6)).optional(),
       label: z.string().max(60), labelKey: z.string().max(40), exact: z.boolean().optional() }).optional(),
+    origin: z.string().trim().max(100).optional(),
+    budgetType: z.enum(['total', 'activity']).optional(),
+    transportIncluded: z.boolean().optional(),
+    lastRequest: z.string().max(300).optional(),
+    lastTripIds: z.array(z.number().int().positive()).max(50).optional(),
+    lastNearbyIds: z.array(z.number().int().positive()).max(50).optional(),
+    pending: z.union([z.object({ kind: z.literal('place_role'), place: z.string().trim().min(1).max(100) }), z.object({ kind: z.literal('origin') })]).optional(),
   }).partial().optional(),
 });

@@ -21,13 +21,17 @@ export function Loader({ loading, error, reload, children }: { loading: boolean;
 
 export function Modal({ title, onClose, children, wide }: { title: string; onClose: () => void; children: ReactNode; wide?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
+  // Callers pass a new onClose function on every render; keep the latest one in a ref so the effect
+  // below runs only when the modal opens. Re-running it on each keystroke moved focus back to the first field.
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   useEffect(() => {
     const prev = document.activeElement as HTMLElement | null;
     ref.current?.querySelector<HTMLElement>('input,select,textarea,button')?.focus();
-    const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const k = (e: KeyboardEvent) => { if (e.key === 'Escape') closeRef.current(); };
     document.addEventListener('keydown', k);
     return () => { document.removeEventListener('keydown', k); prev?.focus(); };
-  }, [onClose]);
+  }, []);
   return (
     <div className="modal-back" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className={`modal ${wide ? 'wide' : ''}`} role="dialog" aria-modal="true" aria-label={title} ref={ref}>

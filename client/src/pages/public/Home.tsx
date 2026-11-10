@@ -2,13 +2,16 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Assistant } from '../../components/Assistant';
 import { DestinationCard, TripCard } from '../../components/Cards';
-import { HeroImage } from '../../components/Cover';
+import { HeroSlideshow } from '../../components/Cover';
 import { Icon, Robot } from '../../components/Icon';
 import { Empty, Loader } from '../../components/ui';
 import { useLoad } from '../../hooks/useLoad';
 import { useI18n } from '../../i18n';
 import { api, qs } from '../../services/api';
 import type { Category, Destination, Trip } from '../../types';
+
+// Hero background slideshow.
+const HERO_SLIDES = [{ src: '/images/hero.jpg', ms: 10000 }, { src: '/images/hero3.jpg', ms: 10000 }];
 
 export function SearchSuggest({ value, onChange, id, placeholder }: { value: string; onChange: (v: string) => void; id: string; placeholder?: string }) {
   const { lang } = useI18n(); const [items, setItems] = useState<string[]>([]);
@@ -24,7 +27,7 @@ export function SearchSuggest({ value, onChange, id, placeholder }: { value: str
 export default function Home() {
   const { t } = useI18n(); const nav = useNavigate();
   const [what, setWhat] = useState(''); const [when, setWhen] = useState('any'); const [date, setDate] = useState(''); const [budget, setBudget] = useState('');
-  const dests = useLoad(() => api.get<{ items: Destination[] }>('/destinations'), []);
+  const dests = useLoad(() => api.get<{ items: Destination[] }>('/destinations?sort=popular'), []);
   const cats = useLoad(() => api.get<{ items: Category[] }>('/categories'), []);
   const trips = useLoad(() => api.get<{ items: Trip[] }>('/search?all=1&sort=date&lang=rw').then((r: any) => { const open = (r.trips as Trip[]).filter((x) => x.is_open); return { items: open.slice(0, 6), total: open.length }; }), []);
   const go = (e: React.FormEvent) => { e.preventDefault(); nav('/trips' + qs({ q: what, max_price: budget, weekend: when === 'weekend' ? 1 : undefined, date: when === 'date' ? date : undefined })); };
@@ -32,7 +35,7 @@ export default function Home() {
   return (
     <>
       <section className="hero">
-        <HeroImage src="/images/hero.jpg" slug="hiking" seed={5} />
+        <HeroSlideshow slides={HERO_SLIDES} />
         <div className="container hero-in">
           <h1 className="poster-title"><span className="t-script">{t('poster.hero.top')}</span><span className="t-poster">{t('poster.hero.big')}</span><span className="t-script">{t('poster.hero.bottom')}</span></h1>
           <p className="lead">{t('home.sub')}</p>

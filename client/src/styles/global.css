@@ -95,6 +95,15 @@ input:focus, select:focus, textarea:focus { border-color: var(--forest); outline
 .hero { position: relative; color: #fff; overflow: hidden; isolation: isolate; background: var(--forest-night); }
 .hero-bg { position: absolute; inset: 0; z-index: -2; }
 .hero-bg img, .hero-bg svg { width: 100%; height: 100%; object-fit: cover; }
+.hero-slides { overflow: hidden; }
+/* Slow, continuous drift of the whole background (independent of slide changes) */
+.hero-drift { position: absolute; inset: 0; animation: hero-drift 36s ease-in-out infinite alternate; will-change: transform; }
+.hero-slides img { position: absolute; inset: 0; opacity: 0; filter: blur(6px) saturate(1.1); transform: scale(.97);
+  transition: opacity 3s ease, filter 3s ease, transform 3s ease; }  /* leaving: 3s soft fade-out with zoom-out */
+.hero-slides img.on { opacity: 1; filter: none; transform: scale(1);
+  transition: opacity 1.6s ease, filter 1.8s ease, transform 2.4s ease; }  /* arriving: soft blur-to-sharp fade-in */
+@keyframes hero-drift { 0% { transform: scale(1.06) translate3d(-1.2%, -0.8%, 0); } 50% { transform: scale(1.12) translate3d(1%, 0.6%, 0); } 100% { transform: scale(1.08) translate3d(1.4%, -1%, 0); } }
+@media (prefers-reduced-motion: reduce) { .hero-drift { animation: none; } }
 .hero::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(8,30,16,.78) 0%, rgba(8,30,16,.45) 48%, rgba(8,30,16,.08) 100%); }
 .hero-in { padding-top: 64px; padding-bottom: 72px; }
 .hero h1 { color: #fff; max-width: 15ch; text-wrap: balance; text-shadow: 0 2px 20px rgba(0,0,0,.25); }
@@ -394,3 +403,20 @@ table.t td { padding: 11px 14px; border-top: 1px solid var(--line); vertical-ali
 .detail-hero h1.t-poster-sm { color: #fff7e2; }
 .auth-art .kicker { font-size: 2.6rem; }
 .auth-art h2.t-poster { font-size: 3.2rem; color: #fff7e2; }
+
+/* assistant: current search + cost lines */
+.plan-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.pill-orange { background: var(--orange-soft); color: #8a5300; }
+.cost-lines { width: 100%; margin-top: 8px; border-collapse: collapse; }
+.cost-lines td { padding: 3px 0; border-top: 1px dashed var(--line); vertical-align: top; overflow-wrap: anywhere; }
+.cost-lines td:last-child { text-align: right; white-space: nowrap; padding-left: 10px; font-weight: 600; }
+.cost-lines tr.unknown td:last-child { color: #8a5300; }
+.cost-lines tr.total td { border-top: 1px solid var(--line-strong); text-align: left; font-weight: 400; white-space: normal; padding-top: 6px; }
+
+/* Admin transport fare table */
+table.fare-table td { padding: 8px 10px; }
+table.fare-table input { width: 104px; padding: 6px 8px; }
+table.fare-table td.closest { background: var(--forest-tint); }
+table.fare-table td.dirty input { border-color: var(--gold-deep); background: var(--gold-soft); }
+table.fare-table input::placeholder { color: var(--ink-soft); opacity: .55; }
+.cost-lines tr.estimated td:last-child { color: var(--ink-soft); }

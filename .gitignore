@@ -5,3 +5,4 @@ server/data/
 uploads/*
 !uploads/.gitkeep
 client/dist/
+server/dist/
