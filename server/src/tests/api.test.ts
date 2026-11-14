@@ -775,3 +775,47 @@ test('nlp unit checks', async () => {
     assert.equal(r('14 december'), '2026-12-14..2026-12-14');
   });
 });
+
+test('password reset and google sign-in', async () => {
+  const { createHash } = await import('node:crypto');
+  const sha = (v: string) => createHash('sha256').update(v).digest('hex');
+  const resetUser = new Client();
+  const uid = await reg(resetUser, 'reset@test.local');
+  const tokenCount = () => (db.prepare('SELECT COUNT(*) c FROM password_reset_tokens WHERE user_id=?').get(uid) as any).c as number;
+
+  await T('RESET-01', 'Forgot password gives the same answer for known and unknown emails', 'HTTP 200 ok for both; token stored (hashed) only for the real account', async () => {
+    const a = await anon.post('/auth/forgot-password', { email: 'nobody@test.local' });
+    const b = await anon.post('/auth/forgot-password', { email: 'RESET@test.local' });
+    assert.equal(a.status, 200); assert.equal(b.status, 200); assert.deepEqual(a.json, b.json);
+    await new Promise((r) => setTimeout(r, 20));
+    assert.equal(tokenCount(), 1);
+  });
+  await T('RESET-02', 'Valid reset token sets a new password and logs the user in', 'HTTP 200; new password works, old one fails', async () => {
+    const token = 'a'.repeat(64);
+    db.prepare("INSERT INTO password_reset_tokens (user_id,token_hash,expires_at) VALUES (?,?,datetime('now','+30 minutes'))").run(uid, sha(token));
+    const c = new Client();
+    const r = await c.post('/auth/reset-password', { token, password: 'BrandNew123' });
+    assert.equal(r.status, 200); assert.equal(r.json.user.id, uid);
+    assert.equal((await c.get('/auth/me')).json.user.id, uid);
+    assert.equal((await new Client().post('/auth/login', { email: 'reset@test.local', password: PW })).status, 401);
+    assert.equal((await new Client().post('/auth/login', { email: 'reset@test.local', password: 'BrandNew123' })).status, 200);
+  });
+  await T('RESET-03', 'Reset token cannot be reused, and expired or unknown tokens are rejected', 'HTTP 400 invalid_token', async () => {
+    assert.equal((await anon.post('/auth/reset-password', { token: 'a'.repeat(64), password: 'Another123' })).json.error, 'invalid_token');
+    const old = 'b'.repeat(64);
+    db.prepare("INSERT INTO password_reset_tokens (user_id,token_hash,expires_at) VALUES (?,?,datetime('now','-1 minutes'))").run(uid, sha(old));
+    assert.equal((await anon.post('/auth/reset-password', { token: old, password: 'Another123' })).json.error, 'invalid_token');
+    assert.equal((await anon.post('/auth/reset-password', { token: 'c'.repeat(64), password: 'Another123' })).status, 400);
+  });
+  await T('RESET-04', 'Reset still enforces the password strength rule', 'HTTP 400 validation_error', async () => {
+    const token = 'd'.repeat(64);
+    db.prepare("INSERT INTO password_reset_tokens (user_id,token_hash,expires_at) VALUES (?,?,datetime('now','+30 minutes'))").run(uid, sha(token));
+    const r = await anon.post('/auth/reset-password', { token, password: 'onlyletters' });
+    assert.equal(r.status, 400); assert.equal(r.json.error, 'validation_error');
+  });
+  await T('GOOGLE-01', 'Google sign-in is off when no client ID is configured', 'providers.google=null; /auth/google returns 400 google_not_configured', async () => {
+    assert.equal((await anon.get('/auth/providers')).json.google, null);
+    const r = await anon.post('/auth/google', { credential: 'x'.repeat(40) });
+    assert.equal(r.status, 400); assert.equal(r.json.error, 'google_not_configured');
+  });
+});

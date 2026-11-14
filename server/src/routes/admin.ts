@@ -182,14 +182,16 @@ const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]
 adminRouter.get('/destinations', async (_req, res) => {
   const items = await db.prepare('SELECT * FROM destinations ORDER BY name').all() as any[];
   const links = await db.prepare('SELECT destination_id,category_id FROM destination_categories').all();
-  res.json({ items: items.map((d) => ({ ...d, category_ids: links.filter((r) => r.destination_id === d.id).map((r) => r.category_id) })) });
+  const images = await db.prepare('SELECT id,destination_id,path,caption FROM destination_images ORDER BY id').all();
+  res.json({ items: items.map((d) => ({ ...d, category_ids: links.filter((r) => r.destination_id === d.id).map((r) => r.category_id),
+    images: images.filter((i) => i.destination_id === d.id).map(({ destination_id: _, ...i }) => i) })) });
 });
 adminRouter.post('/destinations', validateBody(destinationSchema), async (req, res) => {
   const b = req.body;
   let slug = slugify(b.name); if (await one('SELECT 1 x FROM destinations WHERE slug=?', slug)) slug += '-' + Date.now().toString(36);
   const id = await db.transaction(async () => {
-    const r = await db.prepare('INSERT INTO destinations (name,slug,region,description_rw,description_en,latitude,longitude,is_published) VALUES (?,?,?,?,?,?,?,?)')
-      .run(b.name, slug, b.region, b.description_rw, b.description_en, b.latitude ?? null, b.longitude ?? null, b.is_published ? 1 : 0);
+    const r = await db.prepare('INSERT INTO destinations (name,slug,region,description_rw,description_en,info_rw,info_en,latitude,longitude,is_published) VALUES (?,?,?,?,?,?,?,?,?,?)')
+      .run(b.name, slug, b.region, b.description_rw, b.description_en, b.info_rw || null, b.info_en || null, b.latitude ?? null, b.longitude ?? null, b.is_published ? 1 : 0);
     await saveDestCats(Number(r.lastInsertRowid), b.category_ids);
     return Number(r.lastInsertRowid);
   });
@@ -200,8 +202,8 @@ adminRouter.put('/destinations/:id', validateBody(destinationSchema), async (req
   const b = req.body; const id = Number(req.params.id);
   if (!await one('SELECT 1 x FROM destinations WHERE id=?', id)) throw notFound();
   await db.transaction(async () => {
-    await db.prepare("UPDATE destinations SET name=?,region=?,description_rw=?,description_en=?,latitude=?,longitude=?,is_published=?,updated_at=datetime('now') WHERE id=?")
-      .run(b.name, b.region, b.description_rw, b.description_en, b.latitude ?? null, b.longitude ?? null, b.is_published ? 1 : 0, id);
+    await db.prepare("UPDATE destinations SET name=?,region=?,description_rw=?,description_en=?,info_rw=?,info_en=?,latitude=?,longitude=?,is_published=?,updated_at=datetime('now') WHERE id=?")
+      .run(b.name, b.region, b.description_rw, b.description_en, b.info_rw || null, b.info_en || null, b.latitude ?? null, b.longitude ?? null, b.is_published ? 1 : 0, id);
     await saveDestCats(id, b.category_ids);
   });
   await audit(req, req.user!, 'destination_update', 'destination', id, { name: b.name });
@@ -210,7 +212,9 @@ adminRouter.put('/destinations/:id', validateBody(destinationSchema), async (req
 adminRouter.delete('/destinations/:id', async (req, res) => {
   const id = Number(req.params.id); const d = await one('SELECT * FROM destinations WHERE id=?', id); if (!d) throw notFound();
   if ((await one('SELECT COUNT(*) c FROM trips WHERE destination_id=?', id)).c > 0) throw conflict('destination_has_trips');
+  const gallery = await db.prepare('SELECT path FROM destination_images WHERE destination_id=?').all(id) as any[];
   await db.prepare('DELETE FROM destinations WHERE id=?').run(id); await removeUpload(d.image_path);
+  for (const g of gallery) await removeUpload(g.path);
   await audit(req, req.user!, 'destination_delete', 'destination', id, { name: d.name });
   res.json({ ok: true });
 });
@@ -221,6 +225,21 @@ adminRouter.post('/destinations/:id/image', async (req, res) => {
   await db.prepare("UPDATE destinations SET image_path=?, updated_at=datetime('now') WHERE id=?").run(p, d.id);
   await audit(req, req.user!, 'destination_image', 'destination', d.id);
   res.status(201).json({ path: p });
+});
+// Gallery: extra photos for the destination page (max 12)
+adminRouter.post('/destinations/:id/gallery', async (req, res) => {
+  const d = await one('SELECT id FROM destinations WHERE id=?', Number(req.params.id)); if (!d) throw notFound();
+  if ((await one('SELECT COUNT(*) c FROM destination_images WHERE destination_id=?', d.id)).c >= 12) throw conflict('gallery_full');
+  const p = await receiveImage(req, res);
+  const r = await db.prepare('INSERT INTO destination_images (destination_id,path) VALUES (?,?)').run(d.id, p);
+  await audit(req, req.user!, 'destination_gallery_add', 'destination', d.id);
+  res.status(201).json({ id: Number(r.lastInsertRowid), path: p });
+});
+adminRouter.delete('/destinations/:id/gallery/:imageId', async (req, res) => {
+  const img = await one('SELECT * FROM destination_images WHERE id=? AND destination_id=?', Number(req.params.imageId), Number(req.params.id)); if (!img) throw notFound();
+  await db.prepare('DELETE FROM destination_images WHERE id=?').run(img.id); await removeUpload(img.path);
+  await audit(req, req.user!, 'destination_gallery_remove', 'destination', img.destination_id);
+  res.json({ ok: true });
 });
 
 // ---------- Categories ----------

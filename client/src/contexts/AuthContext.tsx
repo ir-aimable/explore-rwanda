@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import { api } from '../services/api';
 import type { User } from '../types';
 
-interface Ctx { user: User | null; ready: boolean; refresh: () => Promise<void>; login: (e: string, p: string) => Promise<User>; register: (b: any) => Promise<User>; logout: () => Promise<void> }
+interface Ctx { user: User | null; ready: boolean; refresh: () => Promise<void>; login: (e: string, p: string) => Promise<User>; register: (b: any) => Promise<User>; googleLogin: (credential: string, lang?: string) => Promise<{ user: User; created: boolean }>; resetPassword: (token: string, password: string) => Promise<User | null>; logout: () => Promise<void> }
 const C = createContext<Ctx>(null as unknown as Ctx);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -15,8 +15,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => { refresh(); }, [refresh]);
   const login = async (email: string, password: string) => { const r = await api.post<{ user: User }>('/auth/login', { email, password }); setUser(r.user); return r.user; };
   const register = async (b: any) => { const r = await api.post<{ user: User }>('/auth/register', b); setUser(r.user); return r.user; };
+  const googleLogin = async (credential: string, preferred_language?: string) => { const r = await api.post<{ user: User; created: boolean }>('/auth/google', { credential, preferred_language }); setUser(r.user); return r; };
+  const resetPassword = async (token: string, password: string) => { const r = await api.post<{ user: User | null }>('/auth/reset-password', { token, password }); setUser(r.user); return r.user; };
   const logout = async () => { await api.post('/auth/logout'); setUser(null); };
-  return <C.Provider value={{ user, ready, refresh, login, register, logout }}>{children}</C.Provider>;
+  return <C.Provider value={{ user, ready, refresh, login, register, googleLogin, resetPassword, logout }}>{children}</C.Provider>;
 }
 export const useAuth = () => useContext(C);
 export const homeFor = (u: User) => (u.role === 'admin' ? '/admin' : u.role === 'organizer' ? '/organizer' : '/traveler');

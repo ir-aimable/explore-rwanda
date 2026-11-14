@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { homeFor, useAuth } from '../contexts/AuthContext';
 import { useI18n, type Lang } from '../i18n';
+import { useTheme, type ThemePref } from '../theme';
 import { Icon, Robot } from './Icon';
 import { initials, Logo } from './ui';
 
@@ -12,6 +13,21 @@ export function LangSwitch() {
       <option value="rw">Kinyarwanda</option>
       <option value="en">English</option>
     </select>
+  );
+}
+
+const THEME_NEXT: Record<ThemePref, ThemePref> = { system: 'light', light: 'dark', dark: 'system' };
+const THEME_ICON = { system: 'monitor', light: 'sun', dark: 'moon' } as const;
+
+/** Cycles device default → light → dark. Starts on the device setting until the user picks one. */
+export function ThemeSwitch({ withLabel }: { withLabel?: boolean }) {
+  const { pref, setPref } = useTheme(); const { t } = useI18n();
+  const label = `${t('theme.label')}: ${t(`theme.${pref}`)}`;
+  return (
+    <button type="button" className={`theme-switch${withLabel ? ' with-label' : ''}`} onClick={() => setPref(THEME_NEXT[pref])}
+      title={`${label} (${t('theme.switch')})`} aria-label={`${label}, ${t('theme.switch')}`}>
+      <Icon key={pref} name={THEME_ICON[pref]} size={18} className="theme-ico" />{withLabel && <span>{label}</span>}
+    </button>
   );
 }
 
@@ -33,6 +49,7 @@ export function Header() {
             ? <NavLink key={to} to={to} className="nav-ai" title={label} aria-label={label}><Robot size={24} small />{t('nav.planner_short')}</NavLink>
             : <NavLink key={to} to={to} end={to === '/'}>{label}</NavLink>)}
           <span className="nav-tools">
+            <ThemeSwitch />
             <LangSwitch />
             {user ? (<>
               <Link to={homeFor(user)} className="avatar" title={t('nav.dashboard')} aria-label={t('nav.dashboard')}>
@@ -57,7 +74,7 @@ export function Header() {
           <Link to="/login" onClick={() => setOpen(false)}>{t('nav.login')}</Link>
           <Link to="/register" onClick={() => setOpen(false)}>{t('nav.register')}</Link>
         </>)}
-        <LangSwitch />
+        <div className="mobile-tools"><LangSwitch /><ThemeSwitch withLabel /></div>
       </nav>
     </header>
   );
@@ -69,7 +86,7 @@ export function Footer() {
     <footer className="site-footer">
       <div className="container">
         <div className="footer-grid">
-          <div><Brand light /><p style={{ marginTop: 12 }}>{t('brand.tagline')}</p><p className="small">{t('footer.demo')}</p></div>
+          <div><Brand light /><p style={{ marginTop: 12 }}>{t('brand.tagline')}</p></div>
           <div><h4>{t('footer.explore')}</h4><ul><li><Link to="/destinations">{t('nav.destinations')}</Link></li><li><Link to="/trips">{t('nav.trips')}</Link></li><li><Link to="/planner">{t('nav.planner')}</Link></li></ul></div>
           <div><h4>{t('footer.platform')}</h4><ul><li><Link to="/about">{t('nav.about')}</Link></li><li><Link to="/contact">{t('nav.contact')}</Link></li><li><Link to="/become-organizer">{t('nav.organizer_apply')}</Link></li></ul></div>
         </div>

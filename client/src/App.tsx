@@ -4,7 +4,7 @@ import { AdminHome, AdminDestinations, TransportPrices, AdminSupport, Announceme
 import { AllRegistrations, ManageTrips, OrganizerHome, OrganizerProfileEdit, OrganizerReviews, TripForm, TripRegistrations } from './pages/organizer/Organizer';
 import { Destinations, DestinationDetail } from './pages/public/Destinations';
 import Home from './pages/public/Home';
-import { About, BecomeOrganizer, Contact, Login, NotFound, OrganizerProfile, Planner, Register } from './pages/public/Pages';
+import { About, BecomeOrganizer, Contact, ForgotPassword, Login, NotFound, OrganizerProfile, Planner, Register, ResetPassword } from './pages/public/Pages';
 import TripDetail from './pages/public/TripDetail';
 import Trips from './pages/public/Trips';
 import { Notifications, ProfileForm } from './pages/Shared';
@@ -29,6 +29,7 @@ export default function App() {
         <Route path="/" element={<Home />} /><Route path="/destinations" element={<Destinations />} /><Route path="/destinations/:id" element={<DestinationDetail />} />
         <Route path="/trips" element={<Trips />} /><Route path="/trips/:id" element={<TripDetail />} /><Route path="/planner" element={<Planner />} />
         <Route path="/about" element={<About />} /><Route path="/contact" element={<Contact />} /><Route path="/login" element={<Login />} /><Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} /><Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/become-organizer" element={<BecomeOrganizer />} />
         <Route element={<RequireAuth />}><Route path="/organizers/:id" element={<OrganizerProfile />} /></Route>
         <Route path="*" element={<NotFound />} />

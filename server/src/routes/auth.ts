@@ -1,10 +1,13 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
+import crypto from 'node:crypto';
+import { env } from '../config/env.js';
 import { db } from '../database/db.js';
 import { COOKIE, requireAuth, setSessionCookie } from '../middleware/auth.js';
 import { validateBody } from '../middleware/validate.js';
-import { authLimiter } from '../middleware/limits.js';
-import { loginSchema, passwordChangeSchema, profileSchema, registerSchema } from '../validators/schemas.js';
+import { authLimiter, resetLimiter } from '../middleware/limits.js';
+import { forgotPasswordSchema, googleLoginSchema, loginSchema, passwordChangeSchema, profileSchema, registerSchema, resetPasswordSchema } from '../validators/schemas.js';
+import { sendMail } from '../services/notifications/mail.js';
 import { conflict, unauthorized, badRequest } from '../lib/errors.js';
 import { audit } from '../lib/audit.js';
 

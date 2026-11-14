@@ -15,7 +15,7 @@ export interface Cost { id: number; cost_type: string; label: string | null; amo
 export interface Category { id: number; slug: string; name_rw: string; name_en: string }
 export interface Destination {
   id: number; name: string; slug: string; region: string; description_rw: string; description_en: string; latitude: number | null; longitude: number | null;
-  image_path: string | null; is_demo: boolean; categories: Category[]; costs: Cost[]; available_trips: number; organized_trips?: number; is_published?: number;
+  image_path: string | null; info_rw?: string | null; info_en?: string | null; is_demo: boolean; categories: Category[]; costs: Cost[]; available_trips: number; organized_trips?: number; is_published?: number;
 }
 export interface Rec {
   id: number; title: string; link: string; destination: string; region: string; category_slug: string; category_name_rw: string; category_name_en: string;

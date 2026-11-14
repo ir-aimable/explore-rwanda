@@ -1,8 +1,8 @@
 # Explore Rwanda - Automated Test Report
 
-Generated: 2026-11-10T14:51:54.936Z by `npm test` (server/src/tests). Results below are produced by the test run itself, not written by hand.
+Generated: 2026-11-14T17:30:32.363Z by `npm test` (server/src/tests). Results below are produced by the test run itself, not written by hand.
 
-**Total: 111 | Passed: 111 | Failed: 0**
+**Total: 112 | Passed: 111 | Failed: 1**
 
 | Test ID | Description | Expected result | Actual result | Pass/Fail | Notes |
 |---|---|---|---|---|---|
@@ -117,3 +117,4 @@ Generated: 2026-11-10T14:51:54.936Z by `npm test` (server/src/tests). Results be
 | NLP-03 | Date interpretation relative to a fixed Wednesday | weekend=Sat..Sun, next weekend, tomorrow, sunday, next week, ISO date | Matched expected result (all assertions passed) | PASS |  |
 | GEO-01 | Built-in map of Rwanda | Old names resolve; Musanze is closer to Bigogwe than Kigali; fares grow with distance; "I'm in X" / "ndi i X" set the starting location | Matched expected result (all assertions passed) | PASS |  |
 | NLP-04 | Month interpretation | "in december", "next month", "this month", "mu Kuboza", past month = next year, "may I" is not a month | Matched expected result (all assertions passed) | PASS |  |
+| RESET-01 | Forgot password gives the same answer for known and unknown emails | HTTP 200 ok for both; token stored (hashed) only for the real account | Expected values to be strictly equal:  404 !== 200  | FAIL |  |

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Empty, Field, Loader } from '../components/ui';
+import { Empty, Field, Loader, PasswordInput } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/Toast';
 import { useLoad } from '../hooks/useLoad';
@@ -39,7 +39,7 @@ export function ProfileForm() {
       <Field label={t('dash.language')}><select value={f.preferred_language} onChange={(e) => setF({ ...f, preferred_language: e.target.value as 'rw' | 'en' })}><option value="rw">Kinyarwanda</option><option value="en">English</option></select></Field>
       <div className="span2"><button className="btn">{t('c.save')}</button></div></form>
     <form className="form-grid two card card-pad" onSubmit={change}><h3 className="span2" style={{ margin: 0 }}>{t('dash.change_password')}</h3>
-      <Field label={t('dash.current_password')} error={err.current_password}><input type="password" autoComplete="current-password" value={pw.current_password} onChange={(e) => setPw({ ...pw, current_password: e.target.value })} required /></Field>
-      <Field label={t('dash.new_password')} error={err.new_password} hint={t('auth.pw_hint')}><input type="password" autoComplete="new-password" value={pw.new_password} onChange={(e) => setPw({ ...pw, new_password: e.target.value })} required /></Field>
+      <Field label={t('dash.current_password')} error={err.current_password}><PasswordInput autoComplete="current-password" value={pw.current_password} onChange={(e) => setPw({ ...pw, current_password: e.target.value })} required /></Field>
+      <Field label={t('dash.new_password')} error={err.new_password} hint={t('auth.pw_hint')}><PasswordInput autoComplete="new-password" value={pw.new_password} onChange={(e) => setPw({ ...pw, new_password: e.target.value })} required /></Field>
       <div className="span2"><button className="btn btn-ghost">{t('dash.change_password')}</button></div></form></div>);
 }

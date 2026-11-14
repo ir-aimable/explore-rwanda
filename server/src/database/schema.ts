@@ -17,6 +17,17 @@ CREATE TABLE IF NOT EXISTS users (
 );
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 
+-- One-time password reset links. Only a SHA-256 hash of the token is stored.
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash TEXT NOT NULL UNIQUE,
+  expires_at TEXT NOT NULL,
+  used_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_prt_user ON password_reset_tokens(user_id);
+
 CREATE TABLE IF NOT EXISTS organizer_applications (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -70,10 +81,21 @@ CREATE TABLE IF NOT EXISTS destinations (
   latitude REAL,
   longitude REAL,
   image_path TEXT,
+  info_rw TEXT,
+  info_en TEXT,
   is_published INTEGER NOT NULL DEFAULT 1 CHECK (is_published IN (0,1)),
   is_demo INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Extra photos shown in a destination's gallery (the main photo stays in destinations.image_path)
+CREATE TABLE IF NOT EXISTS destination_images (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  destination_id INTEGER NOT NULL REFERENCES destinations(id) ON DELETE CASCADE,
+  path TEXT NOT NULL,
+  caption TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS destination_categories (

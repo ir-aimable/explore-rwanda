@@ -182,6 +182,9 @@ const DEFAULT_SETTINGS: Record<string, string> = {
 
 export async function initSchema() {
   await db.exec(SCHEMA);
+  // Columns added after the first release: CREATE TABLE IF NOT EXISTS does not add them to existing databases
+  const destCols = (await db.prepare('PRAGMA table_info(destinations)').all() as any[]).map((c) => c.name);
+  for (const col of ['info_rw', 'info_en']) if (!destCols.includes(col)) await db.exec(`ALTER TABLE destinations ADD COLUMN ${col} TEXT`);
   await db.transaction(async () => {
     for (const c of CATEGORIES) await db.prepare('INSERT OR IGNORE INTO categories (slug,name_rw,name_en) VALUES (?,?,?)').run(...c);
     for (const [i, name] of DEFAULT_HUBS.entries()) {

@@ -5,10 +5,11 @@ import App from './App';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/Toast';
 import { I18nProvider } from './i18n';
+import { ThemeProvider } from './theme';
 import './styles/global.css';
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter><I18nProvider><ToastProvider><AuthProvider><App /></AuthProvider></ToastProvider></I18nProvider></BrowserRouter>
+    <BrowserRouter><ThemeProvider><I18nProvider><ToastProvider><AuthProvider><App /></AuthProvider></ToastProvider></I18nProvider></ThemeProvider></BrowserRouter>
   </React.StrictMode>,
 );

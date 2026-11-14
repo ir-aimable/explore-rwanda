@@ -1,5 +1,5 @@
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Brand, Footer, Header, LangSwitch } from '../components/Header';
+import { Brand, Footer, Header, LangSwitch, ThemeSwitch } from '../components/Header';
 import { Icon, type IconName } from '../components/Icon';
 import { Avatar, Spinner } from '../components/ui';
 import { homeFor, useAuth } from '../contexts/AuthContext';
@@ -48,8 +48,9 @@ export function DashLayout({ links, title }: { links: DashLink[]; title: string 
         </aside>
         <div style={{ minWidth: 0 }}>
           <div className="dash-top">
+            <ThemeSwitch />
             <LangSwitch />
-            <Link to={user?.role === 'admin' ? '/admin/notifications' : user?.role === 'organizer' ? '/organizer/notifications' : '/traveler/notifications'} className="avatar" style={{ background: '#fff' }} aria-label={t('dash.notifications')}>
+            <Link to={user?.role === 'admin' ? '/admin/notifications' : user?.role === 'organizer' ? '/organizer/notifications' : '/traveler/notifications'} className="avatar" style={{ background: 'var(--paper)' }} aria-label={t('dash.notifications')}>
               <Icon name="bell" size={17} />{user && user.unread_notifications > 0 && <span className="badge-dot">{user.unread_notifications}</span>}
             </Link>
             <Avatar name={user?.full_name} />

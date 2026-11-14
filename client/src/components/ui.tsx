@@ -1,5 +1,5 @@
 import { Icon, type IconName } from './Icon';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type InputHTMLAttributes, type ReactNode } from 'react';
 import { useI18n } from '../i18n';
 import { ApiError } from '../services/api';
 
@@ -53,6 +53,20 @@ export function useConfirm() {
         <button className={`btn ${st.danger ? 'btn-danger' : ''}`} onClick={async () => { const r = st.run; setSt(null); await r(); }}>{t('c.confirm')}</button></div>
     </Modal>) : null;
   return { ask, dialog };
+}
+
+/** Password input with an eye button to show/hide what was typed. Accepts every normal <input> prop. */
+export function PasswordInput({ className, ...props }: Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>) {
+  const { t } = useI18n(); const [show, setShow] = useState(false);
+  const label = show ? t('c.hide_password') : t('c.show_password');
+  return (
+    <div className={`pw-wrap ${className || ''}`}>
+      <input {...props} type={show ? 'text' : 'password'} autoCapitalize="off" autoCorrect="off" spellCheck={false} />
+      <button type="button" className="pw-toggle" onClick={() => setShow((v) => !v)} aria-label={label} title={label} aria-pressed={show}>
+        <Icon key={String(show)} name={show ? 'eyeOff' : 'eye'} size={18} />
+      </button>
+    </div>
+  );
 }
 
 export function Field({ label, error, hint, children, className }: { label: string; error?: string; hint?: string; children: ReactNode; className?: string }) {

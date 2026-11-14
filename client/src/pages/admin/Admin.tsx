@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Avatar, Donut, Empty, Field, Kpi, Loader, Modal, Status, useConfirm } from '../../components/ui';
+import { Avatar, Donut, Empty, Field, Kpi, Loader, Modal, Status, useConfirm, PasswordInput } from '../../components/ui';
 import { Icon } from '../../components/Icon';
 import { useToast } from '../../contexts/Toast';
 import { useLoad } from '../../hooks/useLoad';
@@ -63,7 +63,7 @@ export function Users() {
       <Field label={t('auth.full_name')} error={err.full_name}><input value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} required /></Field>
       <Field label={t('c.email')} error={err.email}><input type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} required /></Field>
       <Field label={t('c.phone')} error={err.phone}><input value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} /></Field>
-      <Field label={t('c.password')} error={err.password} hint={t('auth.pw_hint')}><input type="password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} required /></Field>
+      <Field label={t('c.password')} error={err.password} hint={t('auth.pw_hint')}><PasswordInput value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} required /></Field>
       <Field label={t('c.role')}><select value={f.role} onChange={(e) => setF({ ...f, role: e.target.value })}><option value="traveler">{tx('role.traveler')}</option><option value="admin">{tx('role.admin')}</option></select></Field>
       <div className="row"><button type="button" className="btn btn-ghost" onClick={() => setShow(false)}>{t('c.cancel')}</button><button className="btn">{t('c.create')}</button></div></form></Modal>}
     {dialog}</>);
@@ -101,7 +101,7 @@ export function Organizers() {
       <Field label={t('auth.full_name')} error={err.full_name}><input value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} required /></Field>
       <Field label={t('c.email')} error={err.email}><input type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} required /></Field>
       <Field label={t('c.phone')} error={err.phone}><input value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} /></Field>
-      <Field label={t('c.password')} error={err.password} hint={t('auth.pw_hint')}><input type="password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} required /></Field>
+      <Field label={t('c.password')} error={err.password} hint={t('auth.pw_hint')}><PasswordInput value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} required /></Field>
       <div className="row"><button type="button" className="btn btn-ghost" onClick={() => setShow(false)}>{t('c.cancel')}</button><button className="btn">{t('c.create')}</button></div></form></Modal>}
     {dialog}</>);
 }
@@ -110,24 +110,36 @@ export function AdminDestinations() {
   const { t, lang } = useI18n(); const toast = useToast(); const { ask, dialog } = useConfirm();
   const { data, loading, error, reload } = useLoad(() => api.get<{ items: any[] }>('/admin/destinations'), []);
   const cats = useLoad(() => api.get<{ items: any[] }>('/categories'), []); const act = useAct(reload);
-  const blank = { id: 0, name: '', region: '', description_rw: '', description_en: '', latitude: '', longitude: '', is_published: true, category_ids: [] as number[] };
+  const blank = { id: 0, name: '', region: '', description_rw: '', description_en: '', info_rw: '', info_en: '', latitude: '', longitude: '', is_published: true, category_ids: [] as number[], images: [] as any[] };
   const [f, setF] = useState<any>(null); const [err, setErr] = useState<Record<string, string>>({});
   async function save(e: React.FormEvent) {
     e.preventDefault(); setErr({});
-    const body = { name: f.name, region: f.region, description_rw: f.description_rw, description_en: f.description_en, latitude: f.latitude === '' || f.latitude == null ? null : Number(f.latitude), longitude: f.longitude === '' || f.longitude == null ? null : Number(f.longitude), is_published: !!f.is_published, category_ids: f.category_ids };
+    const body = { name: f.name, region: f.region, description_rw: f.description_rw, description_en: f.description_en, info_rw: f.info_rw || null, info_en: f.info_en || null, latitude: f.latitude === '' || f.latitude == null ? null : Number(f.latitude), longitude: f.longitude === '' || f.longitude == null ? null : Number(f.longitude), is_published: !!f.is_published, category_ids: f.category_ids };
     try { if (f.id) await api.put(`/admin/destinations/${f.id}`, body); else await api.post('/admin/destinations', body); setF(null); reload(); toast.ok(t('c.saved')); } catch (x) { setErr(errs(x)); toast.fail(x); }
   }
   const up = async (id: number, file?: File) => { if (!file) return; try { await api.upload(`/admin/destinations/${id}/image`, file); reload(); toast.ok(t('c.saved')); } catch (x) { toast.fail(x); } };
+  // Gallery changes save immediately (not on "Save"), so the open form is updated in place too
+  const addPhoto = async (file?: File) => { if (!file || !f?.id) return; try { const r = await api.upload<{ id: number; path: string }>(`/admin/destinations/${f.id}/gallery`, file); setF((cur: any) => cur && { ...cur, images: [...(cur.images || []), { id: r.id, path: r.path, caption: null }] }); reload(); toast.ok(t('c.saved')); } catch (x) { toast.fail(x); } };
+  const delPhoto = async (imgId: number) => { try { await api.del(`/admin/destinations/${f.id}/gallery/${imgId}`); setF((cur: any) => cur && { ...cur, images: cur.images.filter((i: any) => i.id !== imgId) }); reload(); toast.ok(t('c.saved')); } catch (x) { toast.fail(x); } };
   return (<><div className="row spread"><h2>{t('ad.destinations')}</h2><button className="btn" onClick={() => setF({ ...blank })}>{t('ad.new_destination')}</button></div>
     <Loader loading={loading} error={error} reload={reload}><div className="table-wrap"><table className="t"><thead><tr><th>{t('c.name')}</th><th>{t('ad.region')}</th><th>{t('c.published')}</th><th>{t('c.actions')}</th></tr></thead><tbody>
       {data?.items.map((d) => (<tr key={d.id}><td><strong>{d.name}</strong> {d.is_demo ? <span className="pill pill-grey">{t('c.demo')}</span> : null}{d.image_path && <div><img src={d.image_path} alt="" style={{ width: 80, borderRadius: 3, marginTop: 4 }} /></div>}</td><td>{d.region}</td><td>{d.is_published ? t('c.yes') : t('c.no')}</td>
-        <td><div className="actions"><button className="btn btn-ghost btn-sm" onClick={() => setF({ ...d, latitude: d.latitude ?? '', longitude: d.longitude ?? '', is_published: !!d.is_published })}>{t('c.edit')}</button>
+        <td><div className="actions"><button className="btn btn-ghost btn-sm" onClick={() => setF({ ...d, info_rw: d.info_rw ?? '', info_en: d.info_en ?? '', images: d.images || [], latitude: d.latitude ?? '', longitude: d.longitude ?? '', is_published: !!d.is_published })}>{t('c.edit')}</button>
           <label className="btn btn-ghost btn-sm">{t('ad.upload_image')}<input hidden type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => up(d.id, e.target.files?.[0])} /></label>
           <button className="btn btn-danger btn-sm" onClick={() => ask(t('c.confirm_delete'), act(() => api.del(`/admin/destinations/${d.id}`)))}>{t('c.delete')}</button></div></td></tr>))}</tbody></table></div></Loader>
     {f && <Modal wide title={f.id ? t('c.edit') : t('ad.new_destination')} onClose={() => setF(null)}><form className="form-grid two" onSubmit={save}>
       <Field label={t('c.name')} error={err.name}><input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} required /></Field><Field label={t('ad.region')} error={err.region}><input value={f.region} onChange={(e) => setF({ ...f, region: e.target.value })} required /></Field>
       <Field className="span2" label={t('ad.desc_rw')} error={err.description_rw}><textarea value={f.description_rw} onChange={(e) => setF({ ...f, description_rw: e.target.value })} required /></Field>
       <Field className="span2" label={t('ad.desc_en')} error={err.description_en}><textarea value={f.description_en} onChange={(e) => setF({ ...f, description_en: e.target.value })} required /></Field>
+      <Field className="span2" label={t('ad.info_rw')} error={err.info_rw}><textarea value={f.info_rw} placeholder={t('ad.info_hint')} onChange={(e) => setF({ ...f, info_rw: e.target.value })} /></Field>
+      <Field className="span2" label={t('ad.info_en')} error={err.info_en}><textarea value={f.info_en} placeholder={t('ad.info_hint')} onChange={(e) => setF({ ...f, info_en: e.target.value })} /></Field>
+      <div className="span2"><span className="label">{t('ad.gallery')}</span>
+        {f.id ? (<div className="row" style={{ alignItems: 'flex-start' }}>
+          {(f.images || []).map((img: any) => (<div key={img.id} style={{ position: 'relative' }}><img src={img.path} alt="" style={{ width: 96, height: 72, objectFit: 'cover', borderRadius: 6, display: 'block' }} />
+            <button type="button" className="btn btn-danger btn-sm" style={{ position: 'absolute', top: 4, right: 4, padding: '2px 6px' }} aria-label={t('c.delete')} onClick={() => delPhoto(img.id)}><Icon name="x" size={14} /></button></div>))}
+          {(f.images || []).length < 12 && <label className="btn btn-ghost btn-sm"><Icon name="plus" size={14} />{t('ad.gallery_add')}<input hidden type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => { addPhoto(e.target.files?.[0]); e.target.value = ''; }} /></label>}
+        </div>) : <p className="small muted" style={{ margin: 0 }}>{t('ad.gallery_save_first')}</p>}
+      </div>
       <Field label={t('form.lat')}><input type="number" step="any" value={f.latitude} onChange={(e) => setF({ ...f, latitude: e.target.value })} /></Field><Field label={t('form.lng')}><input type="number" step="any" value={f.longitude} onChange={(e) => setF({ ...f, longitude: e.target.value })} /></Field>
       <div className="span2"><span className="label">{t('dest.activities')}</span><div className="row">{cats.data?.items.map((c) => <label key={c.id} className="check"><input type="checkbox" checked={f.category_ids.includes(c.id)} onChange={(e) => setF({ ...f, category_ids: e.target.checked ? [...f.category_ids, c.id] : f.category_ids.filter((x: number) => x !== c.id) })} />{lang === 'rw' ? c.name_rw : c.name_en}</label>)}</div></div>
       <label className="check span2"><input type="checkbox" checked={f.is_published} onChange={(e) => setF({ ...f, is_published: e.target.checked })} />{t('c.published')}</label>

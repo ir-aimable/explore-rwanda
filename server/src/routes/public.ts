@@ -50,7 +50,20 @@ publicRouter.get('/destinations', async (req, res) => {
 publicRouter.get('/destinations/:id', async (req, res) => {
   const d = await db.prepare('SELECT * FROM destinations WHERE (id=? OR slug=?)').get(Number(req.params.id) || -1, req.params.id) as any;
   if (!d || (!d.is_published && req.user?.role !== 'admin')) throw notFound();
-  res.json({ destination: (await destRows([d]))[0], trips: (await listPublicTrips({ destinationId: d.id, limit: 50 })).items });
+  const [destination, trips, images, reviews, dist] = await Promise.all([
+    destRows([d]).then((r) => r[0]),
+    listPublicTrips({ destinationId: d.id, limit: 50 }).then((r) => r.items),
+    db.prepare('SELECT id,path,caption FROM destination_images WHERE destination_id=? ORDER BY id').all(d.id),
+    db.prepare(`SELECT v.id,v.rating,v.comment,v.created_at,u.full_name AS reviewer,t.id AS trip_id,t.title AS trip_title
+      FROM reviews v JOIN users u ON u.id=v.user_id JOIN trips t ON t.id=v.trip_id
+      WHERE v.destination_id=? AND v.status='visible' ORDER BY v.id DESC LIMIT 50`).all(d.id),
+    db.prepare(`SELECT rating, COUNT(*) n FROM reviews WHERE destination_id=? AND status='visible' GROUP BY rating`).all(d.id),
+  ]);
+  // Rating summary over every visible review (the list itself is capped at 50)
+  const counts = [1, 2, 3, 4, 5].map((r) => Number((dist as any[]).find((x) => Number(x.rating) === r)?.n || 0));
+  const total = counts.reduce((a, b) => a + b, 0);
+  const avg = total ? Math.round((counts.reduce((a, n, i) => a + n * (i + 1), 0) / total) * 10) / 10 : null;
+  res.json({ destination, trips, images, reviews, rating: { avg, count: total, counts } });
 });
 
 publicRouter.get('/announcements', async (_req, res) => {

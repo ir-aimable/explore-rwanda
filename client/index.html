@@ -4,6 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Explore Rwanda: discover places, find trips, compare costs and go together." />
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      // Apply the saved theme (or the device setting) before first paint to avoid a flash.
+      (function () {
+        var p = 'system';
+        try { p = localStorage.getItem('er_theme') || 'system'; } catch (e) {}
+        var dark = p === 'dark' || (p === 'system' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      })();
+    </script>
     <title>Explore Rwanda</title>
     <link rel="icon" type="image/png" href="/images/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
