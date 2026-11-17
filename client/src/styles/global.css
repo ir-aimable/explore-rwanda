@@ -612,7 +612,7 @@ html[data-theme=dark] .ab-response, html[data-theme=dark] .ab-step-badge { backg
    MOBILE LAYOUT — most visitors use phones; everything below targets
    small screens first and leaves the desktop layout untouched.
    ===================================================================== */
-.dash-shell { grid-template-columns: minmax(0, 1fr); }  /* never let a grid child stretch the page */
+@media (max-width: 959px) { .dash-shell { grid-template-columns: minmax(0, 1fr); } }  /* never let a grid child stretch the page */
 .dash-col { min-width: 0; }
 .dash-brand { display: none; }
 
@@ -789,4 +789,9 @@ html[data-theme=dark] .ab-response, html[data-theme=dark] .ab-step-badge { backg
   .lang-select { padding-right: 26px; font-size: .8rem; }
   .dash-top { gap: 6px; }
   .side-links a { padding: 8px 12px; }
+}
+/* transport fares on phones: keep the destination column pinned while swiping across fares */
+@media (max-width: 719px) {
+  table.fare-table tr > :first-child { position: sticky; left: 0; z-index: 1; min-width: 132px; max-width: 150px; background: var(--paper); box-shadow: 1px 0 0 var(--line); }
+  table.fare-table thead tr > :first-child { background: var(--forest-tint); }
 }

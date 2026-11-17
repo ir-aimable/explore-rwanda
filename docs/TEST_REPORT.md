@@ -1,6 +1,6 @@
 # Explore Rwanda - Automated Test Report
 
-Generated: 2026-11-16T10:19:56.704Z by `npm test` (server/src/tests). Results below are produced by the test run itself, not written by hand.
+Generated: 2026-11-17T15:45:01.396Z by `npm test` (server/src/tests). Results below are produced by the test run itself, not written by hand.
 
 **Total: 112 | Passed: 111 | Failed: 1**
 
