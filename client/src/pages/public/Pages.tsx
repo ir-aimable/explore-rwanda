@@ -20,11 +20,7 @@ export function Planner() {
     <div className="container" style={{ paddingBottom: 40 }}><Assistant initial={sp.get('q') || undefined} /></div></>);
 }
 
-export function About() {
-  const { t } = useI18n();
-  return (<><div className="page-head"><div className="container"><h1>{t('about.title')}</h1></div></div>
-    <div className="container section"><p>{t('about.p1')}</p><p>{t('about.p2')}</p><p className="notice">{t('about.p3')}</p><p style={{ marginTop: 24, fontFamily: 'var(--font-display)', fontSize: '1.3rem', maxWidth: '40ch' }}>{t('about.value')}</p></div></>);
-}
+export { About } from './About';
 
 export function Contact() {
   const { t, tx } = useI18n(); const { user } = useAuth(); const toast = useToast();

@@ -87,14 +87,14 @@ export default function Home() {
       <section className="section container" aria-labelledby="d-h">
         <div className="section-head"><h2 id="d-h">{t('home.dest.title')}</h2><Link className="see-all" to="/destinations">{t('home.dest.all')} <Icon name="arrowRight" size={15} /></Link></div>
         <Loader loading={dests.loading} error={dests.error} reload={dests.reload}>
-          <div className="grid grid-4">{dests.data?.items.slice(0, 4).map((d) => <DestinationCard key={d.id} d={d} compact />)}</div>
+          <div className="grid grid-4 rail">{dests.data?.items.slice(0, 4).map((d) => <DestinationCard key={d.id} d={d} compact />)}</div>
         </Loader>
       </section>
 
       <section className="section container" style={{ paddingTop: 0 }} aria-labelledby="t-h">
         <div className="section-head"><h2 id="t-h">{t('home.trips.title')}</h2><Link className="see-all" to="/trips">{t('home.trips.all')} <Icon name="arrowRight" size={15} /></Link></div>
         <Loader loading={trips.loading} error={trips.error} reload={trips.reload}>
-          {trips.data?.items.length ? <div className="grid grid-cards">{trips.data.items.map((x) => <TripCard key={x.id} trip={x} />)}</div> : <Empty>{t('home.empty_trips')}</Empty>}
+          {trips.data?.items.length ? <div className="grid grid-cards rail">{trips.data.items.map((x) => <TripCard key={x.id} trip={x} />)}</div> : <Empty>{t('home.empty_trips')}</Empty>}
         </Loader>
       </section>
 

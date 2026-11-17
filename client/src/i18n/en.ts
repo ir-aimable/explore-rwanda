@@ -113,10 +113,6 @@ export const en = {
   'app.status_pending': 'Your application is waiting for review.', 'app.status_rejected': 'Your last application was not approved.', 'app.login_hint': 'You already have an account? Log in first and we will use it.',
   'app.new_account': 'Choose a password (this creates your traveler account)',
   // ---- about / contact / footer
-  'about.title': 'About Explore Rwanda', 'about.p1': 'Explore Rwanda helps local travelers find recreational activities, compare costs and join organized group trips.',
-  'about.p2': 'It brings together travelers who want to discover new places, organizers who run trips, and administrators who keep the platform trustworthy.',
-  'about.p3': 'Records marked “Demo data” are examples, not official tourism information.',
-  'about.value': 'Turning fragmented tourism information into an accessible, organized and intelligent local trip-discovery experience.',
   'contact.title': 'Contact and support', 'contact.sub': 'Questions, problems or suggestions? Send us a message.', 'contact.sent': 'Message received. We will reply as soon as possible.',
   'contact.send': 'Send message', 'contact.mine': 'Your previous requests',
   'footer.explore': 'Explore', 'footer.platform': 'Platform', 'footer.demo': 'Prices and dates shown in demo records are examples.', 'footer.rights': 'Explore Rwanda',
