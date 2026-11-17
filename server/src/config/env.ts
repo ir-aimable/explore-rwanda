@@ -38,6 +38,12 @@ export const env = {
   ollamaModel: process.env.OLLAMA_MODEL || 'llama3.2',
   weatherEnabled: (process.env.WEATHER_ENABLED || 'true') !== 'false',
   googleMapsKey: process.env.GOOGLE_MAPS_API_KEY || '',
+  // ---- Email (password reset). Empty SMTP_HOST = messages are logged to the console. ----
+  smtpHost: process.env.SMTP_HOST || '',
+  smtpPort: Number(process.env.SMTP_PORT || 587),
+  smtpUser: process.env.SMTP_USER || '',
+  smtpPass: process.env.SMTP_PASS || '',
+  mailFrom: process.env.MAIL_FROM || 'Explore Rwanda <no-reply@explore-rwanda.local>',
   // ---- Hosting on Vercel ----
   /** Hosted database (Turso). Empty = local SQLite file at DATABASE_PATH. */
   tursoUrl: process.env.TURSO_DATABASE_URL || '',
