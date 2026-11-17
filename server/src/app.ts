@@ -3,6 +3,7 @@ import express, { type NextFunction, type Request, type Response } from 'express
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import compression from 'compression';
 import fs from 'node:fs';
 import path from 'node:path';
 import { env } from './config/env.js';
@@ -43,6 +44,7 @@ export function createApp() {
   app.set('trust proxy', env.trustProxy);
   app.disable('x-powered-by');
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' }, contentSecurityPolicy: false }));
+  app.use(compression()); // gzip JSON, JS and CSS (on Vercel the CDN does this; here for the single-process server)
   app.use(cors({ origin: env.clientOrigins, credentials: true }));
   app.use(express.json({ limit: '100kb' }));
   app.use(cookieParser());
@@ -70,7 +72,15 @@ export function createApp() {
 
   // Serve the built client when present (single-process production/demo mode)
   if (fs.existsSync(path.join(env.clientDist, 'index.html'))) {
-    app.use(express.static(env.clientDist));
+    // Hashed build files never change (cache for a year); images for a week; index.html always revalidated.
+    app.use(express.static(env.clientDist, {
+      setHeaders: (res, file) => {
+        const rel = path.relative(env.clientDist, file);
+        if (rel.startsWith('assets' + path.sep)) res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        else if (rel.startsWith('images' + path.sep)) res.setHeader('Cache-Control', 'public, max-age=604800');
+        else res.setHeader('Cache-Control', 'no-cache');
+      },
+    }));
     app.get(/^\/(?!api|uploads).*/, async (_req, res) => res.sendFile(path.join(env.clientDist, 'index.html')));
   }
 

@@ -1,16 +1,27 @@
 # Images
 
-Drop photos here; the UI picks them up automatically. Until a file exists, an
-illustrated placeholder is shown (in `npm run dev` a small dashed label shows the
-exact path to add).
+The photos here are **generated**, small WebP files. Don't put full-size photos in this folder:
+everything in `public/` is deployed as-is, and a 3 MB photo makes the site slow on phones.
 
-| File | Where it appears | Suggested size |
-| --- | --- | --- |
-| `hero.jpg` | Home page hero (e.g. a gorilla / volcano landscape) | 2400×1200 |
-| `destinations-hero.jpg` | Destinations page banner | 2400×700 |
-| `trips-hero.jpg` | Trips page banner | 2400×700 |
-| `auth.jpg` | Left half of the Log in / Sign up pages | 1400×1800 |
-| `destinations/<slug>.jpg` | Destination cards, and trip cards / trip hero when the trip has no cover image | 1200×750 |
+To add or replace a built-in photo:
+
+1. Put the original (any size, JPG or PNG) in `client/images-src/`.
+2. Add or adjust its line in `JOBS` in `client/scripts/optimize-images.py`.
+3. Run `python3 client/scripts/optimize-images.py` (needs Pillow: `pip install Pillow`).
+
+Banner photos get a full-size copy (`hero.webp`, 1600px) and a phone copy (`hero-800.webp`).
+`srcSetFor()` in `src/components/Cover.tsx` lists which photos have a phone copy, and the
+browser picks the right one.
+
+| File | Where it appears |
+| --- | --- |
+| `hero.webp`, `hero3.webp` | Home page hero slideshow (`hero3` also on About) |
+| `destinations-hero.webp` | Destinations page banner |
+| `trips-hero.webp` | Trips page banner |
+| `auth.webp` | Left half of the Log in / Sign up pages |
+| `about.webp` | Developer photo on the About page |
+| `logo.webp`, `assistant.webp`, `assistant-icon.webp` | Logo and assistant mascot |
+| `destinations/<slug>.jpg` | Destination cards, and trip cards / trip hero when the trip has no cover image (optional; an illustration is shown until the file exists). Keep these under ~150 KB (1200×750, quality ~75). |
 
 Destination slugs from the seed data:
 

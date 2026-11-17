@@ -65,7 +65,7 @@ export function Icon({ name, size = 18, className, fill }: { name: IconName; siz
   );
 }
 
-/** Explore Rwanda Assistant mascot (public/images/assistant*.png, transparent background). */
+/** Explore Rwanda Assistant mascot (public/images/assistant*.webp, built by scripts/optimize-images.py, transparent background). */
 export function Robot({ size = 120, small }: { size?: number; small?: boolean }) {
-  return <img className="robot" src={small ? '/images/assistant-icon.png' : '/images/assistant-sm.png'} srcSet={small ? '/images/assistant-icon.png 2x' : '/images/assistant-sm.png 2x, /images/assistant.png 4x'} alt="" width={size} height={Math.round(size * 0.94)} style={{ objectFit: 'contain' }} />;
+  return <img className="robot" src={small ? '/images/assistant-icon.webp' : '/images/assistant.webp'} decoding="async" alt="" width={size} height={Math.round(size * 0.94)} style={{ objectFit: 'contain' }} />;
 }

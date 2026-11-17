@@ -11,6 +11,7 @@ import { receiveImage, removeUpload } from '../lib/upload.js';
 import { nowStr, todayStr } from '../lib/time.js';
 import { getTripRow } from '../services/search/tripService.js';
 import { closestHubs, loadTransport } from '../services/geo/transport.js';
+import { planJourney, routeStops } from '../services/geo/rura/network.js';
 import { FARE_PER_KM, ROAD_FACTOR, fareForKm, findPlace, roadKm } from '../services/geo/rwanda.js';
 import { invalidateLexicon } from '../services/search/discovery.js';
 import { adminUserCreateSchema, announcementSchema, categorySchema, costSchema, destinationSchema } from '../validators/schemas.js';
@@ -247,8 +248,14 @@ adminRouter.delete('/destinations/:id/gallery/:imageId', async (req, res) => {
 adminRouter.get('/transport', async (_req, res) => {
   const data = await loadTransport();
   const dests = [...data.dests.values()].sort((a, b) => a.name.localeCompare(b.name));
-  const estimates: { destination_id: number; hub_id: number; km: number; amount: number }[] = [];
-  for (const d of dests) for (const h of data.hubs) if (d.point && h.point) { const km = roadKm(h.point, d.point); estimates.push({ destination_id: d.id, hub_id: h.id, km, amount: fareForKm(km) }); }
+  // Suggested fare per cell: the official RURA 2026 tariff (cheapest chain of routes, plus any local ride), else road distance.
+  const estimates: { destination_id: number; hub_id: number; km: number; amount: number; basis: 'rura' | 'distance'; official?: boolean; route?: string[] }[] = [];
+  for (const d of dests) for (const h of data.hubs) if (d.point && h.point) {
+    const km = roadKm(h.point, d.point);
+    const j = planJourney({ name: h.name, point: h.point }, { name: d.name, point: d.point });
+    estimates.push(j ? { destination_id: d.id, hub_id: h.id, km, amount: j.one_way, basis: 'rura', official: j.official, route: routeStops(j) }
+      : { destination_id: d.id, hub_id: h.id, km, amount: fareForKm(km), basis: 'distance' });
+  }
   res.json({
     hubs: data.hubs.map((h) => ({ id: h.id, name: h.name, is_default: h.is_default, located: !!h.point })),
     destinations: dests.map((d) => ({ id: d.id, name: d.name, region: d.region, located: !!d.point,

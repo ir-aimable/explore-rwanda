@@ -38,6 +38,10 @@ export const env = {
   ollamaModel: process.env.OLLAMA_MODEL || 'llama3.2',
   weatherEnabled: (process.env.WEATHER_ENABLED || 'true') !== 'false',
   googleMapsKey: process.env.GOOGLE_MAPS_API_KEY || '',
+  /** OAuth client ID(s) for "Sign in with Google" (comma-separated). Empty = Google sign-in is off. */
+  googleClientIds: (process.env.GOOGLE_CLIENT_ID || '').split(',').map((s) => s.trim()).filter(Boolean),
+  /** Public site address used in emailed links (password reset). Defaults to the first CLIENT_ORIGIN. */
+  appUrl: (process.env.APP_URL || (process.env.CLIENT_ORIGIN || 'http://localhost:5173').split(',')[0]).trim().replace(/\/$/, ''),
   // ---- Email (password reset). Empty SMTP_HOST = messages are logged to the console. ----
   smtpHost: process.env.SMTP_HOST || '',
   smtpPort: Number(process.env.SMTP_PORT || 587),

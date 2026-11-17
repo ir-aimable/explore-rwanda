@@ -9,7 +9,8 @@ export const PREFS: PrefKey[] = ['category', 'location', 'origin', 'budget', 'bu
 /** Question waiting for an answer from the previous reply. */
 export type Pending =
   | { kind: 'place_role'; place: string }  // "Musanze": destination or starting location?
-  | { kind: 'origin' };                     // "Change starting location": where from?
+  | { kind: 'origin' }                      // "Change starting location": where from?
+  | { kind: 'route_origin'; to: string };   // bus-fare question without a starting point (answered in the assistant)
 
 export interface Session {
   category?: string; location?: string; origin?: string;
@@ -83,7 +84,8 @@ export function applySession(cur: Intent, prev?: Session): Turn {
   const i: Intent = { ...cur, detected: [...cur.detected], social: [...cur.social] };
 
   // 1) Answer to the question asked in the previous reply
-  if (prev.pending) {
+  // (a location or fare question is a question of its own, not an answer)
+  if (prev.pending && prev.pending.kind !== 'route_origin' && cur.action !== 'route_info' && cur.action !== 'place_info') {
     const a = answerPending(cur.raw, prev.pending, cur);
     if (a) {
       turn.answered = prev.pending.kind;

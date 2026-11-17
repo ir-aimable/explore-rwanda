@@ -30,7 +30,8 @@ export interface Rec {
 }
 export interface CostLine {
   type: string; label: string | null; amount: number | null; status: 'known' | 'included' | 'unknown' | 'estimated'; source_type: string | null;
-  estimate?: { from: string; basis: 'table' | 'distance'; via?: string; km?: number; one_way: number; assumed: boolean; instead_of?: { start: string; amount: number } };
+  estimate?: { from: string; basis: 'table' | 'official' | 'distance'; via?: string; km?: number; one_way: number; assumed: boolean; instead_of?: { start: string; amount: number };
+    route?: string[]; tariff_year?: number; local?: { stop: string; km: number; fare: number; end: 'start' | 'end' }[] };
 }
 export type ResultState = 'NO_MATCHING_TRIPS' | 'MATCHED_AVAILABLE_AFFORDABILITY_CONFIRMED' | 'MATCHED_AVAILABLE_AFFORDABILITY_UNCONFIRMED' | 'MATCHED_ABOVE_BUDGET'
   | 'MATCHED_BUT_FULL' | 'MATCHED_BUT_REGISTRATION_CLOSED' | 'MATCHED_BUT_DATE_MISMATCH' | 'DESTINATION_SUGGESTIONS_ONLY';
@@ -38,6 +39,14 @@ export interface AssistantReply {
   state?: ResultState; plan?: string[]; unavailable?: Rec[]; unavailable_title?: string; nearby?: Rec[]; nearby_title?: string;
   message: string; understood: string[]; trips: Rec[]; alternatives: Rec[]; alternatives_title?: string; destinations: { id: number; name: string; region: string; link: string; image_path: string | null }[];
   destinations_note?: string; hints: string[]; clarification?: { question: string; options: string[] }; suggestions?: string[]; engine: string; context: unknown;
+  /** Bus journey (official RURA fares) and where a place is, for transport / location questions. */
+  route?: RouteInfo; place?: PlaceInfo;
+}
+export interface PlaceInfo { name: string; district: string; province: 'Kigali' | 'Northern' | 'Southern' | 'Eastern' | 'Western'; lat: number; lng: number }
+export interface RouteInfo {
+  from: string; to: string; one_way: number; return: number; official: boolean; tariff_year: number; km?: number; stops: string[];
+  legs: { from: string; to: string; via?: string; fare: number }[];
+  board: { stop: string; km: number; fare: number }; alight: { stop: string; km: number; fare: number }; place?: PlaceInfo;
 }
 export interface User {
   id: number; full_name: string; email: string; phone: string | null; role: 'traveler' | 'organizer' | 'admin'; preferred_language: 'rw' | 'en';

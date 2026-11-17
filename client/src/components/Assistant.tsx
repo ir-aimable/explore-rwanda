@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { api } from '../services/api';
-import type { AssistantReply, Rec } from '../types';
+import type { AssistantReply, PlaceInfo, Rec, RouteInfo } from '../types';
 import { Cover } from './Cover';
 import { Icon, Robot } from './Icon';
 import { Spinner } from './ui';
@@ -23,7 +23,8 @@ function CostLines({ r }: { r: Rec }) {
         if (l.status === 'estimated' && e) return (
           <tr key={i} className="estimated">
             <td>{tx('cost.' + l.type, l.type)} · {t('cost.est_from', { p: e.from })}{e.via ? ` ${t('cost.est_via', { p: e.via })}` : ''}
-              <span className="muted"> · {e.basis === 'table' ? t('cost.est_table') : t('cost.est_distance', { km: e.km ?? '?' })}</span>
+              <span className="muted"> · {e.basis === 'table' ? t('cost.est_table') : e.basis === 'official' ? t('cost.est_official', { y: e.tariff_year ?? '' }) : t('cost.est_distance', { km: e.km ?? '?' })}</span>
+              {e.basis === 'official' && e.route && e.route.length > 1 && <div className="muted">{e.route.join(' → ')}{e.local?.length ? ` · ${t('cost.est_local')}` : ''}</div>}
               {e.instead_of && <div className="muted">{t('cost.est_instead', { p: e.instead_of.start, n: money(e.instead_of.amount) })}</div>}</td>
             <td>≈ {money(l.amount!)}</td>
           </tr>);
@@ -34,8 +35,39 @@ function CostLines({ r }: { r: Rec }) {
         </tr>);
       })}
       <tr className="total"><td colSpan={2}>{c.complete ? <>{c.estimated ? t('cost.total_estimated') : t('cost.total_known')}: <b>{c.estimated ? '≈ ' : ''}{money(c.known_total)}</b></>
-        : <><b>{t('cost.total_unconfirmed')}</b> <span className="muted">{t('cost.known_so_far', { n: money(c.known_total) })}</span></>}</td></tr>
+        : <>{t('cost.estimated_trip')}: <b>≈ {money(c.known_total)}</b></>}</td></tr>
     </tbody></table>
+  );
+}
+
+const PROVINCE_KEY = { Kigali: 'geo.p_kigali', Northern: 'geo.p_north', Southern: 'geo.p_south', Eastern: 'geo.p_east', Western: 'geo.p_west' } as const;
+function PlaceLine({ p }: { p: PlaceInfo }) {
+  const { t } = useI18n();
+  return (<div className="route-place small">
+    <Icon name="pin" size={15} /><span>{t('geo.in_district', { d: p.district })}, {t(PROVINCE_KEY[p.province])}</span>
+    <a href={`https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`} target="_blank" rel="noreferrer">{t('geo.open_map')} <Icon name="arrowRight" size={13} /></a>
+  </div>);
+}
+
+/** A bus journey on official RURA fares: each bus with its fare, plus any estimated local ride. */
+function RouteCard({ r }: { r: RouteInfo }) {
+  const { t, money } = useI18n();
+  return (
+    <div className="route-card">
+      <div className="route-head">
+        <span className="route-ico"><Icon name="map" size={18} /></span>
+        <div className="grow"><strong>{r.from} → {r.to}</strong>
+          <div className="small muted">{r.official ? t('geo.official', { y: r.tariff_year }) : t('geo.official_local', { y: r.tariff_year })}{r.km ? ` · ≈ ${r.km} km` : ''}</div></div>
+        <div className="route-price"><b>{money(r.one_way)}</b><span className="small muted">{t('geo.one_way')}</span></div>
+      </div>
+      <ol className="route-steps">
+        {r.board.fare > 0 && <li className="local"><span>{r.from} → {r.board.stop} <em>({t('geo.local_ride', { km: r.board.km })})</em></span><span>≈ {money(r.board.fare)}</span></li>}
+        {r.legs.map((l, i) => <li key={i}><span><Icon name="arrowRight" size={13} /> {l.from} → {l.to}{l.via ? <em> ({t('cost.est_via', { p: l.via })})</em> : null}</span><span>{money(l.fare)}</span></li>)}
+        {r.alight.fare > 0 && <li className="local"><span>{r.alight.stop} → {r.to} <em>({t('geo.local_ride', { km: r.alight.km })})</em></span><span>≈ {money(r.alight.fare)}</span></li>}
+      </ol>
+      <div className="route-foot small"><span>{t('geo.return')}: <b>{r.official ? '' : '≈ '}{money(r.return)}</b></span></div>
+      {r.place && <PlaceLine p={r.place} />}
+    </div>
   );
 }
 
@@ -121,6 +153,8 @@ export function Assistant({ initial, examples = true }: { initial?: string; exam
                 <p style={{ margin: 0 }}><strong>{m.reply.message}</strong></p>
                 {m.reply.understood.length > 0 && <div className="understood small" style={{ marginTop: 8 }}><span className="muted">{t('ai.understood')}:</span>{m.reply.understood.map((u) => <span key={u} className="pill pill-grey">{u}</span>)}</div>}
                 {m.reply.clarification && <div className="chips" style={{ marginTop: 8 }}>{m.reply.clarification.options.map((o) => <button key={o} className="chip" disabled={busy || i !== turns.length - 1} onClick={() => ask(o)}>{o}</button>)}</div>}
+                {m.reply.route && <RouteCard r={m.reply.route} />}
+                {!m.reply.route && m.reply.place && <PlaceLine p={m.reply.place} />}
                 {m.reply.trips.map((r) => <RecCard key={r.id} r={r} />)}
                 {(m.reply.nearby?.length ?? 0) > 0 && <><p className="small" style={{ marginTop: 12, marginBottom: 0 }}><strong>{m.reply.nearby_title}</strong></p>{m.reply.nearby!.map((r) => <RecCard key={'n' + r.id} r={r} />)}</>}
                 {m.reply.alternatives.length > 0 && <><p className="small" style={{ marginTop: 12, marginBottom: 0 }}><strong>{m.reply.alternatives_title}</strong></p>{m.reply.alternatives.map((r) => <RecCard key={'a' + r.id} r={r} />)}</>}

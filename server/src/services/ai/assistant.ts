@@ -5,6 +5,8 @@ import { mergeContext, needsClarification, norm, parseIntent, type Intent } from
 import { applySession, hasSearch, toSession, type Session } from './session.js';
 import { hintText, msg, reasonText, socialOpener, understoodText, whenPhrase } from './messages.js';
 import { chatReply, rephrase } from './ollama.js';
+import { placeReply, routeReply } from './geoReply.js';
+import { findPlace } from '../geo/rwanda.js';
 import { todayStr } from '../../lib/time.js';
 import { extractDate } from './nlp.js';
 
@@ -87,6 +89,15 @@ export async function runAssistant(message: string, lang: Lang, ctx?: Session) {
   const planOf = (s: Session) => understoodText({ ...(s as any), currency: 'RWF' } as Intent, lang, catLabelOf(s.category));
 
   const empty = { understood, plan: planOf(kept), trips: [], alternatives: [], unavailable: [], destinations: [], hints: [] };
+  // Answer to "Where will you be travelling from?" after a bus-fare question: the fare, and the place is remembered.
+  const pend = ctx?.pending;
+  if (pend?.kind === 'route_origin' && turn.mode !== 'reset' && intent.action !== 'route_info' && intent.action !== 'place_info') {
+    const from = parsed.origin ?? parsed.location ?? findPlace(message.replace(/[?.!,]/g, ' '))?.name;
+    if (from) {
+      const context: Session = { ...kept, origin: from, pending: undefined };
+      return { ...base, ...empty, understood: [], context, plan: planOf(context), ...(await routeReply({ ...intent, routeFrom: from, routeTo: pend.to }, lang, context)) };
+    }
+  }
   if (turn.mode === 'reset' && parsed.detected.length === 0) return { ...base, ...empty, understood: [], plan: [], message: msg.reset(lang), suggestions: await buildSuggestions(lang) };
   if (intent.action === 'greeting') return { ...base, ...empty, message: msg.greeting(lang), suggestions: await buildSuggestions(lang) };
   if (intent.action === 'small_talk') {
@@ -112,6 +123,9 @@ export async function runAssistant(message: string, lang: Lang, ctx?: Session) {
   }
   if (intent.action === 'blocked_action') return { ...base, ...empty, message: msg.blockedAction(lang) };
   if (intent.action === 'blocked_private') return { ...base, ...empty, message: msg.blockedPrivate(lang) };
+  // Where a place is / bus fares between places: answered from the map and the RURA tariff; the active search is kept.
+  if (intent.action === 'route_info') return { ...base, ...empty, understood: [], ...(await routeReply(intent, lang, kept)) };
+  if (intent.action === 'place_info') return { ...base, ...empty, understood: [], ...(await placeReply(intent, lang, kept)) };
   if (!searching && intent.action !== 'recommend') return { ...base, ...empty, message: msg.unknown(lang), suggestions: await buildSuggestions(lang) };
 
   const session = toSession(intent);
@@ -170,10 +184,12 @@ export async function runAssistant(message: string, lang: Lang, ctx?: Session) {
   const est = shown.flatMap((t) => t.cost.lines.filter((l) => l.status === 'estimated' && l.estimate).map((l) => l.estimate!));
   if (est.length && anyTrips) {
     const from = [...new Set(est.map((e) => e.from))];
-    text += ' ' + msg.transportNote(lang, { from: from.length === 1 ? from[0] : from.join(lang === 'rw' ? ' na ' : ' / '), assumed: est.every((e) => e.assumed),
-      table: est.some((e) => e.basis === 'table'), distance: est.some((e) => e.basis === 'distance'),
+    text += ' ' + msg.transportNote(lang, { from: from.length === 1 ? from[0] : from.join(lang === 'rw' ? ' na ' : ' / '), assumed: est.every((e) => e.assumed), place: est.some((e) => e.from_kind === 'place'),
+      table: est.some((e) => e.basis === 'table'), official: est.some((e) => e.basis === 'official'), distance: est.some((e) => e.basis === 'distance'),
       replaced: est.find((e) => e.instead_of)?.instead_of?.start });
   }
+  // Transport could not be priced for some trips (no starting point anywhere): ask instead of guessing a city.
+  if (anyTrips && !intent.origin && shown.some((t) => t.cost.lines.some((l) => l.type === 'transport' && l.status === 'unknown'))) text += ' ' + msg.askOriginForTransport(lang);
   if (notes.length) text = `${notes.join(' ')} ${text}`;
   const context: Session = { ...session, lastRequest: message.slice(0, 300), lastTripIds: r.trips.map((t) => t.id), lastNearbyIds: nb?.trips.map((t) => t.id) };
   return {

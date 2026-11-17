@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Brand, Footer, Header, LangSwitch, ThemeSwitch } from '../components/Header';
 import { Icon, type IconName } from '../components/Icon';
@@ -9,7 +9,7 @@ import type { Key } from '../i18n/en';
 
 export function PublicLayout() {
   const { t } = useI18n();
-  return (<><a className="skip" href="#main">{t('nav.skip')}</a><Header /><main id="main"><Outlet /></main><Footer /></>);
+  return (<><a className="skip" href="#main">{t('nav.skip')}</a><Header /><main id="main"><Suspense fallback={<Spinner />}><Outlet /></Suspense></main><Footer /></>);
 }
 
 export function RequireRole({ roles }: { roles: ('traveler' | 'organizer' | 'admin')[] }) {
@@ -72,7 +72,7 @@ export function DashLayout({ links, title }: { links: DashLink[]; title: string 
             </Link>
             <Avatar name={user?.full_name} />
           </div>
-          <main id="main" className="dash-main" ref={mainRef}><section aria-label={title}><Outlet /></section></main>
+          <main id="main" className="dash-main" ref={mainRef}><section aria-label={title}><Suspense fallback={<Spinner />}><Outlet /></Suspense></section></main>
         </div>
       </div>
     </>

@@ -1,8 +1,8 @@
 # Explore Rwanda - Automated Test Report
 
-Generated: 2026-11-17T15:45:01.396Z by `npm test` (server/src/tests). Results below are produced by the test run itself, not written by hand.
+Generated: 2026-11-17T20:02:20.747Z by `npm test` (server/src/tests). Results below are produced by the test run itself, not written by hand.
 
-**Total: 112 | Passed: 111 | Failed: 1**
+**Total: 122 | Passed: 122 | Failed: 0**
 
 | Test ID | Description | Expected result | Actual result | Pass/Fail | Notes |
 |---|---|---|---|---|---|
@@ -108,13 +108,23 @@ Generated: 2026-11-17T15:45:01.396Z by `npm test` (server/src/tests). Results be
 | AI-22 | Short follow-ups and quick replies update the active search | "Three people", "With transport", "This weekend", thanks, "Change starting location" + "Kigali"; a complete new request starts fresh | Matched expected result (all assertions passed) | PASS |  |
 | AI-23 | No exact match: the closest open trips are offered as a question, and the conversation continues | "boating under 15k" → closest options (different activity) + "Would you like to try…?"; "This weekend" acknowledges the update; the activity chip switches and finds the trip | Matched expected result (all assertions passed) | PASS |  |
 | AI-24 | A month ("in <month>") filters by date; with nothing that month, the closest dates are offered clearly | All results fall in the month, or the reply says none run then and proposes other dates | Matched expected result (all assertions passed) | PASS |  |
-| AI-25 | Transport not in the trip price: the assistant adds public transport from where the traveller starts | Fare table from Musanze (cheaper) vs Kigali; no origin = trip start, assumed; "I'm in Musanze" sets the origin; organizer transport from far away is replaced | Musanze 2000, Kigali 6000, Rubavu ≈1200 (24 km) | PASS |  |
+| AI-25 | Transport not in the trip price: the assistant adds public transport from where the traveller starts | Fare table from Musanze (cheaper) vs Kigali; no origin = trip start, assumed; "I'm in Musanze" sets the origin; organizer transport from far away is replaced | Musanze 2000, Kigali 6000, Rubavu ≈2502 (RURA: Rubavu > Kabali) | PASS |  |
 | AI-26 | Places on the map: "near <town>" finds destinations close to it | "hiking near Musanze" returns trips at Test Bigogwe with a distance reason | Matched expected result (all assertions passed) | PASS |  |
 | AI-17 | Central search endpoint reuses the same engine (text + filters + suggestions) | /search?q=... returns same intent; suggest returns real titles | Matched expected result (all assertions passed) | PASS |  |
+| AI-27 | Bus fares between places come from the official RURA 2026 tariff (EN + RW) | Direct route, a change of bus, a Kigali bus park other than Nyabugogo, an estimated last mile, and a place that is not on the map | Huye 5068, Kinigi 4257, Nyamata 1029, Nyungwe from Huye ≈4201 | PASS |  |
+| AI-28 | Where a place is: district, province, RURA route or nearest stop, fare from the traveller | EN + RW; a park (not a bus stop) gets its nearest stop; an unknown place is said plainly; the active search is kept | Matched expected result (all assertions passed) | PASS |  |
+| AI-29 | The admin fare table still overrides RURA, and suggests RURA fares for empty cells | Saved Kigali fare wins; empty cells show the RURA suggestion with its route | Matched expected result (all assertions passed) | PASS |  |
+| AI-30 | Transport is counted from the place the traveller names, else the organizer start, never a default city | "near Kabali" prices from Kabali; "Kigali / Rubavu" uses the cheaper start; no usable start: unknown + ask | near Kabali: Kabali ≈600; organizer start: Rubavu ≈2502 | PASS |  |
 | AI-18 | Works with no external AI provider configured | engine === rules | Matched expected result (all assertions passed) | PASS |  |
 | NLP-01 | Budget extraction formats | 10k, RWF 10,000, 15 000 frw, "under 20000", "budget of 5k", 12.5k | Matched expected result (all assertions passed) | PASS |  |
 | NLP-02 | People extraction | "for two people", "2 people", "group of 4", "for 10,000" is NOT people | Matched expected result (all assertions passed) | PASS |  |
 | NLP-03 | Date interpretation relative to a fixed Wednesday | weekend=Sat..Sun, next weekend, tomorrow, sunday, next week, ISO date | Matched expected result (all assertions passed) | PASS |  |
 | GEO-01 | Built-in map of Rwanda | Old names resolve; Musanze is closer to Bigogwe than Kigali; fares grow with distance; "I'm in X" / "ndi i X" set the starting location | Matched expected result (all assertions passed) | PASS |  |
 | NLP-04 | Month interpretation | "in december", "next month", "this month", "mu Kuboza", past month = next year, "may I" is not a month | Matched expected result (all assertions passed) | PASS |  |
-| RESET-01 | Forgot password gives the same answer for known and unknown emails | HTTP 200 ok for both; token stored (hashed) only for the real account | Expected values to be strictly equal:  404 !== 200  | FAIL |  |
+| RESET-01 | Forgot password gives the same answer for known and unknown emails | HTTP 200 ok for both; token stored (hashed) only for the real account | Matched expected result (all assertions passed) | PASS |  |
+| RESET-02 | Valid reset token sets a new password and logs the user in | HTTP 200; new password works, old one fails | Matched expected result (all assertions passed) | PASS |  |
+| RESET-03 | Reset token cannot be reused, and expired or unknown tokens are rejected | HTTP 400 invalid_token | Matched expected result (all assertions passed) | PASS |  |
+| RESET-04 | Reset still enforces the password strength rule | HTTP 400 validation_error | Matched expected result (all assertions passed) | PASS |  |
+| GOOGLE-01 | Google sign-in is off when no client ID is configured | providers.google=null; /auth/google returns 400 google_not_configured | Matched expected result (all assertions passed) | PASS |  |
+| RESET-05 | Forgot password takes the same minimum time for known and unknown emails; a new link replaces the old one | >= 800 ms both; one unused token per account | Matched expected result (all assertions passed) | PASS |  |
+| GOOGLE-02 | Google sign-in: verified token creates, links or signs in; forged, expired, wrong-audience and unverified tokens are rejected | Signature checked against the signing key; email account linked once | Matched expected result (all assertions passed) | PASS |  |

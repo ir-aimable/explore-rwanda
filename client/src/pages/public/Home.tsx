@@ -11,7 +11,7 @@ import { api, qs } from '../../services/api';
 import type { Category, Destination, Trip } from '../../types';
 
 // Hero background slideshow.
-const HERO_SLIDES = [{ src: '/images/hero.jpg', ms: 10000 }, { src: '/images/hero3.jpg', ms: 10000 }];
+const HERO_SLIDES = [{ src: '/images/hero.webp', ms: 10000 }, { src: '/images/hero3.webp', ms: 10000 }];
 
 export function SearchSuggest({ value, onChange, id, placeholder }: { value: string; onChange: (v: string) => void; id: string; placeholder?: string }) {
   const { lang } = useI18n(); const [items, setItems] = useState<string[]>([]);

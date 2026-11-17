@@ -89,7 +89,7 @@ export function Status({ kind, value }: { kind: 'st' | 'rs' | 'as' | 'ss' | 'rol
 export function Stars({ n }: { n: number }) { return <span className="stars" aria-label={`${n} / 5`}>{'★'.repeat(Math.round(n))}{'☆'.repeat(5 - Math.round(n))}</span>; }
 
 export function Logo() {
-  return <img className="logo-img" src="/images/logo-sm.png" srcSet="/images/logo-sm.png 1x, /images/logo.png 4x" alt="" width={160} height={146} />;
+  return <img className="logo-img" src="/images/logo.webp" alt="" width={160} height={146} decoding="async" />;
 }
 
 export const initials = (name?: string) => (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join('');

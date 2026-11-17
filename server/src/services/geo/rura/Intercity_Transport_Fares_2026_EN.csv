@@ -1,0 +1,606 @@
+﻿No,Province,Direction,Route,From,To,Via,Fare (RWF)
+1,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Rukomo (Gicumbi) - Gicumbi,Rukomo (Gicumbi),Gicumbi,,416
+2,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Gaseke - Rukomo (Gicumbi),Gaseke,Rukomo (Gicumbi),,910
+3,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Miyove - Base,Miyove,Base,,951
+4,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Nyabugogo - Gaseke,Nyabugogo,Gaseke,,1169
+5,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Gicumbi - Tetero (Miyove),Gicumbi,Tetero (Miyove),,1188
+6,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Gaseke - Gicumbi,Gaseke,Gicumbi,,1247
+7,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Rukomo (Gicumbi) - Gatuna,Rukomo (Gicumbi),Gatuna,,1406
+8,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Gicumbi - Gatuna,Gicumbi,Gatuna,,1465
+9,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Miyove - Gakenke,Miyove,Gakenke,,1505
+10,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Kivuye - Butaro,Kivuye,Butaro,,1625
+11,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Gicumbi - Base,Gicumbi,Base,,1980
+12,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Gicumbi - Rutare,Gicumbi,Rutare,,1980
+13,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Nyabugogo - Rukomo (Gicumbi),Nyabugogo,Rukomo (Gicumbi),,2040
+14,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Gaseke - Gatuna,Gaseke,Gatuna,,2079
+15,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Nyabugogo - Gicumbi,Nyabugogo,Gicumbi,,2297
+16,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Gicumbi - Gakenke,Gicumbi,Gakenke,,2713
+17,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Gicumbi - Kivuye,Gicumbi,Kivuye,,2730
+18,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Miyove - Musanze,Miyove,Musanze,,2772
+19,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Nyabugogo - Gatuna,Nyabugogo,Gatuna,,3248
+20,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Gicumbi - Musanze VIA Base,Gicumbi,Musanze,Base,4356
+21,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Gicumbi - Butaro,Gicumbi,Butaro,,4356
+22,Northern Province,Direction 1: Nyabugogo - Gicumbi - Gatuna,Musanze - Burera - Gicumbi,Musanze,Gicumbi,,6336
+23,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Musanze - Kinigi,Musanze,Kinigi,,436
+24,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Base - Gakenke,Base,Gakenke,,515
+25,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Musanze - Byangabo,Musanze,Byangabo,,693
+26,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Musanze - Mukamira,Musanze,Mukamira,,1050
+27,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Musanze - Cyanika,Musanze,Cyanika,,1050
+28,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Musanze - Vunga,Musanze,Vunga,,1287
+29,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Gakenke - Musanze,Gakenke,Musanze,,1307
+30,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Musanze - Kabali,Musanze,Kabali,,1782
+31,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Base - Musanze,Base,Musanze,,1801
+32,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Musanze - Mahoko,Musanze,Mahoko,,2099
+33,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Nyabugogo - Base,Nyabugogo,Base,,2158
+34,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Base - Kirambo (Burera),Base,Kirambo (Burera),,2198
+35,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Musanze - Kabaya,Musanze,Kabaya,,2258
+36,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Gakenke - Mukamira,Gakenke,Mukamira,,2357
+37,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Nyabugogo - Gakenke,Nyabugogo,Gakenke,,2416
+38,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Musanze - Janja,Musanze,Janja,,2534
+39,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Musanze - Butaro,Musanze,Butaro,,2573
+40,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Musanze - Rubavu,Musanze,Rubavu,,2573
+41,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Nyabugogo - Rushashi VIA Ruli,Nyabugogo,Rushashi,Ruli,2693
+42,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Musanze - Kirambo (Burera) VIA Nkumba,Musanze,Kirambo (Burera),Nkumba,2970
+43,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Musanze - Ngororero,Musanze,Ngororero,,3485
+44,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Base - Butaro,Base,Butaro,,3783
+45,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Nyabugogo - Musanze,Nyabugogo,Musanze,,3821
+46,Northern Province,Direction 2: Nyabugogo - Musanze - Rubavu,Nyabugogo - Butaro VIA Base,Nyabugogo,Butaro,Base,5940
+47,Northern Province,Direction 3: Gicumbi - Nyagatare,Rushaki - Karama,Rushaki,Karama,,990
+48,Northern Province,Direction 3: Gicumbi - Nyagatare,Karama - Rukomo (Nyagatare),Karama,Rukomo (Nyagatare),,634
+49,Northern Province,Direction 3: Gicumbi - Nyagatare,Karama - Nyagatare VIA Rukomo,Karama,Nyagatare,Rukomo,1505
+50,Northern Province,Direction 3: Gicumbi - Nyagatare,Ngarama - Nyagatare,Ngarama,Nyagatare,,1525
+51,Northern Province,Direction 3: Gicumbi - Nyagatare,Gicumbi - Rushaki,Gicumbi,Rushaki,,2198
+52,Northern Province,Direction 3: Gicumbi - Nyagatare,Rushaki - Nyagatare,Rushaki,Nyagatare,,2297
+53,Northern Province,Direction 3: Gicumbi - Nyagatare,Nyabugogo - Cyuru VIA Rukomo (Gicumbi),Nyabugogo,Cyuru,Rukomo (Gicumbi),2376
+54,Northern Province,Direction 3: Gicumbi - Nyagatare,Gicumbi - Karama,Gicumbi,Karama,,2732
+55,Northern Province,Direction 3: Gicumbi - Nyagatare,Nyabugogo - Burimbi VIA Rukomo (Gicumbi),Nyabugogo,Burimbi,Rukomo (Gicumbi),2772
+56,Northern Province,Direction 3: Gicumbi - Nyagatare,Nyabugogo - Ruli VIA Shyorongi,Nyabugogo,Ruli,Shyorongi,2950
+57,Northern Province,Direction 3: Gicumbi - Nyagatare,Gicumbi - Ngarama,Gicumbi,Ngarama,,2970
+58,Northern Province,Direction 3: Gicumbi - Nyagatare,Nyabugogo - Nyagahanga VIA Rukomo (Gicumbi),Nyabugogo,Nyagahanga,Rukomo (Gicumbi),3366
+59,Northern Province,Direction 3: Gicumbi - Nyagatare,Gicumbi - Nyagatare VIA Ngarama,Gicumbi,Nyagatare,Ngarama,3683
+60,Northern Province,Direction 3: Gicumbi - Nyagatare,Nyabugogo - Ngarama VIA Rukomo (Gicumbi),Nyabugogo,Ngarama,Rukomo (Gicumbi),3960
+61,Northern Province,Direction 3: Gicumbi - Nyagatare,Gicumbi - Rukomo (Nyagatare),Gicumbi,Rukomo (Nyagatare),,4138
+62,Northern Province,Direction 3: Gicumbi - Nyagatare,Gicumbi - Nyagatare VIA Rushaki,Gicumbi,Nyagatare,Rushaki,4337
+63,Northern Province,Direction 3: Gicumbi - Nyagatare,Nyabugogo - Mimuri VIA Rukomo (Gicumbi),Nyabugogo,Mimuri,Rukomo (Gicumbi),4356
+64,Northern Province,Direction 3: Gicumbi - Nyagatare,Nyabugogo - Kirambo VIA Base,Nyabugogo,Kirambo,Base,4356
+65,Northern Province,Direction 3: Gicumbi - Nyagatare,Gicumbi - Nyagatare VIA Karama,Gicumbi,Nyagatare,Karama,4535
+66,Northern Province,Direction 3: Gicumbi - Nyagatare,Nyabugogo - Nyagatare VIA Rukomo (Gicumbi),Nyabugogo,Nyagatare,Rukomo (Gicumbi),5346
+67,Northern Province,Direction 3: Gicumbi - Nyagatare,Gicumbi - Buguma VIA Cyabayaga,Gicumbi,Buguma,Cyabayaga,5940
+68,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Karangazi - Ryabega,Karangazi,Ryabega,,198
+69,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kiramuruzi - Kiziguro,Kiramuruzi,Kiziguro,,297
+70,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kiziguro - Rwagitima,Kiziguro,Rwagitima,,337
+71,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwagitima - Kabarore,Rwagitima,Kabarore,,337
+72,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Bugaragara - Rwimiyaga,Bugaragara,Rwimiyaga,,337
+73,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kabarore - Gabiro,Kabarore,Gabiro,,356
+74,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Matimba - Kagitumba,Matimba,Kagitumba,,377
+75,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Ryabega - Bugaragara,Ryabega,Bugaragara,,416
+76,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwimiyaga - Matimba,Rwimiyaga,Matimba,,494
+77,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kayonza - Kiramuruzi,Kayonza,Kiramuruzi,,634
+78,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kiramuruzi - Rwagitima,Kiramuruzi,Rwagitima,,634
+79,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kiziguro - Kabarore,Kiziguro,Kabarore,,673
+80,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwagitima - Gabiro,Rwagitima,Gabiro,,673
+81,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Gabiro - Karangazi,Gabiro,Karangazi,,753
+82,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Ryabega - Rwimiyaga,Ryabega,Rwimiyaga,,753
+83,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Ryabega - Nyagatare,Ryabega,Nyagatare,,832
+84,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Bugaragara - Matimba,Bugaragara,Matimba,,832
+85,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwimiyaga - Kagitumba,Rwimiyaga,Kagitumba,,871
+86,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Gabiro - Ryabega,Gabiro,Ryabega,,951
+87,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyagatare - Mimuri,Nyagatare,Mimuri,,951
+88,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyagatare - Bugaragara,Nyagatare,Bugaragara,,951
+89,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kiziguro - Gabiro,Kiziguro,Gabiro,,990
+90,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kiramuruzi - Kabarore,Kiramuruzi,Kabarore,,1050
+91,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kabarore - Karangazi,Kabarore,Karangazi,,1050
+92,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Karangazi - Nyagatare,Karangazi,Nyagatare,,1050
+93,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyagatare - Rukomo (Nyagatare),Nyagatare,Rukomo (Nyagatare),,1050
+94,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kayonza - Kiziguro,Kayonza,Kiziguro,,1208
+95,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Bugaragara - Kagitumba,Bugaragara,Kagitumba,,1208
+96,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kabarore - Ryabega,Kabarore,Ryabega,,1247
+97,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Ryabega - Matimba,Ryabega,Matimba,,1247
+98,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kiramuruzi - Gabiro,Kiramuruzi,Gabiro,,1287
+99,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyagatare - Rwimiyaga,Nyagatare,Rwimiyaga,,1287
+100,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwagitima - Karangazi,Rwagitima,Karangazi,,1406
+101,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Gabiro - Nyagatare,Gabiro,Nyagatare,,1465
+102,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kayonza - Rwagitima,Kayonza,Rwagitima,,1544
+103,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwamagana - Kiramuruzi,Rwamagana,Kiramuruzi,,1544
+104,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwagitima - Ryabega,Rwagitima,Ryabega,,1624
+105,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kabarore - Nyagatare,Kabarore,Nyagatare,,1663
+106,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Karama - Nyagatare VIA Tabagwe,Karama,Nyagatare,Tabagwe,1702
+107,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kiziguro - Karangazi,Kiziguro,Karangazi,,1742
+108,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwamagana - Kiziguro,Rwamagana,Kiziguro,,1742
+109,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyagatare - Matimba,Nyagatare,Matimba,,1742
+110,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kayonza - Kabarore,Kayonza,Kabarore,,1881
+111,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kiziguro - Ryabega,Kiziguro,Ryabega,,1960
+112,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Ryabega - Kagitumba,Ryabega,Kagitumba,,1960
+113,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kiramuruzi - Karangazi,Kiramuruzi,Karangazi,,2040
+114,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwagitima - Nyagatare,Rwagitima,Nyagatare,,2139
+115,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyagatare - Kagitumba,Nyagatare,Kagitumba,,2158
+116,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kayonza - Gabiro,Kayonza,Gabiro,,2217
+117,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kiramuruzi - Ryabega,Kiramuruzi,Ryabega,,2237
+118,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwamagana - Rwagitima,Rwamagana,Rwagitima,,2416
+119,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kiziguro - Nyagatare,Kiziguro,Nyagatare,,2435
+120,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwamagana - Kabarore,Rwamagana,Kabarore,,2594
+121,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kiramuruzi - Nyagatare,Kiramuruzi,Nyagatare,,2752
+122,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kabarore - Kagitumba,Kabarore,Kagitumba,,2911
+123,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kayonza - Karangazi,Kayonza,Karangazi,,2950
+124,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwamagana - Gabiro,Rwamagana,Gabiro,,2950
+125,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kabuga - Kiramuruzi,Kabuga,Kiramuruzi,,3009
+126,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Kayonza,Nyabugogo,Kayonza,,3129
+127,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kayonza - Ryabega,Kayonza,Ryabega,,3168
+128,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kayonza - Nyagatare,Kayonza,Nyagatare,,3584
+129,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwamagana - Karangazi,Rwamagana,Karangazi,,3664
+130,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwamagana - Ryabega,Rwamagana,Ryabega,,3880
+131,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kabuga - Kabarore,Kabuga,Kabarore,,4079
+132,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Kiramuruzi,Nyabugogo,Kiramuruzi,,4158
+133,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwamagana - Nyagatare,Rwamagana,Nyagatare,,4257
+134,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwamagana - Bugaragara,Rwamagana,Bugaragara,,4316
+135,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Kiziguro,Nyabugogo,Kiziguro,,4356
+136,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwamagana - Rwimiyaga,Rwamagana,Rwimiyaga,,4613
+137,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Rwagitima,Nyabugogo,Rwagitima,,4792
+138,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Kabarore,Nyabugogo,Kabarore,,5010
+139,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Muhura VIA Kiramuruzi,Nyabugogo,Muhura,Kiramuruzi,5068
+140,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwamagana - Matimba,Rwamagana,Matimba,,5148
+141,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kabuga - Karangazi,Kabuga,Karangazi,,5148
+142,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kabuga - Ryabega,Kabuga,Ryabega,,5366
+143,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Rwamagana - Kagitumba,Rwamagana,Kagitumba,,5525
+144,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Gabiro,Nyabugogo,Gabiro,,5584
+145,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kabuga - Nyagatare,Kabuga,Nyagatare,,5900
+146,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Karangazi,Nyabugogo,Karangazi,,6058
+147,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kabuga - Rwimiyaga,Kabuga,Rwimiyaga,,6118
+148,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Ryabega,Nyabugogo,Ryabega,,6276
+149,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Ngarama VIA Gabiro,Nyabugogo,Ngarama,Gabiro,6316
+150,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kabuga - Matimba,Kabuga,Matimba,,6653
+151,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Nyagatare VIA Kayonza,Nyabugogo,Nyagatare,Kayonza,6712
+152,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Bugaragara,Nyabugogo,Bugaragara,,6811
+153,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Kabuga - Kagitumba,Kabuga,Kagitumba,,7029
+154,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Rwimiyaga,Nyabugogo,Rwimiyaga,,7147
+155,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Matimba,Nyabugogo,Matimba,,7643
+156,Eastern Province,Direction 1: Nyabugogo - Kayonza - Nyagatare,Nyabugogo - Kagitumba,Nyabugogo,Kagitumba,,7900
+157,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabuga - Muyumbu,Kabuga,Muyumbu,,356
+158,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Gatore - Nyakarambi,Gatore,Nyakarambi,,455
+159,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabarondo - Rwinkwavu,Kabarondo,Rwinkwavu,,515
+160,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabuga - Nyagasambu,Kabuga,Nyagasambu,,595
+161,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Rwamagana - Kayonza,Rwamagana,Kayonza,,634
+162,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kayonza - Kabarondo,Kayonza,Kabarondo,,653
+163,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabarondo - Ngoma,Kabarondo,Ngoma,,653
+164,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabarondo - Nyankora,Kabarondo,Nyankora,,792
+165,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Nyagasambu - Rwamagana,Nyagasambu,Rwamagana,,910
+166,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Nyakarambi - Rusumo,Nyakarambi,Rusumo,,910
+167,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabuga - Ntunga,Kabuga,Ntunga,,930
+168,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Ngoma - Gatore,Ngoma,Gatore,,1050
+169,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Ngoma - Rwinkwavu,Ngoma,Rwinkwavu,,1149
+170,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kayonza - Rwinkwavu,Kayonza,Rwinkwavu,,1188
+171,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Rwamagana - Kabarondo,Rwamagana,Kabarondo,,1287
+172,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Gatore - Rusumo,Gatore,Rusumo,,1326
+173,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabuga - Cyili,Kabuga,Cyili,,1326
+174,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabuga - Karenge,Kabuga,Karenge,,1386
+175,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Ngoma - Nyankora,Ngoma,Nyankora,,1426
+176,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kayonza - Ngoma,Kayonza,Ngoma,,1465
+177,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kayonza - Nyankora,Kayonza,Nyankora,,1484
+178,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabuga - Rwamagana,Kabuga,Rwamagana,,1484
+179,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Ngoma - Nyakarambi,Ngoma,Nyakarambi,,1525
+180,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Nyabugogo - Nyagasambu,Nyabugogo,Nyagasambu,,1604
+181,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Nyagasambu - Kayonza,Nyagasambu,Kayonza,,1624
+182,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabarondo - Gatore,Kabarondo,Gatore,,1684
+183,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Rwamagana - Rwinkwavu,Rwamagana,Rwinkwavu,,1900
+184,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Rwamagana - Ngoma,Rwamagana,Ngoma,,2040
+185,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabarondo - Nyakarambi,Kabarondo,Nyakarambi,,2139
+186,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Rwamagana - Nyankora,Rwamagana,Nyankora,,2217
+187,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabuga - Kayonza,Kabuga,Kayonza,,2217
+188,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Ngoma - Rusumo,Ngoma,Rusumo,,2316
+189,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kayonza - Gatore,Kayonza,Gatore,,2376
+190,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Nyabugogo - Rwamagana,Nyabugogo,Rwamagana,,2495
+191,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Gasetsa - Rusumo,Gasetsa,Rusumo,,2633
+192,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kayonza - Nyakarambi,Kayonza,Nyakarambi,,2832
+193,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabuga - Kabarondo,Kabuga,Kabarondo,,2890
+194,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabarondo - Rusumo,Kabarondo,Rusumo,,2950
+195,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Rwamagana - Gatore,Rwamagana,Gatore,,3089
+196,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabarondo - Nasho,Kabarondo,Nasho,,3267
+197,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabuga - Ngoma,Kabuga,Ngoma,,3544
+198,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Rwamagana - Nyakarambi,Rwamagana,Nyakarambi,,3563
+199,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kayonza - Rusumo,Kayonza,Rusumo,,3821
+200,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Ngoma - Nasho,Ngoma,Nasho,,3921
+201,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Nyabugogo - Kabarondo,Nyabugogo,Kabarondo,,3940
+202,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kayonza - Nasho,Kayonza,Nasho,,3979
+203,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Rwamagana - Rusumo,Rwamagana,Rusumo,,4237
+204,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Nyabugogo - Ngoma,Nyabugogo,Ngoma,,4574
+205,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Rwamagana - Nasho,Rwamagana,Nasho,,4693
+206,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabuga - Nyakarambi,Kabuga,Nyakarambi,,5029
+207,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Nyabugogo - Buhabwa VIA Rukara,Nyabugogo,Buhabwa,Rukara,5484
+208,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Nyabugogo - Gatore,Nyabugogo,Gatore,,5623
+209,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Kabuga - Rusumo,Kabuga,Rusumo,,5980
+210,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Nyabugogo - Nyakarambi,Nyabugogo,Nyakarambi,,6079
+211,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Nyabugogo - Rusumo,Nyabugogo,Rusumo,,7029
+212,Eastern Province,Direction 2: Nyabugogo - Rwamagana - Rusumo,Nyabugogo - Mahama,Nyabugogo,Mahama,,7921
+213,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Ramiro - Batima,Ramiro,Batima,,792
+214,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Sake - Gashora,Sake,Gashora,,871
+215,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyamata - Ramiro,Nyamata,Ramiro,,990
+216,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyanza (Kicukiro) - Nyamata,Nyanza (Kicukiro),Nyamata,,1029
+217,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Sake - Ramiro,Sake,Ramiro,,1109
+218,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Zaza - Gashora,Zaza,Gashora,,1346
+219,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyamata - Kabukuba,Nyamata,Kabukuba,,1445
+220,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyamata - Rilima,Nyamata,Rilima,,1465
+221,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Zaza - Ramiro,Zaza,Ramiro,,1585
+222,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyamata - Batima,Nyamata,Batima,,1702
+223,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyamata - Ruhuha VIA Gahembe,Nyamata,Ruhuha,Gahembe,1822
+224,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Sake - Nyamata,Sake,Nyamata,,2000
+225,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Busoro - Nyanza (South),Busoro,Nyanza (South),,2019
+226,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyamata - Nemba,Nyamata,Nemba,,2118
+227,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Ngoma - Gashora,Ngoma,Gashora,,2139
+228,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyanza (Kicukiro) - Ramiro,Nyanza (Kicukiro),Ramiro,,2198
+229,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyanza (Kicukiro) - Gashora,Nyanza (Kicukiro),Gashora,,2297
+230,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyanza (Kicukiro) - Rilima,Nyanza (Kicukiro),Rilima,,2297
+231,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Ngoma - Ramiro,Ngoma,Ramiro,,2357
+232,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyanza (Kicukiro) - Batima,Nyanza (Kicukiro),Batima,,2456
+233,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyamata - Ruhuha VIA Kamabuye,Nyamata,Ruhuha,Kamabuye,2456
+234,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Zaza - Nyamata,Zaza,Nyamata,,2474
+235,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyanza (Kicukiro) - Ruhuha VIA Gahembe,Nyanza (Kicukiro),Ruhuha,Gahembe,2515
+236,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyanza (Kicukiro) - Kabukuba,Nyanza (Kicukiro),Kabukuba,,2752
+237,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyamata - Nyanza (South),Nyamata,Nyanza (South),,2871
+238,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyanza (Kicukiro) - Nemba,Nyanza (Kicukiro),Nemba,,3168
+239,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Busoro - Huye,Busoro,Huye,,3207
+240,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Ngoma - Nyamata VIA Zaza,Ngoma,Nyamata,Zaza,3267
+241,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyanza (Kicukiro) - Ruhuha VIA Kamabuye,Nyanza (Kicukiro),Ruhuha,Kamabuye,3901
+242,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyamata - Huye,Nyamata,Huye,,3921
+243,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyanza (Kicukiro) - Sake,Nyanza (Kicukiro),Sake,,4138
+244,Eastern Province,Direction 3: Nyabugogo - Bugesera - Zaza,Nyanza (Kicukiro) - Zaza,Nyanza (Kicukiro),Zaza,,5049
+245,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Gisagara,Huye,Gisagara,,653
+246,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Gasarenda - Kitabi,Gasarenda,Kitabi,,712
+247,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Ruhango - Nyanza,Ruhango,Nyanza,,753
+248,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyamagabe - Gasarenda,Nyamagabe,Gasarenda,,852
+249,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Kamonyi (Ku Masuka),Nyabugogo,Kamonyi (Ku Masuka),,914
+250,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyamagabe - Manwari - Kaduha,Nyamagabe,Kaduha,,930
+251,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Ruhango - Buhanda,Ruhango,Buhanda,,1069
+252,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Buhanda - Nyanza VIA Mpanga,Buhanda,Nyanza,Mpanga,1069
+253,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Muhanga - Ruhango,Muhanga,Ruhango,,1089
+254,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Nyamagabe,Huye,Nyamagabe,,1109
+255,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Kibeho,Huye,Kibeho,,1247
+256,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Rugarika,Nyabugogo,Rugarika,,1287
+257,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Pindura - Bweyeye,Pindura,Bweyeye,,1287
+258,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyamagabe - Kitabi,Nyamagabe,Kitabi,,1367
+259,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Akanyaru (Haut),Huye,Akanyaru (Haut),,1406
+260,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Muhanga - Remera Rukoma,Muhanga,Remera Rukoma,,1406
+261,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyanza - Huye,Nyanza,Huye,,1465
+262,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Ndago,Huye,Ndago,,1544
+263,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Muhanga - Mugina,Muhanga,Mugina,,1544
+264,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Muhanga - Nyanza,Muhanga,Nyanza,,1624
+265,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyamagabe - Mushubi,Nyamagabe,Mushubi,,1663
+266,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Gakoma VIA Save,Huye,Gakoma,Save,1723
+267,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Muhanga - Buhanda VIA Ruhango,Muhanga,Buhanda,Ruhango,1822
+268,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Muhanga - Kinazi,Muhanga,Kinazi,,1842
+269,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Gasarenda,Huye,Gasarenda,,1921
+270,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Ruhango - Birambo,Ruhango,Birambo,,1980
+271,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Gakoma VIA Gisagara,Huye,Gakoma,Gisagara,1980
+272,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Gikonko VIA Save,Huye,Gikonko,Save,1980
+273,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Munini VIA Kibeho,Huye,Munini,Kibeho,2000
+274,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Kamembe - Pindura,Kamembe,Pindura,,2019
+275,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Muhanga,Nyabugogo,Muhanga,,2040
+276,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Remera Rukoma,Nyabugogo,Remera Rukoma,,2099
+277,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Ruhango - Huye,Ruhango,Huye,,2118
+278,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Mugombwa,Huye,Mugombwa,,2118
+279,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Kayenzi (Kamonyi),Nyabugogo,Kayenzi (Kamonyi),,2139
+280,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Kinazi VIA Mugina,Nyabugogo,Kinazi,Mugina,2178
+281,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Muhanga - Nyabikenke VIA Cyeza,Muhanga,Nyabikenke,Cyeza,2237
+282,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyanza - Nyamagabe,Nyanza,Nyamagabe,,2474
+283,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Kitabi,Huye,Kitabi,,2495
+284,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Akanyaru (Bas),Huye,Akanyaru (Bas),,2515
+285,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Munini VIA Cyahinda,Huye,Munini,Cyahinda,2653
+286,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyamagabe - Pindura,Nyamagabe,Pindura,,2772
+287,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Mushubi,Huye,Mushubi,,2791
+288,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Agatunda VIA Mugombwa,Huye,Agatunda,Mugombwa,2970
+289,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Ruhango,Nyabugogo,Ruhango,,2950
+290,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Muhanga - Huye,Muhanga,Huye,,3089
+291,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Ruhango - Kaduha,Ruhango,Kaduha,,3089
+292,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyanza - Gasarenda,Nyanza,Gasarenda,,3148
+293,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Ruhango - Nyamagabe,Ruhango,Nyamagabe,,3228
+294,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Kamembe - Bweyeye,Kamembe,Bweyeye,,3326
+295,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Buhanda VIA Byimana,Nyabugogo,Buhanda,Byimana,3347
+296,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Kitabi - Kamembe,Kitabi,Kamembe,,3446
+297,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Nyanza,Nyabugogo,Nyanza,,3664
+298,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyanza - Kitabi,Nyanza,Kitabi,,3861
+299,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Pindura,Huye,Pindura,,3901
+300,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Ruhango - Gasarenda,Ruhango,Gasarenda,,3960
+301,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Nyabimata VIA Kibeho,Huye,Nyabimata,Kibeho,3960
+302,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Ruheru VIA Kibeho,Huye,Ruheru,Kibeho,3960
+303,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyamagabe - Bweyeye,Nyamagabe,Bweyeye,,4079
+304,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Muhanga - Nyamagabe,Muhanga,Nyamagabe,,4158
+305,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Gasarenda - Kamembe,Gasarenda,Kamembe,,4158
+306,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Buhanda VIA Ruhango,Nyabugogo,Buhanda,Ruhango,4316
+307,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Birambo VIA Byimana,Nyabugogo,Birambo,Byimana,4415
+308,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Muhanga - Gasarenda,Muhanga,Gasarenda,,4911
+309,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Birambo VIA Ruhango,Nyabugogo,Birambo,Ruhango,4950
+310,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyamagabe - Kamembe,Nyamagabe,Kamembe,,4990
+311,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Huye,Nyabugogo,Huye,,5068
+312,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Bweyeye,Huye,Bweyeye,,5187
+313,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Muhanga - Kitabi,Muhanga,Kitabi,,5623
+314,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Kaduha VIA Ruhango,Nyabugogo,Kaduha,Ruhango,5940
+315,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Kaduha VIA Byimana,Nyabugogo,Kaduha,Byimana,6019
+316,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Huye - Kamembe,Huye,Kamembe,,6198
+317,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Nyamagabe,Nyabugogo,Nyamagabe,,6653
+318,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Gasarenda,Nyabugogo,Gasarenda,,6871
+319,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyanza - Kamembe,Nyanza,Kamembe,,7306
+320,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Kitabi,Nyabugogo,Kitabi,,7563
+321,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Ruhango - Kamembe,Ruhango,Kamembe,,8514
+322,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Mushubi,Nyabugogo,Mushubi,,9524
+323,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Muhanga - Kamembe VIA Huye,Muhanga,Kamembe,Huye,9603
+324,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Pindura,Nyabugogo,Pindura,,10930
+325,Southern Province,Direction 1: Nyabugogo - Muhanga - Huye - Nyamagabe,Nyabugogo - Kamembe VIA Huye,Nyabugogo,Kamembe,Huye,11445
+326,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rufungo - Rambura,Rufungo,Rambura,,218
+327,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mubuga - Gishyita,Mubuga,Gishyita,,257
+328,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Hanika - Kirambo,Hanika,Kirambo,,297
+329,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Tyazo - Nyamasheke,Tyazo,Nyamasheke,,337
+330,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karengera - Hanika,Karengera,Hanika,,377
+331,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyange - Rufungo,Nyange,Rufungo,,416
+332,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Gishyita - Mugonero,Gishyita,Mugonero,,416
+333,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Hanika - Tyazo,Hanika,Tyazo,,416
+334,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Kirambo - Nyamasheke,Kirambo,Nyamasheke,,455
+335,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Nyarusange,Muhanga,Nyarusange,,614
+336,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyange - Rambura,Nyange,Rambura,,634
+337,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Nyange,Nyarusange,Nyange,,673
+338,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rambura - Rubengera,Rambura,Rubengera,,673
+339,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rubengera - Karongi,Rubengera,Karongi,,673
+340,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mubuga - Mugonero,Mubuga,Mugonero,,673
+341,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karengera - Kirambo,Karengera,Kirambo,,673
+342,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mugonero - Karengera,Mugonero,Karengera,,712
+343,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karongi - Mubuga,Karongi,Mubuga,,753
+344,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Hanika - Nyamasheke,Hanika,Nyamasheke,,753
+345,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karengera - Tyazo,Karengera,Tyazo,,792
+346,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Kamembe - Bushenge,Kamembe,Bushenge,,852
+347,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rufungo - Rubengera,Rufungo,Rubengera,,891
+348,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karongi - Gishyita,Karongi,Gishyita,,1069
+349,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Rufungo,Nyarusange,Rufungo,,1089
+350,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mugonero - Hanika,Mugonero,Hanika,,1089
+351,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Gishyita - Karengera,Gishyita,Karengera,,1128
+352,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karengera - Nyamasheke,Karengera,Nyamasheke,,1128
+353,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Nyange,Muhanga,Nyange,,1188
+354,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Rambura,Nyarusange,Rambura,,1307
+355,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyange - Rubengera,Nyange,Rubengera,,1307
+356,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rambura - Congo Nile,Rambura,Congo Nile,,1326
+357,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mubuga - Karengera,Mubuga,Karengera,,1367
+358,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mugonero - Kirambo,Mugonero,Kirambo,,1367
+359,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karongi - Mugonero,Karongi,Mugonero,,1406
+360,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rambura - Karongi,Rambura,Karongi,,1426
+361,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyamasheke - Kamembe,Nyamasheke,Kamembe,,1445
+362,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rubengera - Mubuga,Rubengera,Mubuga,,1465
+363,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Gishyita - Hanika,Gishyita,Hanika,,1505
+364,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mugonero - Tyazo,Mugonero,Tyazo,,1505
+365,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mushubati - Nyange,Mushubati,Nyange,,1624
+366,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rufungo - Karongi,Rufungo,Karongi,,1643
+367,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Rufungo,Muhanga,Rufungo,,1702
+368,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rubengera - Gishyita,Rubengera,Gishyita,,1702
+369,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mubuga - Hanika,Mubuga,Hanika,,1742
+370,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Gishyita - Kirambo,Gishyita,Kirambo,,1782
+371,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mugonero - Nyamasheke,Mugonero,Nyamasheke,,1822
+372,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Tyazo - Kamembe,Tyazo,Kamembe,,1822
+373,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karongi - Karengera,Karongi,Karengera,,1900
+374,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Gishyita - Tyazo,Gishyita,Tyazo,,1921
+375,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Kirambo - Kamembe,Kirambo,Kamembe,,1921
+376,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Kamembe - Bugarama,Kamembe,Bugarama,,1921
+377,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Rubengera,Nyarusange,Rubengera,,1960
+378,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyange - Congo Nile,Nyange,Congo Nile,,1960
+379,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyange - Karongi,Nyange,Karongi,,2040
+380,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mubuga - Kirambo,Mubuga,Kirambo,,2040
+381,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Rambura,Muhanga,Rambura,,2059
+382,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rambura - Mubuga,Rambura,Mubuga,,2118
+383,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rubengera - Mugonero,Rubengera,Mugonero,,2118
+384,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mubuga - Tyazo,Mubuga,Tyazo,,2158
+385,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Kamembe - Cimerwa,Kamembe,Cimerwa,,2178
+386,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Kamembe - Ntango,Kamembe,Ntango,,2198
+387,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Gishyita - Nyamasheke,Gishyita,Nyamasheke,,2237
+388,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Hanika - Kamembe,Hanika,Kamembe,,2258
+389,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rufungo - Mubuga,Rufungo,Mubuga,,2336
+390,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rambura - Gishyita,Rambura,Gishyita,,2376
+391,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mubuga - Nyamasheke,Mubuga,Nyamasheke,,2495
+392,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Nyarusange,Nyabugogo,Nyarusange,,2573
+393,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rufungo - Gishyita,Rufungo,Gishyita,,2594
+394,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karongi - Hanika,Karongi,Hanika,,2594
+395,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karengera - Kamembe,Karengera,Kamembe,,2614
+396,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Congo Nile,Nyarusange,Congo Nile,,2633
+397,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Rubengera,Muhanga,Rubengera,,2674
+398,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Karongi,Nyarusange,Karongi,,2713
+399,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyange - Mubuga,Nyange,Mubuga,,2752
+400,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karongi - Kirambo,Karongi,Kirambo,,2752
+401,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rambura - Mugonero,Rambura,Mugonero,,2791
+402,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rubengera - Karengera,Rubengera,Karengera,,2832
+403,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karongi - Tyazo,Karongi,Tyazo,,2832
+404,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Mushubati,Muhanga,Mushubati,,2911
+405,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karongi - Nyamasheke,Karongi,Nyamasheke,,2989
+406,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyange - Gishyita,Nyange,Gishyita,,3009
+407,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rufungo - Mugonero,Rufungo,Mugonero,,3009
+408,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rubengera - Hanika,Rubengera,Hanika,,3207
+409,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Congo Nile,Muhanga,Congo Nile,,3267
+410,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Nyange,Nyabugogo,Nyange,,3366
+411,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mugonero - Kamembe,Mugonero,Kamembe,,3405
+412,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Mubuga,Nyarusange,Mubuga,,3425
+413,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyange - Mugonero,Nyange,Mugonero,,3425
+414,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rubengera - Kirambo,Rubengera,Kirambo,,3485
+415,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rambura - Karengera,Rambura,Karengera,,3505
+416,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karongi - Ntendezi,Karongi,Ntendezi,,3604
+417,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rubengera - Tyazo,Rubengera,Tyazo,,3623
+418,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Rufungo,Nyabugogo,Rufungo,,3643
+419,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Gishyita,Nyarusange,Gishyita,,3664
+420,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rufungo - Karengera,Rufungo,Karengera,,3722
+421,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Karongi,Muhanga,Karongi,,3742
+422,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Gishyita - Kamembe,Gishyita,Kamembe,,3781
+423,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rambura - Hanika,Rambura,Hanika,,3880
+424,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rubengera - Nyamasheke,Rubengera,Nyamasheke,,3960
+425,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Mubuga - Kamembe,Mubuga,Kamembe,,4020
+426,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Mubuga,Muhanga,Mubuga,,4039
+427,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Mugonero,Nyarusange,Mugonero,,4079
+428,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rufungo - Hanika,Rufungo,Hanika,,4079
+429,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyange - Karengera,Nyange,Karengera,,4119
+430,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Rambura,Nyabugogo,Rambura,,4138
+431,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rambura - Kirambo,Rambura,Kirambo,,4158
+432,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Gishyita,Muhanga,Gishyita,,4296
+433,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rambura - Tyazo,Rambura,Tyazo,,4296
+434,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rufungo - Kirambo,Rufungo,Kirambo,,4376
+435,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyange - Hanika,Nyange,Hanika,,4495
+436,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rufungo - Tyazo,Rufungo,Tyazo,,4495
+437,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Rubengera,Nyabugogo,Rubengera,,4535
+438,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rambura - Nyamasheke,Rambura,Nyamasheke,,4613
+439,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Mugonero,Muhanga,Mugonero,,4712
+440,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Karengera,Nyarusange,Karengera,,4792
+441,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyange - Kirambo,Nyange,Kirambo,,4792
+442,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Karongi - Kamembe,Karongi,Kamembe,,4792
+443,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rufungo - Nyamasheke,Rufungo,Nyamasheke,,4831
+444,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Mushubati,Nyabugogo,Mushubati,,4870
+445,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyange - Tyazo,Nyange,Tyazo,,4911
+446,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Hanika,Nyarusange,Hanika,,5168
+447,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Congo Nile,Nyabugogo,Congo Nile,,5208
+448,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyange - Nyamasheke,Nyange,Nyamasheke,,5247
+449,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Karengera,Muhanga,Karengera,,5405
+450,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rubengera - Kamembe,Rubengera,Kamembe,,5445
+451,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Kirambo,Nyarusange,Kirambo,,5465
+452,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Karongi,Nyabugogo,Karongi,,5504
+453,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Tyazo,Nyarusange,Tyazo,,5584
+454,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Hanika,Muhanga,Hanika,,5782
+455,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Nyamasheke,Nyarusange,Nyamasheke,,5920
+456,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Mubuga,Nyabugogo,Mubuga,,5980
+457,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Kirambo,Muhanga,Kirambo,,6079
+458,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rambura - Kamembe,Rambura,Kamembe,,6118
+459,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Tyazo,Muhanga,Tyazo,,6198
+460,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Gishyita,Nyabugogo,Gishyita,,6237
+461,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Rufungo - Kamembe,Rufungo,Kamembe,,6336
+462,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Nyamasheke,Muhanga,Nyamasheke,,6534
+463,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Mugonero,Nyabugogo,Mugonero,,6653
+464,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyange - Kamembe,Nyange,Kamembe,,6752
+465,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Karengera,Nyabugogo,Karengera,,7365
+466,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyarusange - Kamembe,Nyarusange,Kamembe,,7406
+467,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Hanika,Nyabugogo,Hanika,,7742
+468,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Kirambo,Nyabugogo,Kirambo,,8019
+469,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Tyazo,Nyabugogo,Tyazo,,8158
+470,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Nyamasheke,Nyabugogo,Nyamasheke,,8474
+471,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Muhanga - Kamembe VIA Karongi,Muhanga,Kamembe,Karongi,8534
+472,Western Province,Direction 1: Nyabugogo - Muhanga - Karongi - Kamembe,Nyabugogo - Kamembe VIA Karongi,Nyabugogo,Kamembe,Karongi,10296
+473,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Gatumba - Ngororero,Gatumba,Ngororero,,515
+474,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Buringa - Gatumba,Buringa,Gatumba,,712
+475,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Muhanga - Buringa,Muhanga,Buringa,,753
+476,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Kabaya - Mukamira,Kabaya,Mukamira,,1069
+477,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Buringa - Ngororero,Buringa,Ngororero,,1227
+478,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Ngororero - Kabaya,Ngororero,Kabaya,,1386
+479,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Muhanga - Gatumba,Muhanga,Gatumba,,1465
+480,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Gatumba - Kabaya,Gatumba,Kabaya,,1663
+481,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Kabaya - Kabali,Kabaya,Kabali,,1822
+482,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Muhanga - Ngororero,Muhanga,Ngororero,,1941
+483,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Ngororero - Mukamira,Ngororero,Mukamira,,2040
+484,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Muhanga - Kibangu VIA Rugendabari,Muhanga,Kibangu,Rugendabari,2139
+485,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Kabaya - Mahoko,Kabaya,Mahoko,,2237
+486,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Buringa - Kabaya,Buringa,Kabaya,,2376
+487,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Kabaya - Rubavu,Kabaya,Rubavu,,2495
+488,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Nyabugogo - Buringa,Nyabugogo,Buringa,,2693
+489,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Ngororero - Kabali,Ngororero,Kabali,,2970
+490,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Muhanga - Kabaya,Muhanga,Kabaya,,3129
+491,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Ngororero - Mahoko,Ngororero,Mahoko,,3386
+492,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Nyabugogo - Gatumba,Nyabugogo,Gatumba,,3405
+493,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Buringa - Mukamira,Buringa,Mukamira,,3544
+494,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Gatumba - Mukamira,Gatumba,Mukamira,,3563
+495,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Ngororero - Rubavu,Ngororero,Rubavu,,3604
+496,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Buringa - Kabali,Buringa,Kabali,,4197
+497,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Gatumba - Kabali,Gatumba,Kabali,,4237
+498,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Muhanga - Mukamira,Muhanga,Mukamira,,4257
+499,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Nyabugogo - Ngororero,Nyabugogo,Ngororero,,4395
+500,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Muhanga - Kabali,Muhanga,Kabali,,4950
+501,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Nyabugogo - Kabaya,Nyabugogo,Kabaya,,5068
+502,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Buringa - Rubavu,Buringa,Rubavu,,5208
+503,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Gatumba - Rubavu,Gatumba,Rubavu,,5227
+504,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Muhanga - Mahoko,Muhanga,Mahoko,,5366
+505,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Muhanga - Rubavu,Muhanga,Rubavu,,5683
+506,Western Province,Direction 2: Nyabugogo - Muhanga - Ngororero - Rubavu,Nyabugogo - Mukamira VIA Muhanga,Nyabugogo,Mukamira,Muhanga,6237
+507,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Kabali - Mahoko,Kabali,Mahoko,,337
+508,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Byangabo - Mukamira,Byangabo,Mukamira,,377
+509,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Mukamira - Kabali,Mukamira,Kabali,,712
+510,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Kabali - Rubavu,Kabali,Rubavu,,951
+511,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Mukamira - Mahoko,Mukamira,Mahoko,,1050
+512,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Byangabo - Kabali,Byangabo,Kabali,,1089
+513,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Byangabo - Mahoko,Byangabo,Mahoko,,1406
+514,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Mukamira - Rubavu,Mukamira,Rubavu,,1525
+515,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Rubavu - Bugeshi,Rubavu,Bugeshi,,1861
+516,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Rubavu - Kabuhanga,Rubavu,Kabuhanga,,1980
+517,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Gakenke - Byangabo,Gakenke,Byangabo,,2000
+518,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Byangabo - Rubavu,Byangabo,Rubavu,,2040
+519,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Base - Byangabo,Base,Byangabo,,2495
+520,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Base - Mukamira,Base,Mukamira,,2871
+521,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Gakenke - Kabali,Gakenke,Kabali,,3069
+522,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Gakenke - Mahoko,Gakenke,Mahoko,,3405
+523,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Base - Kabali,Base,Kabali,,3584
+524,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Base - Mahoko,Base,Mahoko,,3921
+525,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Gakenke - Rubavu,Gakenke,Rubavu,,4020
+526,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Nyabugogo - Byangabo,Nyabugogo,Byangabo,,4455
+527,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Base - Rubavu,Base,Rubavu,,4535
+528,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Nyabugogo - Mukamira,Nyabugogo,Mukamira,,4831
+529,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Musanze - Muhanga VIA Ngororero,Musanze,Muhanga,Ngororero,5445
+530,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Nyabugogo - Kabali,Nyabugogo,Kabali,,5525
+531,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Nyabugogo - Mahoko,Nyabugogo,Mahoko,,5860
+532,Western Province,Direction 3: Nyabugogo - Nyabihu - Rubavu,Nyabugogo - Rubavu,Nyabugogo,Rubavu,,6554
+533,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Nkomero - Gisiza,Nkomero,Gisiza,,257
+534,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gisiza - Congo-Nile,Gisiza,Congo-Nile,,416
+535,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Brasserie,Rubavu,Brasserie,,416
+536,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gakeri - Nkomero,Gakeri,Nkomero,,574
+537,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Nkomero - Congo-Nile,Nkomero,Congo-Nile,,653
+538,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gakeri - Gisiza,Gakeri,Gisiza,,811
+539,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Congo-Nile - Rubengera,Congo-Nile,Rubengera,,990
+540,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gisiza - Rubengera,Gisiza,Rubengera,,1109
+541,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gakeri - Congo-Nile,Gakeri,Congo-Nile,,1227
+542,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Nkomero - Rubengera,Nkomero,Rubengera,,1367
+543,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Gakeri,Rubavu,Gakeri,,1604
+544,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Karongi - Birambo,Karongi,Birambo,,1663
+545,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gisiza - Karongi,Gisiza,Karongi,,1861
+546,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gakeri - Rubengera,Gakeri,Rubengera,,1921
+547,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Congo-Nile - Karongi,Congo-Nile,Karongi,,1980
+548,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Nkomero - Karongi,Nkomero,Karongi,,2099
+549,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Kayove,Rubavu,Kayove,,2118
+550,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Nkomero,Rubavu,Nkomero,,2158
+551,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Congo-Nile - Mubuga,Congo-Nile,Mubuga,,2158
+552,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Nkora VIA Kivumu,Rubavu,Nkora,Kivumu,2178
+553,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Congo-Nile - Gishyita,Congo-Nile,Gishyita,,2396
+554,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Gisiza,Rubavu,Gisiza,,2416
+555,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Karongi - Gisovu VIA Gishyita,Karongi,Gisovu,Gishyita,2416
+556,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gisiza - Mubuga,Gisiza,Mubuga,,2573
+557,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gakeri - Karongi,Gakeri,Karongi,,2674
+558,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Nkomero - Mubuga,Nkomero,Mubuga,,2812
+559,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gisiza - Gishyita,Gisiza,Gishyita,,2812
+560,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Congo-Nile - Mugonero,Congo-Nile,Mugonero,,2812
+561,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Congo-Nile,Rubavu,Congo-Nile,,2832
+562,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Kigeyo - Karongi,Kigeyo,Karongi,,2970
+563,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Nkomero - Gishyita,Nkomero,Gishyita,,3069
+564,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gisiza - Mugonero,Gisiza,Mugonero,,3228
+565,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gakeri - Mubuga,Gakeri,Mubuga,,3386
+566,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Nkomero - Mugonero,Nkomero,Mugonero,,3485
+567,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Rubengera,Rubavu,Rubengera,,3524
+568,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Congo-Nile - Karengera,Congo-Nile,Karengera,,3524
+569,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gakeri - Gishyita,Gakeri,Gishyita,,3623
+570,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Congo-Nile - Hanika,Congo-Nile,Hanika,,3901
+571,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gisiza - Karengera,Gisiza,Karengera,,3940
+572,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Pfunda - Karongi,Pfunda,Karongi,,3960
+573,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gakeri - Mugonero,Gakeri,Mugonero,,4039
+574,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Nkomero - Karengera,Nkomero,Karengera,,4178
+575,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Congo-Nile - Kirambo,Congo-Nile,Kirambo,,4197
+576,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gisiza - Hanika,Gisiza,Hanika,,4316
+577,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Congo-Nile - Tyazo,Congo-Nile,Tyazo,,4316
+578,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Nkomero - Hanika,Nkomero,Hanika,,4553
+579,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gisiza - Kirambo,Gisiza,Kirambo,,4594
+580,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Congo-Nile - Nyamasheke,Congo-Nile,Nyamasheke,,4652
+581,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gisiza - Tyazo,Gisiza,Tyazo,,4732
+582,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gakeri - Karengera,Gakeri,Karengera,,4753
+583,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Nkomero - Kirambo,Nkomero,Kirambo,,4851
+584,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Karongi,Rubavu,Karongi,,4950
+585,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Nkomero - Tyazo,Nkomero,Tyazo,,4969
+586,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gisiza - Nyamasheke,Gisiza,Nyamasheke,,5068
+587,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gakeri - Hanika,Gakeri,Hanika,,5128
+588,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Mubuga,Rubavu,Mubuga,,5247
+589,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Nkomero - Nyamasheke,Nkomero,Nyamasheke,,5307
+590,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gakeri - Kirambo,Gakeri,Kirambo,,5426
+591,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gakeri - Tyazo,Gakeri,Tyazo,,5544
+592,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Gishyita,Rubavu,Gishyita,,5642
+593,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gakeri - Nyamasheke,Gakeri,Nyamasheke,,5881
+594,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Mugonero,Rubavu,Mugonero,,5940
+595,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Congo-Nile - Kamembe,Congo-Nile,Kamembe,,6138
+596,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Karengera,Rubavu,Karengera,,6356
+597,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gisiza - Kamembe,Gisiza,Kamembe,,6554
+598,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Hanika,Rubavu,Hanika,,6731
+599,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Nkomero - Kamembe,Nkomero,Kamembe,,6811
+600,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Kirambo,Rubavu,Kirambo,,7029
+601,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Tyazo,Rubavu,Tyazo,,7147
+602,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Gakeri - Kamembe,Gakeri,Kamembe,,7365
+603,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Nyamasheke,Rubavu,Nyamasheke,,7721
+604,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Ntendezi,Rubavu,Ntendezi,,7979
+605,Western Province,Direction 4: Rubavu - Karongi - Kamembe,Rubavu - Kamembe,Rubavu,Kamembe,,9009

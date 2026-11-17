@@ -1,9 +1,11 @@
 // Public transport between starting locations and destinations.
-// Admins fill a fare table (one-way fare per person); where a cell is empty, the fare is estimated from the
-// road distance on the built-in map. The assistant uses this to complete a trip's total cost when the
+// Order of preference for a fare: the admin's fare table (an explicit override), then the official RURA 2026
+// inter-city tariff (cheapest chain of official routes, plus a short local ride when needed), then a nearby
+// starting location in the admin table, then an estimate from the road distance on the built-in map. The assistant uses this to complete a trip's total cost when the
 // trip price does not include transport, starting from where the traveller actually is.
 import { db } from '../../database/db.js';
 import { byDistance, fareForKm, findPlace, locate, roadKm, type Point } from './rwanda.js';
+import { planJourney, routeStops, RURA_TARIFF } from './rura/network.js';
 
 export interface Hub { id: number; name: string; is_default: boolean; point?: Point }
 export interface DestPoint { id: number; name: string; region: string; point?: Point }
@@ -11,9 +13,11 @@ export interface TransportData { hubs: Hub[]; fares: Map<string, number>; dests:
 export interface TransportEstimate {
   one_way: number; amount: number;      // amount = return journey (there and back), per person
   from: string;                         // where the traveller starts (display name)
-  basis: 'table' | 'distance';          // admin fare table, or road-distance estimate
+  basis: 'table' | 'official' | 'distance'; // admin fare table, RURA tariff, or road-distance estimate
   via?: string;                         // table fare of a nearby starting location (e.g. Kinigi -> via Musanze)
   km?: number;                          // road distance used or known
+  /** RURA tariff: stops in travel order, the year, and any local ride (estimated) to/from the nearest stop. */
+  route?: string[]; tariff_year?: number; local?: { stop: string; km: number; fare: number; end: 'start' | 'end' }[];
 }
 
 const k = (destId: number, hubId: number) => `${destId}:${hubId}`;
@@ -50,12 +54,18 @@ export function estimateFare(data: TransportData, destId: number, from: string):
   const out = (one_way: number, basis: TransportEstimate['basis'], via?: string): TransportEstimate => ({ one_way, amount: one_way * 2, from: o.name, basis, via, km });
   // 1) The admin's fare from this starting location
   if (o.hub && data.fares.has(k(destId, o.hub.id))) return out(data.fares.get(k(destId, o.hub.id))!, 'table');
-  // 2) A starting location next to the traveller that has a fare (plus a short local ride to it)
+  // 2) The official RURA tariff
+  const j = planJourney({ name: o.name, point: o.point }, { name: dest.name, point: dest.point });
+  if (j) {
+    const local = [{ ...j.board, end: 'start' as const }, { ...j.alight, end: 'end' as const }].filter((x) => x.fare > 0);
+    return { ...out(j.one_way, 'official'), km: km ?? j.km, route: routeStops(j), tariff_year: RURA_TARIFF.year, local: local.length ? local : undefined };
+  }
+  // 3) A starting location next to the traveller that has a fare (plus a short local ride to it)
   if (o.point) {
     const near = byDistance(o.point, data.hubs.filter((h) => data.fares.has(k(destId, h.id))))[0];
     if (near && near.km <= HUB_RADIUS_KM) return out(data.fares.get(k(destId, near.id))! + (near.km > 3 ? fareForKm(near.km) : 0), 'table', near.name);
   }
-  // 3) Road distance on the map
+  // 4) Road distance on the map
   if (km !== undefined) return out(fareForKm(km), 'distance');
   return undefined;
 }

@@ -99,6 +99,6 @@ export const assistantSchema = z.object({
     lastRequest: z.string().max(300).optional(),
     lastTripIds: z.array(z.number().int().positive()).max(50).optional(),
     lastNearbyIds: z.array(z.number().int().positive()).max(50).optional(),
-    pending: z.union([z.object({ kind: z.literal('place_role'), place: z.string().trim().min(1).max(100) }), z.object({ kind: z.literal('origin') })]).optional(),
+    pending: z.union([z.object({ kind: z.literal('place_role'), place: z.string().trim().min(1).max(100) }), z.object({ kind: z.literal('origin') }), z.object({ kind: z.literal('route_origin'), to: z.string().trim().min(1).max(100) })]).optional(),
   }).partial().optional(),
 });

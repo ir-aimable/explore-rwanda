@@ -185,6 +185,10 @@ export async function initSchema() {
   // Columns added after the first release: CREATE TABLE IF NOT EXISTS does not add them to existing databases
   const destCols = (await db.prepare('PRAGMA table_info(destinations)').all() as any[]).map((c) => c.name);
   for (const col of ['info_rw', 'info_en']) if (!destCols.includes(col)) await db.exec(`ALTER TABLE destinations ADD COLUMN ${col} TEXT`);
+  // Google sign-in: the Google account id ("sub") linked to a user.
+  const userCols = (await db.prepare('PRAGMA table_info(users)').all() as any[]).map((c) => c.name);
+  if (!userCols.includes('google_sub')) await db.exec('ALTER TABLE users ADD COLUMN google_sub TEXT');
+  await db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub) WHERE google_sub IS NOT NULL');
   await db.transaction(async () => {
     for (const c of CATEGORIES) await db.prepare('INSERT OR IGNORE INTO categories (slug,name_rw,name_en) VALUES (?,?,?)').run(...c);
     for (const [i, name] of DEFAULT_HUBS.entries()) {

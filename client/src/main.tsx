@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import App from './App';
+import App, { prefetchPages } from './App';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/Toast';
 import { I18nProvider } from './i18n';
@@ -13,3 +13,5 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter><ThemeProvider><I18nProvider><ToastProvider><AuthProvider><App /></AuthProvider></ToastProvider></I18nProvider></ThemeProvider></BrowserRouter>
   </React.StrictMode>,
 );
+
+if (document.readyState === 'complete') prefetchPages(); else window.addEventListener('load', prefetchPages, { once: true });

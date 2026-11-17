@@ -50,7 +50,7 @@ export function Contact() {
 function AuthFrame({ children }: { children: React.ReactNode }) {
   const { t } = useI18n();
   return (<div className="auth-page">
-    <div className="auth-art"><HeroImage src="/images/auth.jpg" slug="hiking" seed={11} /><div className="cap"><span className="t-script kicker">{t('poster.auth.top')}</span><h2 className="t-poster">{t('brand.name')}</h2><p style={{ color: '#e2ece4' }}>{t('brand.tagline')}</p></div></div>
+    <div className="auth-art"><HeroImage src="/images/auth.webp" slug="hiking" seed={11} /><div className="cap"><span className="t-script kicker">{t('poster.auth.top')}</span><h2 className="t-poster">{t('brand.name')}</h2><p style={{ color: '#e2ece4' }}>{t('brand.tagline')}</p></div></div>
     <div className="auth-wrap">{children}</div>
   </div>);
 }

@@ -26,7 +26,7 @@ export default function Trips() {
   return (
     <>
       <section className="banner">
-        <HeroImage src="/images/trips-hero.jpg" slug="wildlife" seed={3} />
+        <HeroImage src="/images/trips-hero.webp" slug="wildlife" seed={3} />
         <div className="banner-in" style={{ paddingBottom: 128 }}>
           <span className="t-script kicker">{t('poster.trips.top')}</span>
           <h1 className="t-poster">{t('trips.title')}</h1>

@@ -333,6 +333,6 @@ const rw: AboutContent = {
   },
 };
 
-export const DEVELOPER = { name: 'Mariette Ikuzwe', photo: '/images/about.jpg' };
+export const DEVELOPER = { name: 'Mariette Ikuzwe', photo: '/images/about.webp' };
 
 export const ABOUT: Record<'en' | 'rw', AboutContent> = { en, rw };

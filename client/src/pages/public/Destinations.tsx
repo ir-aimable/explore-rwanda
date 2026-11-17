@@ -16,7 +16,7 @@ export function Destinations() {
   return (
     <>
       <section className="banner">
-        <HeroImage src="/images/destinations-hero.jpg" slug="nature" seed={8} />
+        <HeroImage src="/images/destinations-hero.webp" slug="nature" seed={8} />
         <div className="banner-in">
           <span className="t-script kicker">{t('poster.dest.top')}</span>
           <h1 className="t-poster">{t('dest.title')}</h1>

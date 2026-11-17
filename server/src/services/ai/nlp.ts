@@ -27,7 +27,11 @@ export interface Intent {
   lowCost: boolean;
   easy: boolean; challenging: boolean;
   wantsAvailability: boolean;
-  action: 'search' | 'greeting' | 'blocked_action' | 'blocked_private' | 'help' | 'small_talk' | 'recommend' | 'unknown';
+  action: 'search' | 'greeting' | 'blocked_action' | 'blocked_private' | 'help' | 'small_talk' | 'recommend' | 'route_info' | 'place_info' | 'unknown';
+  /** Transport question ("bus fare from Kigali to Huye", "how do I get to Kitabi"): place names as written/resolved. */
+  routeFrom?: string; routeTo?: string;
+  /** Location question ("where is Kitabi", "Kitabi iherereye he"). */
+  placeQuery?: string;
   social: Social[];       // conversational cues found in the message (can co-exist with a search)
   detected: string[];     // human-readable list of what was understood
 }
@@ -301,6 +305,14 @@ export function parseIntent(raw: string, lex: Lexicon, today = todayStr()): Inte
   }
   if (intent.origin && !intent.location) intent.placeRole = 'origin';
 
+  // Where a place is, or how to get there by public transport: answered from the map and RURA fares.
+  // An activity word that is only part of a place name ("Volcanoes National Park") does not make it a trip search.
+  const multiWordPlaces = sortedLoc.filter((l) => l.term.includes(' '));
+  const outsidePlaces = multiWordPlaces.reduce((acc, l) => acc.replace(new RegExp(`(^| )${l.term}( |$)`, 'g'), ' '), t);
+  const activityAsked = !!intent.category && (CATEGORY_WORDS[intent.category] ?? [intent.category]).some((w) => new RegExp(`(^| )${w}( |$)`).test(outsidePlaces));
+  const geo = parseGeoQuestion(t, sortedLoc, activityAsked || !!intent.transportIncluded);
+  if (geo) { Object.assign(intent, geo); intent.detected.push(geo.action === 'route_info' ? 'route' : 'place'); return intent; }
+
   intent.lowCost = /\b(cheap|cheapest|low cost|low-cost|affordable|budget friendly|inexpensive|bidahenze|bihendutse|igiciro gito)\b/.test(t) || /\blow ?cost\b/.test(t);
   if (intent.lowCost) intent.detected.push('low_cost');
   intent.easy = /\b(easy|beginner|beginners|family|families|kids|children|relaxed|byoroshye|abana)\b/.test(t);
@@ -341,7 +353,8 @@ export function mergeContext(cur: Intent, prev?: Partial<{ budget: number; categ
 }
 
 export function buildLexicon(cats: any[], dests: any[], trips: { starting_location: string; meeting_point: string }[]): Lexicon {
-  const GENERIC = new Set(['national', 'park', 'lake', 'eco', 'ibere', 'rya', 'rwanda', 'area', 'hill', 'forest', 'the', 'and']);
+  // Also bus-stop names that are everyday English words ("save money", "base price"): never treated as a place in a search.
+  const GENERIC = new Set(['national', 'park', 'lake', 'eco', 'ibere', 'rya', 'rwanda', 'area', 'hill', 'forest', 'the', 'and', 'base', 'save', 'sake']);
   const locs = new Map<string, string>();
   const add = (term: string, canonical: string) => { const n = tokens(term); if (n.length >= 4 && !GENERIC.has(n)) if (!locs.has(n)) locs.set(n, canonical); };
   for (const d of dests) {
@@ -361,4 +374,69 @@ export function buildLexicon(cats: any[], dests: any[], trips: { starting_locati
     categories: cats.map((c) => ({ slug: c.slug, names: [c.name_en, c.name_rw, c.slug] })),
     locations: [...locs.entries()].map(([term, canonical]) => ({ term, canonical })),
   };
+}
+
+// ---- Location and transport questions -------------------------------------------------------------
+const WHERE_PATTERNS = [
+  /\b(?:where (?:is|s|are)|wheres|where exactly is|location of|where can i find|(?:in )?which (?:district|province) is)\s+(?:the\s+)?(.+)$/,
+  /^(.+?)\s+(?:is in which (?:district|province)|is located where|located where)$/,
+  /^(?:ni he|ni hehe|ni ahahe)\s+(.+)$/,
+  /^(.+?)\s+(?:iherereye|riherereye|giherereye|herereye|iri|ri|ibarizwa|ribarizwa|ni)\s+(?:he|hehe|ahahe|mu kahe karere|mu yihe ntara)$/,
+];
+const FARE_WORDS = /\b(fare|fares|ticket|tickets|bus|buses|coaster|minibus|matatu|public transport|transport|transportation|itike|amatike|bisi|imodoka|tagisi|taxi|how much|angahe|kangahe|bingana iki|cost|costs|price|prices|igiciro|ibiciro|how far|distance|intera)\b/;
+const NOT_ROUTE = /\b(trip|trips|tour|tours|ingendo|activity|activities|organi[sz]ed|join|register|book|booking)\b/;
+const GET_TO = [
+  /\bhow (?:do|can|would|should|could) (?:i|we|one) (?:get|go|travel|reach)(?: to)?\s+(?:the\s+)?(.+)$/,
+  /\bhow to (?:get|go|travel|reach)(?: to)?\s+(?:the\s+)?(.+)$/,
+  /\b(?:best way|cheapest way|directions|route|way) to\s+(?:the\s+)?(.+)$/,
+  /\b(?:nagera|twagera|nagenda|najya|ngera|ngenda|nzagera|tuzagera)\s+(?:ate|gute|nte)\s+(?:i |mu |ku )?(.+)$/,
+  /\b(?:nagera|twagera|ngera|nzagera)\s+(?:i |mu |ku )?(.+?)\s+(?:ate|gute|nte)$/,
+];
+const FROM_TO = /\b(?:from|kuva(?: i| mu| ku)?|uvuye(?: i| mu| ku)?|mvuye(?: i| mu| ku)?)\s+(.+?)\s+(?:to|ujya|kujya|ugana|kugera|kugeza|ukagera|ngiye|ujyana)(?:\s+(?:i|mu|ku))?\s+(.+)$/;
+const HOW_FAR = /\bhow far is\s+(.+?)\s+from\s+(.+)$/;
+const BETWEEN = /\bbetween\s+(.+?)\s+and\s+(.+)$/;
+const FARE_TO = /\b(?:fare|ticket|bus|itike|bisi|transport)\s+(?:ya |y |to |for |ijya |ujya )?(?:i |mu |ku )?(.+)$/;
+
+/** The known place mentioned in a fragment: an exact name first, else the longest name it contains. */
+function placeIn(frag: string, terms: { term: string; canonical: string }[]): string | undefined {
+  const f = frag.trim();
+  if (!f) return undefined;
+  return terms.find((l) => l.term === f)?.canonical
+    ?? terms.find((l) => l.term.length >= 4 && new RegExp(`(^| )${l.term}( |$)`).test(f))?.canonical;
+}
+
+/** "Where is X?" -> place_info; "bus fare from X to Y" / "how do I get to Y" -> route_info. `terms` longest first. */
+export function parseGeoQuestion(t: string, terms: { term: string; canonical: string }[], tripSearch = false)
+  : Pick<Intent, 'action' | 'routeFrom' | 'routeTo' | 'placeQuery'> | undefined {
+  // Route questions take priority: "how far is Huye from Kigali" is about the journey.
+  if (!tripSearch && !NOT_ROUTE.test(t)) {
+    const asksFare = FARE_WORDS.test(t);
+    let m: RegExpMatchArray | null;
+    if ((m = t.match(HOW_FAR))) {
+      const to = placeIn(m[1], terms), from = placeIn(m[2], terms);
+      if (to) return { action: 'route_info', routeTo: to, routeFrom: from };
+    }
+    if (asksFare && ((m = t.match(FROM_TO)) || (m = t.match(BETWEEN)))) {
+      // An explicit "from X to Y": keep unknown names as written so the reply can say it can't find them.
+      const raw = (f: string) => f.replace(/\s+(?:please|by bus|one way|return|today|tomorrow|ni angahe|angahe|cost|costs|price|fare)$/g, '').trim();
+      return { action: 'route_info', routeTo: placeIn(m[2], terms) ?? raw(m[2]), routeFrom: placeIn(m[1], terms) ?? raw(m[1]) };
+    }
+    for (const re of GET_TO) {
+      if (!(m = t.match(re))) continue;
+      const fromM = m[1].match(/^(.+?)\s+(?:from|kuva(?: i| mu| ku)?|uvuye(?: i| mu| ku)?)\s+(.+)$/);
+      const to = placeIn(fromM ? fromM[1] : m[1], terms);
+      if (to) return { action: 'route_info', routeTo: to, routeFrom: fromM ? placeIn(fromM[2], terms) : undefined };
+    }
+    if (asksFare && (m = t.match(FARE_TO))) {
+      const to = placeIn(m[1], terms);
+      if (to) return { action: 'route_info', routeTo: to };
+    }
+  }
+  for (const re of WHERE_PATTERNS) {
+    const m = t.match(re);
+    if (!m) continue;
+    const frag = m[1].replace(/\s+(?:located|situated|found|exactly|in rwanda|on the map|please)$/g, '').trim();
+    return { action: 'place_info', placeQuery: placeIn(frag, terms) ?? frag };
+  }
+  return undefined;
 }

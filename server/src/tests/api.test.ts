@@ -710,14 +710,15 @@ test('AI assistant and intelligent search', async () => {
     // Budget uses the estimated total: RWF 8,000 fits from Musanze (7,000) but not from Kigali (11,000)
     assert.ok((await chat('hiking next weekend from Musanze under 8000')).trips.some((t: any) => t.id === id));
     assert.ok(!(await chat('hiking next weekend from Kigali under 8000')).trips.some((t: any) => t.id === id));
-    // No fare in the table from Rubavu: estimated from the road distance
-    const r = line(await chat('hiking next weekend from Rubavu')); assert.equal(r.l.estimate.basis, 'distance'); assert.ok(r.l.estimate.km > 0);
+    // No fare in the table from Rubavu: official RURA 2026 bus fares (cheapest chain of routes), not a distance guess
+    const r = line(await chat('hiking next weekend from Rubavu')); assert.equal(r.l.estimate.basis, 'official'); assert.equal(r.l.estimate.route[0], 'Rubavu'); assert.equal(r.l.estimate.tariff_year, 2026);
+    assert.equal(r.l.source_type, 'rura_tariff'); assert.equal(r.l.amount, r.l.estimate.one_way * 2); assert.match((await chat('hiking next weekend from Rubavu')).message, /official RURA 2026 bus fares/);
     // Organizer prices transport from Kigali; a traveller in Musanze goes directly by public transport instead
     await db.prepare("INSERT INTO cost_records (trip_id,cost_type,amount,source_type) VALUES (?,'transport',4000,'organizer')").run(id);
     const o = line(await chat('hiking next weekend from Musanze')); assert.equal(o.l.amount, 2000); assert.equal(o.l.estimate.instead_of.start, 'Kigali');
     const ok2 = line(await chat('hiking next weekend from Kigali')); assert.equal(ok2.l.status, 'known', 'from the trip start the organizer price stands'); assert.equal(ok2.l.amount, 4000);
     await db.prepare('DELETE FROM trips WHERE id=?').run(id);
-    return `Musanze ${m.l.amount}, Kigali ${k.l.amount}, Rubavu ≈${r.l.amount} (${r.l.estimate.km} km)`;
+    return `Musanze ${m.l.amount}, Kigali ${k.l.amount}, Rubavu ≈${r.l.amount} (RURA: ${r.l.estimate.route.join(' > ')})`;
   });
   await T('AI-26', 'Places on the map: "near <town>" finds destinations close to it', '"hiking near Musanze" returns trips at Test Bigogwe with a distance reason', async () => {
     const id = await mk(org1, { title: 'Near Musanze Hike', trip_date: '2026-11-14', registration_deadline: dl('2026-11-14'), price: 4000, included_services: ['Guide', 'Return transport'] });
@@ -730,6 +731,58 @@ test('AI assistant and intelligent search', async () => {
     const f = (await anon.get('/search?category=nature&max_price=5000')).json; assert.deepEqual(f.trips.map((t: any) => t.id), [ids.nature]);
     const all = (await anon.get('/search?all=1&category=hiking')).json; assert.ok(all.trips.some((t: any) => t.id === ids.fullHike && t.effective_status === 'fully_booked'));
     const s = (await anon.get('/search/suggest?q=Sunday')).json.items; assert.ok(s.some((x: any) => x.type === 'trip' && x.label === 'Sunday Swim'));
+  });
+  await T('AI-27', 'Bus fares between places come from the official RURA 2026 tariff (EN + RW)', 'Direct route, a change of bus, a Kigali bus park other than Nyabugogo, an estimated last mile, and a place that is not on the map', async () => {
+    const huye = await chat('How much is the bus from Kigali to Huye?');
+    assert.equal(huye.intent.action, 'route_info'); assert.equal(huye.route.one_way, 5068); assert.deepEqual(huye.route.stops, ['Nyabugogo', 'Huye']); assert.equal(huye.route.official, true);
+    assert.match(huye.message, /RWF 5,068/); assert.match(huye.message, /Southern Province/); assert.equal(huye.trips.length, 0, 'no trip search for a fare question');
+    const kinigi = await chat('how do I get to Kinigi from Kigali');
+    assert.deepEqual(kinigi.route.stops, ['Nyabugogo', 'Musanze', 'Kinigi']); assert.equal(kinigi.route.one_way, 3821 + 436);
+    // No starting point: ask (never assume Kigali); the answer gives the fare and is remembered
+    const q = await chat('Nagera ate i Nyamata?', undefined, 'rw');
+    assert.equal(q.route, undefined); assert.match(q.message, /Uzaturuka he/); assert.ok(q.clarification.options.includes('Kigali'));
+    const rw = await chat('Kigali', q.context, 'rw');
+    assert.equal(rw.route.board.stop, 'Nyanza (Kicukiro)', 'Bugesera buses leave from Nyanza (Kicukiro)'); assert.equal(rw.route.one_way, 1029); assert.match(rw.message, /gare ya Nyanza \(Kicukiro\)/);
+    assert.equal(rw.context.origin, 'Kigali'); assert.equal(rw.context.pending, undefined);
+    const park = await chat('bus fare from Kigali to Volcanoes National Park');
+    assert.equal(park.route.alight.stop, 'Kinigi', 'nearest stop to the park'); assert.equal(park.route.one_way, 4257);
+    const nyungwe = await chat('transport from Huye to Nyungwe National Park');
+    assert.equal(nyungwe.route.official, false); assert.ok(nyungwe.route.alight.fare > 0); assert.match(nyungwe.message, /an estimate, not a RURA fare/);
+    const nf = await chat('How much is the bus from Kigali to Paris?'); assert.notEqual(nf.intent.action, 'search');
+    return `Huye ${huye.route.one_way}, Kinigi ${kinigi.route.one_way}, Nyamata ${rw.route.one_way}, Nyungwe from Huye ≈${nyungwe.route.one_way}`;
+  });
+  await T('AI-28', 'Where a place is: district, province, RURA route or nearest stop, fare from the traveller', 'EN + RW; a park (not a bus stop) gets its nearest stop; an unknown place is said plainly; the active search is kept', async () => {
+    const k = await chat('Where is Kitabi?');
+    assert.equal(k.intent.action, 'place_info'); assert.equal(k.place.district, 'Nyamagabe'); assert.equal(k.place.province, 'Southern');
+    assert.match(k.message, /Nyamagabe District, Southern Province/); assert.match(k.message, /Nyabugogo – Muhanga – Huye – Nyamagabe/);
+    assert.equal(k.route, undefined, 'no fare without a starting point'); assert.match(k.message, /Tell me where you'll travel from/);
+    assert.equal((await chat('Where is Kitabi?', { origin: 'Kigali' })).route.one_way, 7563);
+    const rw = await chat('Kinigi iherereye he?', undefined, 'rw'); assert.match(rw.message, /mu Karere ka Musanze, Intara y’Amajyaruguru/);
+    const park = await chat('where is volcanoes national park'); assert.match(park.message, /nearest bus stop is Kinigi/);
+    const none = await chat('Where is Paris?'); assert.match(none.message, /couldn't find “Paris”/); assert.equal(none.place, undefined);
+    // During a search, a location question answers and keeps the search
+    const s = await chat('hiking next weekend from Musanze'); const w = await chat('where is Kinigi?', s.context);
+    assert.equal(w.context.origin, 'Musanze'); assert.equal(w.context.category, 'hiking'); assert.match(w.message, /From Musanze: RWF 436/);
+  });
+  await T('AI-29', 'The admin fare table still overrides RURA, and suggests RURA fares for empty cells', 'Saved Kigali fare wins; empty cells show the RURA suggestion with its route', async () => {
+    const tr = (await admin.get('/admin/transport')).json;
+    const e = tr.estimates.find((x: any) => x.basis === 'rura'); assert.ok(e, 'RURA suggestions present'); assert.ok(e.route.length >= 2);
+    const cell = tr.fares.find((f: any) => f.destination_id === S.dBig && f.hub_id === tr.hubs.find((h: any) => h.name === 'Kigali').id);
+    assert.equal(cell?.amount, 3000, 'admin value kept from AI-25');
+  });
+  await T('AI-30', 'Transport is counted from the place the traveller names, else the organizer start, never a default city', '"near Kabali" prices from Kabali; "Kigali / Rubavu" uses the cheaper start; no usable start: unknown + ask', async () => {
+    const id = await mk(org1, { title: 'Western Ridge Walk', trip_date: '2026-11-14', registration_deadline: dl('2026-11-14'), price: 5000, starting_location: 'Kigali / Rubavu', included_services: ['Guide'], excluded_services: ['Transport'] });
+    const find = (j: any) => { const t = [...j.trips, ...j.alternatives, ...(j.nearby || [])].find((x: any) => x.id === id); assert.ok(t, j.message); return t.cost.lines.find((l: any) => l.type === 'transport'); };
+    const near = await chat('I want to visit somewhere near Kabali'); const l = find(near);
+    assert.equal(l.estimate.from, 'Kabali'); assert.equal(l.estimate.from_kind, 'place'); assert.equal(l.estimate.assumed, false);
+    assert.match(near.message, /from Kabali, the place you mentioned/); assert.doesNotMatch(near.message, /from Kigali/);
+    const org = find(await chat('hiking next weekend'));
+    assert.equal(org.estimate.from_kind, 'organizer'); assert.equal(org.estimate.from, 'Rubavu', 'of "Kigali / Rubavu", the cheaper start to this destination');
+    await db.prepare("UPDATE trips SET starting_location='Somewhere Unmapped' WHERE id=?").run(id);
+    const u = await chat('hiking next weekend'); assert.equal(find(u).status, 'unknown');
+    assert.match(u.message, /tell me where you'll travel from and I'll add the bus fare/);
+    await db.prepare('DELETE FROM trips WHERE id=?').run(id);
+    return `near Kabali: ${l.estimate.route?.join(' > ')} ≈${l.amount}; organizer start: ${org.estimate.from} ≈${org.amount}`;
   });
   await T('AI-18', 'Works with no external AI provider configured', 'engine === rules', async () => { assert.equal((await ask('hiking')).engine, 'rules'); });
 });
@@ -781,18 +834,18 @@ test('password reset and google sign-in', async () => {
   const sha = (v: string) => createHash('sha256').update(v).digest('hex');
   const resetUser = new Client();
   const uid = await reg(resetUser, 'reset@test.local');
-  const tokenCount = () => (db.prepare('SELECT COUNT(*) c FROM password_reset_tokens WHERE user_id=?').get(uid) as any).c as number;
+  const tokenCount = async () => ((await db.prepare('SELECT COUNT(*) c FROM password_reset_tokens WHERE user_id=?').get(uid)) as any).c as number;
 
   await T('RESET-01', 'Forgot password gives the same answer for known and unknown emails', 'HTTP 200 ok for both; token stored (hashed) only for the real account', async () => {
     const a = await anon.post('/auth/forgot-password', { email: 'nobody@test.local' });
     const b = await anon.post('/auth/forgot-password', { email: 'RESET@test.local' });
     assert.equal(a.status, 200); assert.equal(b.status, 200); assert.deepEqual(a.json, b.json);
     await new Promise((r) => setTimeout(r, 20));
-    assert.equal(tokenCount(), 1);
+    assert.equal(await tokenCount(), 1);
   });
   await T('RESET-02', 'Valid reset token sets a new password and logs the user in', 'HTTP 200; new password works, old one fails', async () => {
     const token = 'a'.repeat(64);
-    db.prepare("INSERT INTO password_reset_tokens (user_id,token_hash,expires_at) VALUES (?,?,datetime('now','+30 minutes'))").run(uid, sha(token));
+    await db.prepare("INSERT INTO password_reset_tokens (user_id,token_hash,expires_at) VALUES (?,?,datetime('now','+30 minutes'))").run(uid, sha(token));
     const c = new Client();
     const r = await c.post('/auth/reset-password', { token, password: 'BrandNew123' });
     assert.equal(r.status, 200); assert.equal(r.json.user.id, uid);
@@ -803,13 +856,13 @@ test('password reset and google sign-in', async () => {
   await T('RESET-03', 'Reset token cannot be reused, and expired or unknown tokens are rejected', 'HTTP 400 invalid_token', async () => {
     assert.equal((await anon.post('/auth/reset-password', { token: 'a'.repeat(64), password: 'Another123' })).json.error, 'invalid_token');
     const old = 'b'.repeat(64);
-    db.prepare("INSERT INTO password_reset_tokens (user_id,token_hash,expires_at) VALUES (?,?,datetime('now','-1 minutes'))").run(uid, sha(old));
+    await db.prepare("INSERT INTO password_reset_tokens (user_id,token_hash,expires_at) VALUES (?,?,datetime('now','-1 minutes'))").run(uid, sha(old));
     assert.equal((await anon.post('/auth/reset-password', { token: old, password: 'Another123' })).json.error, 'invalid_token');
     assert.equal((await anon.post('/auth/reset-password', { token: 'c'.repeat(64), password: 'Another123' })).status, 400);
   });
   await T('RESET-04', 'Reset still enforces the password strength rule', 'HTTP 400 validation_error', async () => {
     const token = 'd'.repeat(64);
-    db.prepare("INSERT INTO password_reset_tokens (user_id,token_hash,expires_at) VALUES (?,?,datetime('now','+30 minutes'))").run(uid, sha(token));
+    await db.prepare("INSERT INTO password_reset_tokens (user_id,token_hash,expires_at) VALUES (?,?,datetime('now','+30 minutes'))").run(uid, sha(token));
     const r = await anon.post('/auth/reset-password', { token, password: 'onlyletters' });
     assert.equal(r.status, 400); assert.equal(r.json.error, 'validation_error');
   });
@@ -817,5 +870,54 @@ test('password reset and google sign-in', async () => {
     assert.equal((await anon.get('/auth/providers')).json.google, null);
     const r = await anon.post('/auth/google', { credential: 'x'.repeat(40) });
     assert.equal(r.status, 400); assert.equal(r.json.error, 'google_not_configured');
+  });
+  await T('RESET-05', 'Forgot password takes the same minimum time for known and unknown emails; a new link replaces the old one', '>= 800 ms both; one unused token per account', async () => {
+    const time = async (email: string) => { const t0 = Date.now(); assert.equal((await anon.post('/auth/forgot-password', { email })).status, 200); return Date.now() - t0; };
+    assert.ok(await time('nobody2@test.local') >= 790); assert.ok(await time('reset@test.local') >= 790);
+    await time('reset@test.local');
+    assert.equal(((await db.prepare('SELECT COUNT(*) c FROM password_reset_tokens WHERE user_id=? AND used_at IS NULL').get(uid)) as any).c, 1);
+  });
+  await T('GOOGLE-02', 'Google sign-in: verified token creates, links or signs in; forged, expired, wrong-audience and unverified tokens are rejected', 'Signature checked against the signing key; email account linked once', async () => {
+    const { generateKeyPairSync, sign } = await import('node:crypto');
+    const { env } = await import('../config/env.js');
+    const { setGoogleKeysForTests } = await import('../services/auth/google.js');
+    const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
+    const other = generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey;
+    const CID = 'test-client.apps.googleusercontent.com';
+    env.googleClientIds.push(CID); setGoogleKeysForTests(new Map([['k1', publicKey]]));
+    const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString('base64url');
+    const now = Math.floor(Date.now() / 1000);
+    const tok = (claims: Record<string, unknown>, key = privateKey) => {
+      const body = `${b64({ alg: 'RS256', kid: 'k1', typ: 'JWT' })}.${b64({ iss: 'https://accounts.google.com', aud: CID, iat: now, exp: now + 600, email_verified: true, ...claims })}`;
+      return `${body}.${sign('RSA-SHA256', Buffer.from(body), key).toString('base64url')}`;
+    };
+    try {
+      assert.equal((await anon.get('/auth/providers')).json.google, CID);
+      // New account (traveler), then the same Google account signs in again
+      const c1 = new Client();
+      const n = await c1.post('/auth/google', { credential: tok({ sub: 'g-new', email: 'New.Google@test.local', name: 'Gina Google' }), preferred_language: 'en' });
+      assert.equal(n.status, 201); assert.equal(n.json.created, true); assert.equal(n.json.user.role, 'traveler'); assert.equal(n.json.user.email, 'new.google@test.local');
+      assert.equal((await c1.get('/auth/me')).json.user.id, n.json.user.id);
+      const again = await new Client().post('/auth/google', { credential: tok({ sub: 'g-new', email: 'new.google@test.local' }) });
+      assert.equal(again.status, 200); assert.equal(again.json.created, false); assert.equal(again.json.user.id, n.json.user.id);
+      // Existing email/password account: linked, not duplicated; its password still works
+      const linked = await new Client().post('/auth/google', { credential: tok({ sub: 'g-reset', email: 'reset@test.local' }) });
+      assert.equal(linked.status, 200); assert.equal(linked.json.user.id, uid);
+      assert.equal(((await db.prepare('SELECT google_sub s FROM users WHERE id=?').get(uid)) as any).s, 'g-reset');
+      assert.equal((await new Client().post('/auth/login', { email: 'reset@test.local', password: 'BrandNew123' })).status, 200);
+      // A different Google account cannot take over an email already linked to another one
+      assert.equal((await anon.post('/auth/google', { credential: tok({ sub: 'g-intruder', email: 'reset@test.local' }) })).json.error, 'google_failed');
+      // Rejected tokens
+      const bad = async (credential: string) => { const r = await anon.post('/auth/google', { credential }); assert.equal(r.status, 400); assert.equal(r.json.error, 'google_failed'); };
+      await bad(tok({ sub: 'g-x', email: 'x@test.local' }, other));                       // not signed by the key
+      await bad(tok({ sub: 'g-x', email: 'x@test.local', aud: 'someone-else' }));          // issued for another app
+      await bad(tok({ sub: 'g-x', email: 'x@test.local', exp: now - 3600 }));              // expired
+      await bad(tok({ sub: 'g-x', email: 'x@test.local', email_verified: false }));        // email not verified by Google
+      await bad(tok({ sub: 'g-x', email: 'x@test.local', iss: 'https://evil.example' }));  // wrong issuer
+      assert.equal(((await db.prepare("SELECT COUNT(*) c FROM users WHERE email='x@test.local'").get()) as any).c, 0);
+      // Deactivated accounts cannot sign in with Google either
+      await db.prepare('UPDATE users SET is_active=0 WHERE id=?').run(n.json.user.id);
+      assert.equal((await anon.post('/auth/google', { credential: tok({ sub: 'g-new', email: 'new.google@test.local' }) })).json.error, 'account_disabled');
+    } finally { env.googleClientIds.length = 0; setGoogleKeysForTests(null); }
   });
 });

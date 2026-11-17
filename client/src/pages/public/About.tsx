@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { HeroImage } from '../../components/Cover';
+import { HeroImage, srcSetFor } from '../../components/Cover';
 import { Icon, type IconName } from '../../components/Icon';
 import { useI18n } from '../../i18n';
 import { ABOUT, DEVELOPER, type Item } from './aboutContent';
@@ -34,7 +34,7 @@ export function About() {
   return (
     <div className="about">
       <section className="banner ab-banner">
-        <HeroImage src="/images/hero3.jpg" slug="hiking" seed={4} />
+        <HeroImage src="/images/hero3.webp" slug="hiking" seed={4} />
         <div className="banner-in">
           <span className="t-script kicker">{c.hero.kicker}</span>
           <h1 className="t-poster">{c.hero.title}</h1>
@@ -69,7 +69,7 @@ export function About() {
             <blockquote className="ab-quote"><Icon name="sparkles" size={26} /><p>{c.story.quote}</p></blockquote>
           </div>
           <figure className="card ab-dev">
-            <img src={DEVELOPER.photo} alt={DEVELOPER.name} loading="lazy" width={1672} height={941} />
+            <img src={DEVELOPER.photo} srcSet={srcSetFor(DEVELOPER.photo)} sizes="(min-width: 900px) 420px, 100vw" alt={DEVELOPER.name} loading="lazy" decoding="async" width={1000} height={563} />
             <figcaption>
               <span className="ab-dev-label"><Icon name="user" size={14} /> {c.story.devLabel}</span>
               <strong>{DEVELOPER.name}</strong>

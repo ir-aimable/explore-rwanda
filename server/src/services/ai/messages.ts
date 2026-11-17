@@ -160,6 +160,12 @@ export const msg = {
     `Do you want trips to ${place}, or should I change your starting location to ${place}?`),
   placeRoleOptions: (lang: Lang) => (lang === 'rw' ? ['Aho njya', 'Aho nturuka'] : ['Destination', 'Starting location']),
   askOrigin: (lang: Lang) => L(lang, 'Uzaturuka he?', 'Where will you be starting from?'),
+  /** Some trips have no starting point and the traveller gave none: transport cannot be priced. */
+  askOriginForTransport: (lang: Lang) => L(lang, 'Ku ngendo zitagaragaza aho zitangirira, mbwira aho uzaturuka nkubarire itike ya bisi.',
+    'For trips without a starting point, tell me where you\'ll travel from and I\'ll add the bus fare.'),
+  /** A fare question with no starting point. */
+  askRouteOrigin: (lang: Lang, to: string) => L(lang, `Uzaturuka he? Nzakubarira itike ya bisi ujya i ${to} nkurikije ibiciro bya RURA (2026).`,
+    `Where will you be travelling from? I'll work out the bus fare to ${to} with official RURA 2026 fares.`),
   changed: (lang: Lang, keys: string[]) => L(lang, `Nahinduye ${listPrefs(keys, lang)}, ibindi ndabigumana.`, `Updated the ${listPrefs(keys, lang)} and kept your other choices.`),
   cleared: (lang: Lang, keys: string[]) => L(lang, `Nakuyeho ${listPrefs(keys, lang)}.`, `Removed the ${listPrefs(keys, lang)}.`),
   reset: (lang: Lang) => L(lang, 'Sawa, dutangire bushya. Urashaka gukora iki?', 'Okay, starting a new search. What would you like to do?'),
@@ -265,9 +271,12 @@ export const msg = {
       + `Within your budget, the closest option is ${o.near.title} (${day(o.near.trip_date)}, RWF ${f(nearCost)})${diffEn ? `, ${diffEn}` : ''}. Would you like that one instead, or would you raise your budget?`);
   },
   /** Transport was not in the trip price, so a public transport fare was added to the total. */
-  transportNote: (lang: Lang, o: { from: string; assumed: boolean; table: boolean; distance: boolean; replaced?: string }) => {
-    const how = o.table && !o.distance ? L(lang, 'nkurikije ibiciro byashyizweho n’ubuyobozi', 'using the platform’s fare table')
-      : !o.table ? L(lang, 'nkurikije intera y’umuhanda', 'estimated from the road distance') : L(lang, 'nkurikije ibiciro byashyizweho cyangwa intera', 'from the fare table or the road distance');
+  transportNote: (lang: Lang, o: { from: string; assumed: boolean; place?: boolean; table: boolean; official?: boolean; distance: boolean; replaced?: string }) => {
+    const parts = [o.official && L(lang, 'ibiciro bya bisi byemejwe na RURA (2026)', 'official RURA 2026 bus fares'), o.table && L(lang, 'ibiciro byashyizweho n’ubuyobozi', 'the platform’s fare table'),
+      o.distance && L(lang, 'intera y’umuhanda', 'the road distance')].filter(Boolean) as string[];
+    const how = L(lang, 'nkurikije ', 'using ') + parts.join(L(lang, ' na ', ' and '));
+    if (o.place) return L(lang, `Aho transport itari mu giciro, nongeyeho itike ya bisi (kugenda no kugaruka) uvuye i ${o.from}, aho wavuze (${how}). Mbwira niba uzaturuka ahandi nkubarire.`,
+      `Where transport isn't included, I added the return public transport fare from ${o.from}, the place you mentioned (${how}). Tell me if you'll be starting somewhere else and I'll recalculate.`);
     return o.assumed
       ? L(lang, `Aho transport itari mu giciro, nongeyeho itike ya bisi (kugenda no kugaruka) uvuye i ${o.from}, aho urugendo rutangirira (${how}). Mbwira aho uzaturuka nkubarire neza.`,
         `Where transport isn't included, I added a return public transport fare from ${o.from}, the trip's starting point (${how}). Tell me where you'll travel from and I'll recalculate.`)

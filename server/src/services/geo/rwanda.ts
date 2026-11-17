@@ -2,6 +2,8 @@
 // names people actually use (old prefecture names, Kinyarwanda spellings). Pure data + pure functions,
 // so the assistant can tell which starting point is closest to a destination and estimate road distance.
 // Same normalisation as the language parser (kept local to avoid an import cycle).
+import { RURA_STOPS } from './rura/stops.js';
+
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’‘`´']/g, ' ');
 
 export interface Place {
@@ -13,9 +15,9 @@ export interface Place {
   aliases?: string[];
 }
 
-export const PLACES: Place[] = [
+const BASE_PLACES: Place[] = [
   // ---- Kigali City
-  { name: 'Kigali', lat: -1.9441, lng: 30.0619, kind: 'city', district: 'Nyarugenge', province: 'Kigali', aliases: ['kigali city', 'umujyi wa kigali', 'nyarugenge', 'gasabo', 'kicukiro', 'nyabugogo', 'downtown kigali', 'kigali town'] },
+  { name: 'Kigali', lat: -1.9441, lng: 30.0619, kind: 'city', district: 'Nyarugenge', province: 'Kigali', aliases: ['kigali city', 'umujyi wa kigali', 'nyarugenge', 'gasabo', 'kicukiro', 'downtown kigali', 'kigali town'] },
   { name: 'Remera', lat: -1.9536, lng: 30.1137, kind: 'area', district: 'Gasabo', province: 'Kigali' },
   { name: 'Kimironko', lat: -1.9497, lng: 30.1263, kind: 'area', district: 'Gasabo', province: 'Kigali' },
   { name: 'Kacyiru', lat: -1.9355, lng: 30.0866, kind: 'area', district: 'Gasabo', province: 'Kigali' },
@@ -38,14 +40,14 @@ export const PLACES: Place[] = [
   { name: 'Rubavu', lat: -1.6792, lng: 29.2597, kind: 'town', district: 'Rubavu', province: 'Western', aliases: ['gisenyi'] },
   { name: 'Lake Kivu', lat: -1.7028, lng: 29.2564, kind: 'site', district: 'Rubavu', province: 'Western', aliases: ['kivu', 'ikiyaga cya kivu'] },
   { name: 'Bigogwe', lat: -1.6329, lng: 29.4296, kind: 'area', district: 'Nyabihu', province: 'Western' },
-  { name: 'Nyabihu', lat: -1.6136, lng: 29.5300, kind: 'town', district: 'Nyabihu', province: 'Western', aliases: ['mukamira'] },
+  { name: 'Nyabihu', lat: -1.6136, lng: 29.5300, kind: 'town', district: 'Nyabihu', province: 'Western', aliases: [] },
   { name: 'Gishwati-Mukura National Park', lat: -1.8200, lng: 29.3800, kind: 'site', district: 'Rutsiro', province: 'Western', aliases: ['gishwati', 'mukura'] },
   { name: 'Rutsiro', lat: -1.9400, lng: 29.3000, kind: 'town', district: 'Rutsiro', province: 'Western' },
   { name: 'Ngororero', lat: -1.8650, lng: 29.6250, kind: 'town', district: 'Ngororero', province: 'Western' },
   { name: 'Karongi', lat: -2.0601, lng: 29.3480, kind: 'town', district: 'Karongi', province: 'Western', aliases: ['kibuye'] },
   { name: 'Nyamasheke', lat: -2.3300, lng: 29.0900, kind: 'town', district: 'Nyamasheke', province: 'Western', aliases: ['kagano'] },
   { name: 'Gisakura', lat: -2.4626, lng: 29.0953, kind: 'area', district: 'Nyamasheke', province: 'Western' },
-  { name: 'Rusizi', lat: -2.4846, lng: 28.9075, kind: 'town', district: 'Rusizi', province: 'Western', aliases: ['cyangugu', 'kamembe'] },
+  { name: 'Rusizi', lat: -2.4846, lng: 28.9075, kind: 'town', district: 'Rusizi', province: 'Western', aliases: ['cyangugu'] },
   // ---- Southern Province
   { name: 'Muhanga', lat: -2.0845, lng: 29.7564, kind: 'town', district: 'Muhanga', province: 'Southern', aliases: ['gitarama'] },
   { name: 'Kamonyi', lat: -2.0072, lng: 29.9028, kind: 'town', district: 'Kamonyi', province: 'Southern' },
@@ -56,7 +58,7 @@ export const PLACES: Place[] = [
   { name: 'Ethnographic Museum', lat: -2.5850, lng: 29.7480, kind: 'site', district: 'Huye', province: 'Southern', aliases: ['ethnographic museum', 'ingoro ndangamurage'] },
   { name: 'Gisagara', lat: -2.6160, lng: 29.8350, kind: 'town', district: 'Gisagara', province: 'Southern' },
   { name: 'Nyamagabe', lat: -2.4790, lng: 29.5650, kind: 'town', district: 'Nyamagabe', province: 'Southern', aliases: ['gikongoro'] },
-  { name: 'Nyaruguru', lat: -2.6383, lng: 29.5578, kind: 'town', district: 'Nyaruguru', province: 'Southern', aliases: ['kibeho'] },
+  { name: 'Nyaruguru', lat: -2.6383, lng: 29.5578, kind: 'town', district: 'Nyaruguru', province: 'Southern', aliases: [] },
   { name: 'Nyungwe National Park', lat: -2.4785, lng: 29.2000, kind: 'site', district: 'Nyamagabe', province: 'Southern', aliases: ['nyungwe', 'nyungwe forest', 'uwinka', 'pariki ya nyungwe'] },
   // ---- Eastern Province
   { name: 'Rwamagana', lat: -1.9487, lng: 30.4347, kind: 'town', district: 'Rwamagana', province: 'Eastern' },
@@ -64,12 +66,15 @@ export const PLACES: Place[] = [
   { name: 'Kayonza', lat: -1.8996, lng: 30.5087, kind: 'town', district: 'Kayonza', province: 'Eastern', aliases: ['mukarange'] },
   { name: 'Akagera National Park', lat: -1.8800, lng: 30.7000, kind: 'site', district: 'Kayonza', province: 'Eastern', aliases: ['akagera', 'pariki y akagera'] },
   { name: 'Ngoma', lat: -2.1597, lng: 30.5427, kind: 'town', district: 'Ngoma', province: 'Eastern', aliases: ['kibungo'] },
-  { name: 'Kirehe', lat: -2.2655, lng: 30.7036, kind: 'town', district: 'Kirehe', province: 'Eastern', aliases: ['nyakarambi'] },
-  { name: 'Rusumo Falls', lat: -2.3800, lng: 30.7830, kind: 'site', district: 'Kirehe', province: 'Eastern', aliases: ['rusumo'] },
-  { name: 'Bugesera', lat: -2.1490, lng: 30.0930, kind: 'town', district: 'Bugesera', province: 'Eastern', aliases: ['nyamata'] },
-  { name: 'Gatsibo', lat: -1.6000, lng: 30.4000, kind: 'town', district: 'Gatsibo', province: 'Eastern', aliases: ['kabarore'] },
+  { name: 'Kirehe', lat: -2.2655, lng: 30.7036, kind: 'town', district: 'Kirehe', province: 'Eastern', aliases: [] },
+  { name: 'Rusumo Falls', lat: -2.3800, lng: 30.7830, kind: 'site', district: 'Kirehe', province: 'Eastern', aliases: ['rusumo falls'] },
+  { name: 'Bugesera', lat: -2.1490, lng: 30.0930, kind: 'town', district: 'Bugesera', province: 'Eastern', aliases: [] },
+  { name: 'Gatsibo', lat: -1.6000, lng: 30.4000, kind: 'town', district: 'Gatsibo', province: 'Eastern', aliases: [] },
   { name: 'Nyagatare', lat: -1.2930, lng: 30.3270, kind: 'town', district: 'Nyagatare', province: 'Eastern' },
 ];
+
+/** The map: towns, areas and visitor sites, plus every stop in the RURA inter-city fare table. */
+export const PLACES: Place[] = [...BASE_PLACES, ...RURA_STOPS];
 
 /** Every searchable name (normalized) -> place. Longer names first, so "lake kivu" wins over "kivu". */
 const keyOf = (s: string) => norm(s).replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();

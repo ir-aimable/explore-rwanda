@@ -31,7 +31,9 @@ export type RecommendationStatus = 'recommended' | 'recommended_unconfirmed' | '
 export interface CostLine {
   type: string; label: string | null; amount: number | null; status: 'known' | 'included' | 'unknown' | 'estimated'; source_type: string | null;
   /** Estimated public transport: where from, how it was worked out, and whether the starting point was assumed. */
-  estimate?: { from: string; basis: 'table' | 'distance'; via?: string; km?: number; one_way: number; assumed: boolean;
+  /** from_kind: the traveller's own starting location, the place they asked about ("near Kabali"), or the organizer's starting point. */
+  estimate?: { from: string; basis: 'table' | 'official' | 'distance'; via?: string; km?: number; one_way: number; assumed: boolean; from_kind?: 'traveller' | 'place' | 'organizer';
+    route?: string[]; tariff_year?: number; local?: { stop: string; km: number; fare: number; end: 'start' | 'end' }[];
     /** The organizer prices transport from a starting point far from the traveller: public transport from where they are replaces it. */
     instead_of?: { start: string; amount: number } };
 }
@@ -112,7 +114,7 @@ const INCLUDED: Record<string, RegExp> = {
 };
 
 /** What the trip will really cost, as far as the records say. Missing amounts stay unknown, never zero. */
-export function costSummary(t: any, extras: Rec['extra_costs'], destExtras: Rec['extra_costs'], transport?: TransportEstimate & { assumed: boolean; replaceOrganizer?: boolean }): CostSummary {
+export function costSummary(t: any, extras: Rec['extra_costs'], destExtras: Rec['extra_costs'], transport?: TransportEstimate & { assumed: boolean; from_kind?: 'traveller' | 'place' | 'organizer'; replaceOrganizer?: boolean }): CostSummary {
   const inc = (k: string) => (t.included_services || []).some((x: string) => INCLUDED[k]?.test(x));
   const exc = (k: string) => (t.excluded_services || []).some((x: string) => INCLUDED[k]?.test(x));
   const lines: CostLine[] = [];
@@ -125,8 +127,9 @@ export function costSummary(t: any, extras: Rec['extra_costs'], destExtras: Rec[
   // public transport from where the traveller starts.
   else if (transport) {
     const org = extras.filter((r) => r.cost_type === 'transport' && r.amount != null).reduce((a, r) => a + r.amount!, 0);
-    lines.push({ type: 'transport', label: null, amount: transport.amount, status: 'estimated', source_type: transport.basis === 'table' ? 'transport_table' : 'system_estimate',
-      estimate: { from: transport.from, basis: transport.basis, via: transport.via, km: transport.km, one_way: transport.one_way, assumed: transport.assumed,
+    lines.push({ type: 'transport', label: null, amount: transport.amount, status: 'estimated', source_type: transport.basis === 'table' ? 'transport_table' : transport.basis === 'official' ? 'rura_tariff' : 'system_estimate',
+      estimate: { from: transport.from, basis: transport.basis, via: transport.via, km: transport.km, one_way: transport.one_way, assumed: transport.assumed, from_kind: transport.from_kind,
+        route: transport.route, tariff_year: transport.tariff_year, local: transport.local,
         instead_of: transport.replaceOrganizer ? { start: t.starting_location, amount: org } : undefined } });
   }
   else lines.push({ type: 'transport', label: null, amount: null, status: 'unknown', source_type: null });
@@ -186,8 +189,17 @@ export async function discover(intent: Intent, limit = 6, withNearby = true, sna
   };
   const nearPlace = intent.near ? findPlace(intent.near) : undefined;
   const locOk = (t: any) => !intent.location || locMatches(t, intent.location) || (nearKm(t) ?? Infinity) <= NEAR_KM;
-  // Where the traveller starts (their own starting location, else the trip's) for transport estimates
-  const origin = intent.origin ? resolveOrigin(intent.origin, tp) : undefined;
+  // Where public transport is counted from: the traveller's own starting location; else the place they asked about
+  // when the search is around a place ("near Kabali": no trip is AT Kabali, so trips are ranked by distance from it);
+  // else the organizer's starting point. Never a default city.
+  const refPlace = !intent.origin ? (intent.location && locPlace && !byName ? locPlace.name : intent.near && nearPlace ? nearPlace.name : undefined) : undefined;
+  const fromName = intent.origin ?? refPlace;
+  const origin = fromName ? resolveOrigin(fromName, tp) : undefined;
+  const fromKind: 'traveller' | 'place' | undefined = intent.origin ? 'traveller' : refPlace ? 'place' : undefined;
+  /** The organizer's starting point; "Kigali / Rubavu" lists several, so use the one with the cheapest fare to the destination. */
+  const organizerFare = (t: any) => String(t.starting_location || '').split(/\s*(?:\/|,|;|&|\bor\b|\bna\b|\bcyangwa\b)\s*/i).filter(Boolean)
+    .map((s) => estimateFare(tp, t.destination.id, s)).filter((e): e is TransportEstimate => !!e)
+    .sort((a, b) => a.one_way - b.one_way)[0];
 
   // 2) Criteria match (activity, place, transport) — independent of availability and budget.
   const matches = (t: any) => actMatch(t) !== 'none'
@@ -215,12 +227,12 @@ export async function discover(intent: Intent, limit = 6, withNearby = true, sna
 
   const score = (t: any): Rec => {
     const extras = tripCostsOf(t.id);
-    const est = estimateFare(tp, t.destination.id, intent.origin || t.starting_location);
+    const est = fromName ? estimateFare(tp, t.destination.id, fromName) : organizerFare(t);
     // A traveller far from the trip's starting point travels to the destination directly by public transport,
     // instead of paying the organizer's separately priced transport from that starting point.
     const startPt = origin?.point ? resolveOrigin(t.starting_location, tp).point : undefined;
     const farFromStart = !!origin?.point && !!startPt && roadKm(origin.point, startPt) > HUB_RADIUS_KM;
-    const cost = costSummary(t, extras, destCostsOf(t.destination.id), est && { ...est, assumed: !intent.origin, replaceOrganizer: farFromStart && extras.some((r) => r.cost_type === 'transport' && r.amount != null) });
+    const cost = costSummary(t, extras, destCostsOf(t.destination.id), est && { ...est, assumed: !fromKind, from_kind: fromKind ?? 'organizer', replaceOrganizer: farFromStart && extras.some((r) => r.cost_type === 'transport' && r.amount != null) });
     const avail = availability(t);
     const budget = eligibility(cost);
     const reasons: Rec['reasons'] = [];

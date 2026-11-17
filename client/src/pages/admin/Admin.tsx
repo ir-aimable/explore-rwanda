@@ -231,7 +231,7 @@ interface TransportTable {
   hubs: { id: number; name: string; is_default: boolean; located: boolean }[];
   destinations: { id: number; name: string; region: string; located: boolean; closest: { id: number; name: string; km: number }[] }[];
   fares: { destination_id: number; hub_id: number; amount: number }[];
-  estimates: { destination_id: number; hub_id: number; km: number; amount: number }[];
+  estimates: { destination_id: number; hub_id: number; km: number; amount: number; basis: 'rura' | 'distance'; official?: boolean; route?: string[] }[];
   fare_per_km: number;
 }
 
@@ -302,7 +302,7 @@ export function TransportPrices() {
               return (<td key={h.id} className={`${d.closest[0]?.id === h.id ? 'closest' : ''} ${k in edits && changed.some(([c]) => c === k) ? 'dirty' : ''}`}>
                 <input type="number" min={0} step={100} inputMode="numeric" aria-label={`${d.name} – ${h.name}`} value={v}
                   placeholder={e ? String(e.amount) : '–'} onChange={(ev) => setEdits({ ...edits, [k]: ev.target.value })} />
-                {e && <div className="small muted">{t('ad.tr_est', { n: money(e.amount), km: e.km })}</div>}
+                {e && <div className="small muted" title={e.route?.join(' → ')}>{e.basis === 'rura' ? t(e.official ? 'ad.tr_est_rura' : 'ad.tr_est_rura_local', { n: money(e.amount) }) : t('ad.tr_est', { n: money(e.amount), km: e.km })}</div>}
               </td>);
             })}
           </tr>))}

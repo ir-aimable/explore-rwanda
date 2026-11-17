@@ -58,12 +58,24 @@ export function Cover({ src, srcs, slug, seed = 1, alt = '', children, className
   );
 }
 
-/** Full-bleed background image for hero banners, with a gradient + scene fallback. */
+/** Smaller copies made by scripts/optimize-images.py ("<name>-<w>.webp"), so phones don't download desktop-size photos. */
+const SMALL: Record<string, [small: number, large: number]> = {
+  hero: [800, 1600], hero3: [800, 1600], 'destinations-hero': [800, 1600], 'trips-hero': [800, 1600], auth: [600, 940], about: [600, 1000],
+};
+/** srcset for a built-in photo ("/images/hero.webp"); undefined for anything else (uploads, external URLs). */
+export function srcSetFor(src?: string | null) {
+  const m = /^\/images\/([\w-]+)\.webp$/.exec(src || '');
+  const w = m && SMALL[m[1]];
+  return w ? `/images/${m![1]}-${w[0]}.webp ${w[0]}w, ${src} ${w[1]}w` : undefined;
+}
+
+/** Full-bleed background image for hero banners, with a gradient + scene fallback. Above the fold, so fetched first. */
 export function HeroImage({ src, slug = 'hiking', seed = 5 }: { src: string; slug?: string; seed?: number }) {
   const [ok, setOk] = useState(true);
   return (
     <div className="hero-bg" aria-hidden="true">
-      {ok ? <img src={src} alt="" onError={() => setOk(false)} /> : <><Scene slug={slug} seed={seed} />{import.meta.env.DEV && <span className="img-hint">+ {src}</span>}</>}
+      {ok ? <img src={src} srcSet={srcSetFor(src)} sizes="100vw" alt="" decoding="async" {...{ fetchpriority: 'high' }} onError={() => setOk(false)} />
+        : <><Scene slug={slug} seed={seed} />{import.meta.env.DEV && <span className="img-hint">+ {src}</span>}</>}
     </div>
   );
 }
@@ -74,19 +86,24 @@ export function HeroSlideshow({ slides, slug = 'hiking', seed = 5 }: { slides: {
   const [broken, setBroken] = useState<Record<string, boolean>>({});
   const live = slides.filter((s) => !broken[s.src]);
   const [i, setI] = useState(0);
-  const cur = live.length ? i % live.length : 0;
+  // Slides are fetched one at a time: the next image is only requested once the current one has loaded,
+  // so the first paint doesn't compete with photos that are not on screen yet.
+  const [loaded, setLoaded] = useState(0);
+  const ready = Math.max(1, Math.min(loaded, live.length));
+  const cur = live.length ? i % ready : 0;
   useEffect(() => {
-    if (live.length < 2) return;
-    const id = window.setTimeout(() => setI((n) => (n + 1) % live.length), live[cur].ms);
+    if (ready < 2) return;
+    const id = window.setTimeout(() => setI((n) => (n + 1) % ready), live[cur].ms);
     return () => window.clearTimeout(id);
-  }, [cur, live.length]);
+  }, [cur, ready, live.length]);
   if (!live.length) return <HeroImage src={slides[0]?.src || ''} slug={slug} seed={seed} />;
   return (
     <div className="hero-bg hero-slides" aria-hidden="true">
       <div className="hero-drift">
-        {live.map((s, k) => (
-          <img key={s.src} src={s.src} alt="" className={k === cur ? 'on' : ''} loading={k === 0 ? 'eager' : 'lazy'}
-            onError={() => setBroken((b) => ({ ...b, [s.src]: true }))} />
+        {live.slice(0, loaded + 1).map((s, k) => (
+          <img key={s.src} src={s.src} srcSet={srcSetFor(s.src)} sizes="100vw" alt="" className={k === cur ? 'on' : ''} decoding="async"
+            {...(k === 0 ? { fetchpriority: 'high' } : {})}
+            onLoad={() => setLoaded((n) => Math.max(n, k + 1))} onError={() => setBroken((b) => ({ ...b, [s.src]: true }))} />
         ))}
       </div>
     </div>

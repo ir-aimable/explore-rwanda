@@ -1,14 +1,55 @@
+import { lazy, type ComponentType } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { DashLayout, PublicLayout, RequireAuth, RequireRole, type DashLink } from './layouts/Layouts';
-import { AdminHome, AdminDestinations, TransportPrices, AdminSupport, Announcements, Applications, AuditLog, Categories, Organizers, ReviewsReports, SettingsPage, Users } from './pages/admin/Admin';
-import { AllRegistrations, ManageTrips, OrganizerHome, OrganizerProfileEdit, OrganizerReviews, TripForm, TripRegistrations } from './pages/organizer/Organizer';
-import { Destinations, DestinationDetail } from './pages/public/Destinations';
 import Home from './pages/public/Home';
-import { About, BecomeOrganizer, Contact, ForgotPassword, Login, NotFound, OrganizerProfile, Planner, Register, ResetPassword } from './pages/public/Pages';
-import TripDetail from './pages/public/TripDetail';
-import Trips from './pages/public/Trips';
-import { Notifications, ProfileForm } from './pages/Shared';
-import { MyRegistrations, MyReviews, MySupport, SavedTrips, TravelerHome } from './pages/traveler/Traveler';
+
+// Every page except Home is its own chunk, loaded when first visited (and prefetched in the background below),
+// so the first visit downloads only what the home page needs; the admin and organizer dashboards never load for travellers.
+const load = {
+  admin: () => import('./pages/admin/Admin'),
+  organizer: () => import('./pages/organizer/Organizer'),
+  traveler: () => import('./pages/traveler/Traveler'),
+  shared: () => import('./pages/Shared'),
+  destinations: () => import('./pages/public/Destinations'),
+  pages: () => import('./pages/public/Pages'),
+  tripDetail: () => import('./pages/public/TripDetail'),
+  trips: () => import('./pages/public/Trips'),
+};
+/** React.lazy for a named export. */
+function page<M, K extends keyof M>(loader: () => Promise<M>, name: K) {
+  return lazy(() => loader().then((m) => ({ default: m[name] as unknown as ComponentType<any> })));
+}
+
+const { AdminHome, AdminDestinations, TransportPrices, AdminSupport, Announcements, Applications, AuditLog, Categories, Organizers, ReviewsReports, SettingsPage, Users } = {
+  AdminHome: page(load.admin, 'AdminHome'), AdminDestinations: page(load.admin, 'AdminDestinations'), TransportPrices: page(load.admin, 'TransportPrices'),
+  AdminSupport: page(load.admin, 'AdminSupport'), Announcements: page(load.admin, 'Announcements'), Applications: page(load.admin, 'Applications'),
+  AuditLog: page(load.admin, 'AuditLog'), Categories: page(load.admin, 'Categories'), Organizers: page(load.admin, 'Organizers'),
+  ReviewsReports: page(load.admin, 'ReviewsReports'), SettingsPage: page(load.admin, 'SettingsPage'), Users: page(load.admin, 'Users'),
+};
+const { AllRegistrations, ManageTrips, OrganizerHome, OrganizerProfileEdit, OrganizerReviews, TripForm, TripRegistrations } = {
+  AllRegistrations: page(load.organizer, 'AllRegistrations'), ManageTrips: page(load.organizer, 'ManageTrips'), OrganizerHome: page(load.organizer, 'OrganizerHome'),
+  OrganizerProfileEdit: page(load.organizer, 'OrganizerProfileEdit'), OrganizerReviews: page(load.organizer, 'OrganizerReviews'),
+  TripForm: page(load.organizer, 'TripForm'), TripRegistrations: page(load.organizer, 'TripRegistrations'),
+};
+const { MyRegistrations, MyReviews, MySupport, SavedTrips, TravelerHome } = {
+  MyRegistrations: page(load.traveler, 'MyRegistrations'), MyReviews: page(load.traveler, 'MyReviews'), MySupport: page(load.traveler, 'MySupport'),
+  SavedTrips: page(load.traveler, 'SavedTrips'), TravelerHome: page(load.traveler, 'TravelerHome'),
+};
+const Notifications = page(load.shared, 'Notifications'), ProfileForm = page(load.shared, 'ProfileForm');
+const Destinations = page(load.destinations, 'Destinations'), DestinationDetail = page(load.destinations, 'DestinationDetail');
+const { About, BecomeOrganizer, Contact, ForgotPassword, Login, NotFound, OrganizerProfile, Planner, Register, ResetPassword } = {
+  About: page(load.pages, 'About'), BecomeOrganizer: page(load.pages, 'BecomeOrganizer'), Contact: page(load.pages, 'Contact'),
+  ForgotPassword: page(load.pages, 'ForgotPassword'), Login: page(load.pages, 'Login'), NotFound: page(load.pages, 'NotFound'),
+  OrganizerProfile: page(load.pages, 'OrganizerProfile'), Planner: page(load.pages, 'Planner'), Register: page(load.pages, 'Register'), ResetPassword: page(load.pages, 'ResetPassword'),
+};
+const TripDetail = page(load.tripDetail, 'default'), Trips = page(load.trips, 'default');
+
+/** Once the first page is up and the browser is idle, fetch the public pages so later navigation is instant. */
+export function prefetchPages() {
+  const run = () => { for (const k of ['trips', 'destinations', 'tripDetail', 'pages'] as const) load[k]().catch(() => undefined); };
+  const idle = (window as any).requestIdleCallback as ((cb: () => void, o?: { timeout: number }) => void) | undefined;
+  if (idle) idle(run, { timeout: 4000 }); else setTimeout(run, 2500);
+}
 
 const travelerLinks: DashLink[] = [
   { icon: 'grid', to: '/traveler', label: 'dash.overview', end: true }, { icon: 'clipboard', to: '/traveler/registrations', label: 'tr.registrations' }, { icon: 'heart', to: '/traveler/saved', label: 'tr.saved' }, { icon: 'star', to: '/traveler/reviews', label: 'tr.reviews' },

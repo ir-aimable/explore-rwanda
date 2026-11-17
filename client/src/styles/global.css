@@ -528,12 +528,18 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .ha-search { animation-delay: 1.55s; }
 .ha-ai { animation: hero-pop .7s cubic-bezier(.3,1.6,.4,1) 1.85s both, hero-float 3.6s ease-in-out 2.6s infinite; }
 @keyframes hero-pop { from { opacity: 0; transform: scale(.6) translateY(16px); } to { opacity: 1; transform: none; } }
-@keyframes hero-float { 0%, 100% { transform: translateY(0); box-shadow: 0 6px 18px rgba(0,0,0,.18); } 50% { transform: translateY(-5px); box-shadow: 0 14px 30px rgba(232,180,40,.45); } }
-.ha-ai:hover { animation-play-state: paused; }
+/* Float + gold glow use only transform and opacity, so the browser animates them on the GPU
+   (animating box-shadow directly would repaint the page on every frame, forever). */
+@keyframes hero-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.ha-ai { position: relative; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+.ha-ai::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: 0 14px 30px rgba(232,180,40,.45); opacity: 0;
+  animation: hero-glow-pulse 3.6s ease-in-out 2.6s infinite; }
+@keyframes hero-glow-pulse { 50% { opacity: 1; } }
+.ha-ai:hover, .ha-ai:hover::after { animation-play-state: paused; }
 .ha-stats { animation-delay: 1.9s; }
 
 @media (prefers-reduced-motion: reduce) {
-  .ha, .split-ch, .hero-slides, .pw-toggle .ico { animation: none !important; }
+  .ha, .ha-ai::after, .split-ch, .hero-slides, .pw-toggle .ico { animation: none !important; }
 }
 
 /* ---------- about page ---------- */
@@ -794,4 +800,23 @@ html[data-theme=dark] .ab-response, html[data-theme=dark] .ab-step-badge { backg
 @media (max-width: 719px) {
   table.fare-table tr > :first-child { position: sticky; left: 0; z-index: 1; min-width: 132px; max-width: 150px; background: var(--paper); box-shadow: 1px 0 0 var(--line); }
   table.fare-table thead tr > :first-child { background: var(--forest-tint); }
+}
+
+/* ---------- assistant: bus journey (RURA fares) and place location ---------- */
+.route-card { margin-top: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); padding: 12px 14px; }
+.route-head { display: flex; gap: 10px; align-items: flex-start; }
+.route-head .grow { flex: 1; min-width: 0; }
+.route-ico { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--forest-soft); color: var(--forest); flex: none; }
+.route-price { text-align: right; display: grid; } .route-price b { font: 700 1.05rem var(--font-body); color: var(--forest-deep); white-space: nowrap; }
+.route-steps { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 4px; font-size: .88rem; }
+.route-steps li { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-top: 1px dashed var(--line); }
+.route-steps li > span:first-child { min-width: 0; overflow-wrap: anywhere; } .route-steps li > span:last-child { white-space: nowrap; font-weight: 600; }
+.route-steps li .ico { color: var(--forest); vertical-align: -2px; }
+.route-steps li.local { color: var(--ink-soft); } .route-steps em { font-style: normal; color: var(--ink-soft); }
+.route-foot { padding-top: 6px; border-top: 1px solid var(--line-strong); text-align: right; }
+.route-place { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 10px; color: var(--ink-soft); }
+.route-place .ico { color: var(--forest); } .route-place a { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
+@media (max-width: 559px) {
+  .route-head { flex-wrap: wrap; }
+  .route-price { width: 100%; display: flex; align-items: baseline; gap: 8px; text-align: left; padding-left: 44px; }
 }
