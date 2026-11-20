@@ -110,11 +110,11 @@ export function AdminDestinations() {
   const { t, lang } = useI18n(); const toast = useToast(); const { ask, dialog } = useConfirm();
   const { data, loading, error, reload } = useLoad(() => api.get<{ items: any[] }>('/admin/destinations'), []);
   const cats = useLoad(() => api.get<{ items: any[] }>('/categories'), []); const act = useAct(reload);
-  const blank = { id: 0, name: '', region: '', description_rw: '', description_en: '', info_rw: '', info_en: '', latitude: '', longitude: '', is_published: true, category_ids: [] as number[], images: [] as any[] };
+  const blank = { id: 0, name: '', region: '', description_rw: '', description_en: '', info_rw: '', info_en: '', latitude: '', longitude: '', is_published: true, is_free: false, category_ids: [] as number[], images: [] as any[] };
   const [f, setF] = useState<any>(null); const [err, setErr] = useState<Record<string, string>>({});
   async function save(e: React.FormEvent) {
     e.preventDefault(); setErr({});
-    const body = { name: f.name, region: f.region, description_rw: f.description_rw, description_en: f.description_en, info_rw: f.info_rw || null, info_en: f.info_en || null, latitude: f.latitude === '' || f.latitude == null ? null : Number(f.latitude), longitude: f.longitude === '' || f.longitude == null ? null : Number(f.longitude), is_published: !!f.is_published, category_ids: f.category_ids };
+    const body = { name: f.name, region: f.region, description_rw: f.description_rw, description_en: f.description_en, info_rw: f.info_rw || null, info_en: f.info_en || null, latitude: f.latitude === '' || f.latitude == null ? null : Number(f.latitude), longitude: f.longitude === '' || f.longitude == null ? null : Number(f.longitude), is_published: !!f.is_published, is_free: !!f.is_free, category_ids: f.category_ids };
     try { if (f.id) await api.put(`/admin/destinations/${f.id}`, body); else await api.post('/admin/destinations', body); setF(null); reload(); toast.ok(t('c.saved')); } catch (x) { setErr(errs(x)); toast.fail(x); }
   }
   const up = async (id: number, file?: File) => { if (!file) return; try { await api.upload(`/admin/destinations/${id}/image`, file); reload(); toast.ok(t('c.saved')); } catch (x) { toast.fail(x); } };
@@ -123,8 +123,8 @@ export function AdminDestinations() {
   const delPhoto = async (imgId: number) => { try { await api.del(`/admin/destinations/${f.id}/gallery/${imgId}`); setF((cur: any) => cur && { ...cur, images: cur.images.filter((i: any) => i.id !== imgId) }); reload(); toast.ok(t('c.saved')); } catch (x) { toast.fail(x); } };
   return (<><div className="row spread"><h2>{t('ad.destinations')}</h2><button className="btn" onClick={() => setF({ ...blank })}>{t('ad.new_destination')}</button></div>
     <Loader loading={loading} error={error} reload={reload}><div className="table-wrap"><table className="t"><thead><tr><th>{t('c.name')}</th><th>{t('ad.region')}</th><th>{t('c.published')}</th><th>{t('c.actions')}</th></tr></thead><tbody>
-      {data?.items.map((d) => (<tr key={d.id}><td><strong>{d.name}</strong> {d.is_demo ? <span className="pill pill-grey">{t('c.demo')}</span> : null}{d.image_path && <div><img src={d.image_path} alt="" style={{ width: 80, borderRadius: 3, marginTop: 4 }} /></div>}</td><td>{d.region}</td><td>{d.is_published ? t('c.yes') : t('c.no')}</td>
-        <td><div className="actions"><button className="btn btn-ghost btn-sm" onClick={() => setF({ ...d, info_rw: d.info_rw ?? '', info_en: d.info_en ?? '', images: d.images || [], latitude: d.latitude ?? '', longitude: d.longitude ?? '', is_published: !!d.is_published })}>{t('c.edit')}</button>
+      {data?.items.map((d) => (<tr key={d.id}><td><strong>{d.name}</strong> {d.is_free ? <span className="pill pill-free">{t('dest.free')}</span> : null} {d.is_demo ? <span className="pill pill-grey">{t('c.demo')}</span> : null}{d.image_path && <div><img src={d.image_path} alt="" style={{ width: 80, borderRadius: 3, marginTop: 4 }} /></div>}</td><td>{d.region}</td><td>{d.is_published ? t('c.yes') : t('c.no')}</td>
+        <td><div className="actions"><button className="btn btn-ghost btn-sm" onClick={() => setF({ ...d, info_rw: d.info_rw ?? '', info_en: d.info_en ?? '', images: d.images || [], latitude: d.latitude ?? '', longitude: d.longitude ?? '', is_published: !!d.is_published, is_free: !!d.is_free })}>{t('c.edit')}</button>
           <label className="btn btn-ghost btn-sm">{t('ad.upload_image')}<input hidden type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => up(d.id, e.target.files?.[0])} /></label>
           <button className="btn btn-danger btn-sm" onClick={() => ask(t('c.confirm_delete'), act(() => api.del(`/admin/destinations/${d.id}`)))}>{t('c.delete')}</button></div></td></tr>))}</tbody></table></div></Loader>
     {f && <Modal wide title={f.id ? t('c.edit') : t('ad.new_destination')} onClose={() => setF(null)}><form className="form-grid two" onSubmit={save}>
@@ -142,6 +142,7 @@ export function AdminDestinations() {
       </div>
       <Field label={t('form.lat')}><input type="number" step="any" value={f.latitude} onChange={(e) => setF({ ...f, latitude: e.target.value })} /></Field><Field label={t('form.lng')}><input type="number" step="any" value={f.longitude} onChange={(e) => setF({ ...f, longitude: e.target.value })} /></Field>
       <div className="span2"><span className="label">{t('dest.activities')}</span><div className="row">{cats.data?.items.map((c) => <label key={c.id} className="check"><input type="checkbox" checked={f.category_ids.includes(c.id)} onChange={(e) => setF({ ...f, category_ids: e.target.checked ? [...f.category_ids, c.id] : f.category_ids.filter((x: number) => x !== c.id) })} />{lang === 'rw' ? c.name_rw : c.name_en}</label>)}</div></div>
+      <label className="check span2"><input type="checkbox" checked={f.is_free} onChange={(e) => setF({ ...f, is_free: e.target.checked })} />{t('dest.free_visit')} <span className="small muted">— {t('ad.free_hint')}</span></label>
       <label className="check span2"><input type="checkbox" checked={f.is_published} onChange={(e) => setF({ ...f, is_published: e.target.checked })} />{t('c.published')}</label>
       <div className="span2 row"><button type="button" className="btn btn-ghost" onClick={() => setF(null)}>{t('c.cancel')}</button><button className="btn">{t('c.save')}</button></div></form></Modal>}
     {dialog}</>);
@@ -317,4 +318,71 @@ export function TransportPrices() {
         </div>
       </form>
     </div>)}</Loader>{dialog}</>);
+}
+
+/** "My database": read-only view of every table. Secrets (password hashes, reset tokens, Google ids) arrive as "hidden". */
+interface DbCol { name: string; type: string; pk: boolean; hidden: boolean }
+interface DbPage { table: string; columns: DbCol[]; rows: Record<string, unknown>[]; total: number; page: number; pages: number }
+const cellText = (v: unknown) => (v == null ? '' : String(v));
+export function AdminDatabase() {
+  const { t } = useI18n();
+  const tables = useLoad(() => api.get<{ items: { name: string; rows: number }[] }>('/admin/database'), []);
+  const [table, setTable] = useState('');
+  const [q, setQ] = useState(''); const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<{ col: string; dir: 'asc' | 'desc' } | null>(null);
+  const [page, setPage] = useState(1);
+  const [row, setRow] = useState<Record<string, unknown> | null>(null);
+  const [filter, setFilter] = useState('');
+  useEffect(() => { if (!table && tables.data?.items.length) setTable(tables.data.items[0].name); }, [tables.data, table]);
+  useEffect(() => { const h = setTimeout(() => { setSearch(q.trim()); setPage(1); }, 300); return () => clearTimeout(h); }, [q]);
+  const data = useLoad(() => (table ? api.get<DbPage>(`/admin/database/${encodeURIComponent(table)}?page=${page}&q=${encodeURIComponent(search)}${sort ? `&sort=${encodeURIComponent(sort.col)}&dir=${sort.dir}` : ''}`) : Promise.resolve(null)), [table, page, search, sort?.col, sort?.dir]);
+  const pick = (name: string) => { setTable(name); setQ(''); setSearch(''); setSort(null); setPage(1); };
+  const sortBy = (c: DbCol) => { if (c.hidden) return; setPage(1); setSort((s) => (s?.col === c.name ? { col: c.name, dir: s.dir === 'desc' ? 'asc' : 'desc' } : { col: c.name, dir: 'desc' })); };
+  const totalRows = tables.data?.items.reduce((a, x) => a + x.rows, 0) ?? 0;
+  const shownTables = (tables.data?.items || []).filter((x) => x.name.includes(filter.trim().toLowerCase()));
+  const d = data.data;
+  return (<div className="stack">
+    <div className="row spread"><div><h2 style={{ margin: 0 }}>{t('ad.database')}</h2>
+      <p className="small muted" style={{ margin: '4px 0 0' }}>{t('ad.db_sub', { t: tables.data?.items.length ?? 0, n: totalRows.toLocaleString('en-US') })}</p></div>
+      <button className="btn btn-ghost btn-sm" onClick={() => { tables.reload(); data.reload(); }}><Icon name="history" size={15} />{t('ad.db_refresh')}</button></div>
+    <Loader loading={tables.loading} error={tables.error} reload={tables.reload}>
+      <div className="db-shell">
+        <nav className="db-tables card" aria-label={t('ad.db_tables')}>
+          <input type="search" placeholder={t('ad.db_find_table')} value={filter} onChange={(e) => setFilter(e.target.value)} aria-label={t('ad.db_find_table')} />
+          <ul>{shownTables.map((x) => (<li key={x.name}><button type="button" aria-current={x.name === table} onClick={() => pick(x.name)}>
+            <Icon name="layers" size={14} /><span className="grow">{x.name}</span><span className="db-count">{x.rows.toLocaleString('en-US')}</span></button></li>))}</ul>
+        </nav>
+        <div className="db-main">
+          <div className="row spread">
+            <h3 style={{ margin: 0 }}><code>{table}</code> {d && <span className="small muted">· {t('ad.db_rows', { n: d.total.toLocaleString('en-US') })}</span>}</h3>
+            <div className="row">
+              <input type="search" style={{ maxWidth: 240 }} placeholder={t('ad.db_search')} value={q} onChange={(e) => setQ(e.target.value)} aria-label={t('ad.db_search')} />
+              {table && <a className="btn btn-ghost btn-sm" href={`/api/admin/database/${encodeURIComponent(table)}/csv?q=${encodeURIComponent(search)}`} download><Icon name="clipboard" size={15} />CSV</a>}
+            </div>
+          </div>
+          <Loader loading={data.loading} error={data.error} reload={data.reload}>{d && (d.rows.length ? (<>
+            <div className="table-wrap db-grid"><table className="t"><thead><tr>
+              {d.columns.map((c) => (<th key={c.name} aria-sort={sort?.col === c.name ? (sort.dir === 'asc' ? 'ascending' : 'descending') : undefined}>
+                <button type="button" className="db-th" disabled={c.hidden} onClick={() => sortBy(c)} title={c.type || undefined}>
+                  {c.pk && <Icon name="star" size={11} />}{c.name}{sort?.col === c.name ? (sort.dir === 'asc' ? ' ▲' : ' ▼') : ''}</button></th>))}
+            </tr></thead><tbody>
+              {d.rows.map((r, i) => (<tr key={i} onClick={() => setRow(r)} className="db-row">
+                {d.columns.map((c) => { const v = r[c.name]; return (<td key={c.name} className={v == null ? 'db-null' : c.hidden ? 'db-hidden' : ''} title={cellText(v).length > 60 ? cellText(v).slice(0, 500) : undefined}>
+                  {v == null ? 'NULL' : c.hidden ? t('ad.db_hidden') : cellText(v).length > 60 ? cellText(v).slice(0, 60) + '…' : cellText(v)}</td>); })}
+              </tr>))}
+            </tbody></table></div>
+            <div className="row spread small">
+              <span className="muted">{t('ad.db_page', { p: d.page, n: d.pages })} · {t('ad.db_click_row')}</span>
+              <div className="row"><button className="btn btn-ghost btn-sm" disabled={d.page <= 1} onClick={() => setPage(d.page - 1)}><Icon name="arrowLeft" size={14} />{t('c.prev')}</button>
+                <button className="btn btn-ghost btn-sm" disabled={d.page >= d.pages} onClick={() => setPage(d.page + 1)}>{t('c.next')}<Icon name="arrowRight" size={14} /></button></div>
+            </div>
+          </>) : <Empty>{search ? t('ad.db_no_match') : t('ad.db_empty')}</Empty>)}</Loader>
+        </div>
+      </div>
+    </Loader>
+    {row && d && <Modal wide title={`${table} · ${d.columns.find((c) => c.pk) ? `#${cellText(row[d.columns.find((c) => c.pk)!.name])}` : ''}`} onClose={() => setRow(null)}>
+      <dl className="db-record">{d.columns.map((c) => (<div key={c.name}><dt>{c.name} <span className="muted">{c.type}</span></dt>
+        <dd className={row[c.name] == null ? 'db-null' : ''}>{row[c.name] == null ? 'NULL' : c.hidden ? t('ad.db_hidden') : cellText(row[c.name])}</dd></div>))}</dl>
+    </Modal>}
+  </div>);
 }

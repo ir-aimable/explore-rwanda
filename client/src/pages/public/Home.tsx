@@ -1,14 +1,36 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Assistant } from '../../components/Assistant';
-import { DestinationCard, TripCard } from '../../components/Cards';
+import { DestinationCard, ExperienceCard, TripCard } from '../../components/Cards';
 import { HeroSlideshow } from '../../components/Cover';
 import { Icon, Robot } from '../../components/Icon';
 import { Empty, Loader } from '../../components/ui';
 import { useLoad } from '../../hooks/useLoad';
 import { useI18n } from '../../i18n';
 import { api, qs } from '../../services/api';
-import type { Category, Destination, Trip } from '../../types';
+import type { Category, Destination, Experience, Trip } from '../../types';
+
+/** "Things to do": numbered cards managed by administrators and organizers, scrolled with arrow buttons. */
+function ThingsToDo() {
+  const { t } = useI18n();
+  const { data } = useLoad(() => api.get<{ items: Experience[] }>('/experiences'), []);
+  const rail = useRef<HTMLDivElement>(null);
+  const [edge, setEdge] = useState({ start: true, end: false });
+  const sync = () => { const r = rail.current; if (r) setEdge({ start: r.scrollLeft < 8, end: r.scrollLeft + r.clientWidth >= r.scrollWidth - 8 }); };
+  useEffect(sync, [data]);
+  useEffect(() => { window.addEventListener('resize', sync); return () => window.removeEventListener('resize', sync); }, []);
+  const scroll = (dir: 1 | -1) => { const r = rail.current; if (r) r.scrollBy({ left: dir * r.clientWidth * 0.85, behavior: 'smooth' }); };
+  if (!data?.items.length) return null;
+  return (
+    <section className="section container things" style={{ paddingTop: 0 }} aria-labelledby="ttd-h">
+      <div className="section-head"><div><h2 id="ttd-h">{t('exp.title')}</h2><p className="muted" style={{ margin: '6px 0 0' }}>{t('exp.sub')}</p></div></div>
+      <div className="exp-wrap">
+        {!edge.start && <button type="button" className="exp-arrow prev" onClick={() => scroll(-1)} aria-label={t('c.prev')}><Icon name="arrowLeft" size={20} /></button>}
+        <div className="exp-rail" ref={rail} onScroll={sync}>{data.items.map((e, i) => <ExperienceCard key={e.id} e={e} n={i + 1} />)}</div>
+        {!edge.end && <button type="button" className="exp-arrow next" onClick={() => scroll(1)} aria-label={t('c.next')}><Icon name="arrowRight" size={20} /></button>}
+      </div>
+    </section>
+  );
+}
 
 // Hero background slideshow.
 const HERO_SLIDES = [{ src: '/images/hero.webp', ms: 10000 }, { src: '/images/hero3.webp', ms: 10000 }];
@@ -98,22 +120,8 @@ export default function Home() {
         </Loader>
       </section>
 
-      <section className="section container" style={{ paddingTop: 0 }} aria-labelledby="ai-h">
-        <div className="section-head"><div><h2 id="ai-h">{t('home.ai.title')}</h2><p className="muted" style={{ margin: '6px 0 0' }}>{t('home.ai.sub')}</p></div></div>
-        <Assistant />
-      </section>
 
-      <section className="section container" style={{ paddingTop: 0 }} aria-labelledby="how-h">
-        <h2 id="how-h">{t('home.how.title')}</h2>
-        <ol className="steps">
-          {[1, 2, 3].map((k) => <li key={k}><h3>{t(`home.how.${k}.t` as any)}</h3><p className="muted" style={{ margin: 0 }}>{t(`home.how.${k}.d` as any)}</p></li>)}
-        </ol>
-      </section>
-
-      <section className="section container" style={{ paddingTop: 0 }} aria-labelledby="why-h">
-        <h2 id="why-h">{t('home.why.title')}</h2>
-        <div className="why">{([[1, 'checkCircle'], [2, 'wallet'], [3, 'shield']] as const).map(([k, ic]) => <div key={k}><span className="ic"><Icon name={ic} size={22} /></span><div><h3>{t(`home.why.${k}.t` as any)}</h3><p>{t(`home.why.${k}.d` as any)}</p></div></div>)}</div>
-      </section>
+      <ThingsToDo />
 
       <section className="container" style={{ paddingBottom: 20 }}>
         <div className="band">

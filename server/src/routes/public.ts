@@ -29,7 +29,7 @@ async function destRows(ds: any[]) {
     const trips = upcoming.filter((t) => t.destination.id === d.id);
     // available_trips: open for registration now; organized_trips: every upcoming organized trip (incl. full / closed)
     return {
-      ...d, is_demo: !!d.is_demo,
+      ...d, is_demo: !!d.is_demo, is_free: !!d.is_free,
       categories: cats.filter((c) => c.destination_id === d.id).map(({ destination_id: _, ...c }) => c),
       costs: costs.filter((c) => c.destination_id === d.id).map(({ destination_id: _, ...c }) => c),
       available_trips: trips.filter((t) => t.is_open).length, organized_trips: trips.length,
@@ -41,10 +41,11 @@ publicRouter.get('/destinations', async (req, res) => {
   const cat = String(req.query.category || '');
   const where = ['d.is_published=1']; const args: any[] = [];
   if (q) { where.push('(d.name LIKE ? OR d.region LIKE ? OR d.description_en LIKE ? OR d.description_rw LIKE ?)'); args.push(...Array(4).fill(`%${q}%`)); }
+  if (req.query.free === '1') where.push('d.is_free=1');
   if (cat) { where.push('EXISTS (SELECT 1 FROM destination_categories dc JOIN categories c ON c.id=dc.category_id WHERE dc.destination_id=d.id AND c.slug=?)'); args.push(cat); }
   const items = await destRows(await db.prepare(`SELECT d.* FROM destinations d WHERE ${where.join(' AND ')} ORDER BY d.name`).all(...args));
-  // ?sort=popular: most open trips first, then most upcoming organized trips, then name
-  if (req.query.sort === 'popular') items.sort((a, b) => b.available_trips - a.available_trips || b.organized_trips - a.organized_trips || a.name.localeCompare(b.name));
+  // Most open trips first, then most upcoming organized trips, then name. ?sort=name keeps alphabetical order (pickers).
+  if (req.query.sort !== 'name') items.sort((a, b) => b.available_trips - a.available_trips || b.organized_trips - a.organized_trips || a.name.localeCompare(b.name));
   res.json({ items });
 });
 publicRouter.get('/destinations/:id', async (req, res) => {

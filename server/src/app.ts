@@ -17,6 +17,7 @@ import { publicRouter } from './routes/public.js';
 import { tripsRouter } from './routes/trips.js';
 import { registrationsRouter } from './routes/registrations.js';
 import { searchRouter } from './routes/search.js';
+import { experiencesRouter } from './routes/experiences.js';
 import { adminRouter, costsRouter } from './routes/admin.js';
 import { completePastTrips, sendTripReminders } from './services/notifications/reminders.js';
 
@@ -63,6 +64,7 @@ export function createApp() {
   api.use('/auth', authRouter);
   api.use('/search', searchRouter);
   api.use('/trips', tripsRouter);
+  api.use('/experiences', experiencesRouter);
   api.use('/costs', costsRouter);
   api.use('/admin', adminRouter);
   api.use('/', registrationsRouter);

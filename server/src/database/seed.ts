@@ -10,8 +10,79 @@ import { addDays, todayStr, weekday } from '../lib/time.js';
 await initSchema();
 console.log('[seed]', await ensureAdmin());
 
+/** Demo "Things to do" cards. Added whenever the table is empty, so databases seeded before this feature get them too. */
+async function seedExperiences() {
+  if ((await db.prepare('SELECT COUNT(*) c FROM experiences').get() as any).c > 0) return false;
+  const id = async (sql: string, v: string) => ((await db.prepare(sql).get(v)) as any)?.id ?? null;
+  const dest = (slug: string) => id('SELECT id FROM destinations WHERE slug=?', slug);
+  const cat = (slug: string) => id('SELECT id FROM categories WHERE slug=?', slug);
+  const org = (email: string) => id('SELECT o.id FROM organizers o JOIN users u ON u.id=o.user_id WHERE u.email=?', email);
+  const org1 = await org('organizer1@demo.explore-rwanda.test'), org2 = await org('organizer2@demo.explore-rwanda.test');
+  // [title_en, title_rw, location, destination slug, category slug, organizer, price from (RWF, invented), duration]
+  const items: [string, string, string, string, string, number | null, number, string][] = [
+    ['Milking cows with herders in Bigogwe', 'Gukama inka hamwe n’aborozi i Bigogwe', 'Bigogwe', 'ibere-rya-bigogwe', 'culture', org1, 10000, 'Half day'],
+    ['Boating on Lake Kivu at sunset', 'Gutembera mu bwato ku Kivu izuba rirenga', 'Rubavu', 'lake-kivu', 'boating', org2, 15000, '2 hours'],
+    ['Canopy walk in Nyungwe Forest', 'Kugenda hejuru y’ishyamba rya Nyungwe', 'Nyungwe', 'nyungwe-national-park', 'nature', null, 40000, '3 hours'],
+    ['Game drive in Akagera National Park', 'Gusura inyamaswa muri Pariki y’Akagera', 'Akagera', 'akagera-national-park', 'wildlife', org2, 45000, 'Full day'],
+    ['Cycling the Nyandungu wetland trails', 'Gutwara igare mu nzira za Nyandungu', 'Kigali', 'nyandungu-eco-park', 'cycling', org1, 5000, '2 hours'],
+    ['Hiking the volcano foothills near Musanze', 'Gutembera ku misozi y’ibirunga hafi ya Musanze', 'Musanze', 'musanze-area', 'hiking', org1, 15000, 'Full day'],
+  ];
+  for (const [i, [en, rw, loc, d, c, o, price, dur]] of items.entries()) {
+    await db.prepare(`INSERT INTO experiences (title_en,title_rw,location,destination_id,category_id,organizer_id,price_from,duration,sort_order,is_demo)
+      VALUES (?,?,?,?,?,?,?,?,?,1)`).run(en, rw, loc, await dest(d), await cat(c), o, price, dur, i + 1);
+  }
+  return true;
+}
+
+/** Demo traveller reviews on the completed Bigogwe hike, and organizer recommendations of "Things to do" cards,
+ *  so the cards' stars and ranking have something to show. Each part runs only when it has not been added yet. */
+async function seedDemoExtras() {
+  const one = async (sql: string, ...a: unknown[]) => (await db.prepare(sql).get(...a)) as any;
+  const done = await one("SELECT id,destination_id FROM trips WHERE title='Completed Bigogwe Hike (Demo)'");
+  if (done && !(await one('SELECT 1 x FROM reviews WHERE trip_id=?', done.id))) {
+    const demoReviews: [string, number, string][] = [
+      ['alice@demo.explore-rwanda.test', 5, 'Great views and a friendly guide. (Demo review)'],
+      ['bosco@demo.explore-rwanda.test', 4, 'Well organized, a bit steep at the end. (Demo review)'],
+      ['chantal@demo.explore-rwanda.test', 5, 'Loved it, would go again. (Demo review)'],
+    ];
+    for (const [email, rating, comment] of demoReviews) {
+      const u = await one('SELECT id FROM users WHERE email=?', email); if (!u) continue;
+      if (!(await one("SELECT 1 x FROM registrations WHERE trip_id=? AND user_id=? AND status='approved'", done.id, u.id)))
+        await db.prepare("INSERT INTO registrations (trip_id,user_id,seats,status,is_demo) VALUES (?,?,1,'approved',1)").run(done.id, u.id);
+      await db.prepare('INSERT OR IGNORE INTO reviews (trip_id,destination_id,user_id,rating,comment) VALUES (?,?,?,?,?)').run(done.id, done.destination_id, u.id, rating, comment);
+    }
+  }
+  // Demo free destinations (public lakeshore and a hill walk): marked free, entry fee recorded as RWF 0
+  if (!(await one('SELECT 1 x FROM destinations WHERE is_free=1'))) {
+    for (const slug of ['lake-kivu', 'ibere-rya-bigogwe']) {
+      const d = await one('SELECT id FROM destinations WHERE slug=? AND is_demo=1', slug); if (!d) continue;
+      await db.prepare('UPDATE destinations SET is_free=1 WHERE id=?').run(d.id);
+      await db.prepare("DELETE FROM cost_records WHERE destination_id=? AND trip_id IS NULL AND cost_type='entry_fee'").run(d.id);
+      await db.prepare("INSERT INTO cost_records (destination_id,cost_type,label,amount,source_type,source_note) VALUES (?, 'entry_fee','Entry fee',0,'official','Free to visit (set by an administrator)')").run(d.id);
+    }
+  }
+  // Starting ratings chosen by whoever added each demo card (3 recommended … 5 highly recommended)
+  const starting: [string, number][] = [['Milking cows with herders in Bigogwe', 5], ['Boating on Lake Kivu at sunset', 4], ['Canopy walk in Nyungwe Forest', 5],
+    ['Game drive in Akagera National Park', 4], ['Cycling the Nyandungu wetland trails', 3], ['Hiking the volcano foothills near Musanze', 4]];
+  for (const [title, r] of starting) await db.prepare('UPDATE experiences SET initial_rating=? WHERE title_en=? AND is_demo=1 AND initial_rating IS NULL').run(r, title);
+  if (!(await one('SELECT 1 x FROM experience_recommendations'))) {
+    const org = async (email: string) => (await one('SELECT o.id FROM organizers o JOIN users u ON u.id=o.user_id WHERE u.email=?', email))?.id;
+    const org1 = await org('organizer1@demo.explore-rwanda.test'), org2 = await org('organizer2@demo.explore-rwanda.test');
+    const recs: [number | undefined, string][] = [
+      [org2, 'Milking cows with herders in Bigogwe'], [org2, 'Hiking the volcano foothills near Musanze'], [org2, 'Canopy walk in Nyungwe Forest'],
+      [org1, 'Boating on Lake Kivu at sunset'], [org1, 'Canopy walk in Nyungwe Forest'], [org1, 'Game drive in Akagera National Park'],
+    ];
+    for (const [o, title] of recs) {
+      const e = await one('SELECT id,organizer_id FROM experiences WHERE title_en=?', title);
+      if (o && e && e.organizer_id !== o) await db.prepare('INSERT OR IGNORE INTO experience_recommendations (experience_id,organizer_id) VALUES (?,?)').run(e.id, o);
+    }
+  }
+}
+
 if ((await db.prepare("SELECT COUNT(*) c FROM users WHERE is_demo=1").get() as any).c > 0) {
   console.log('[seed] Demo data already present - skipping. Run `npm run db:reset` first to start fresh.');
+  if (await seedExperiences()) console.log('[seed] Added demo "Things to do" cards.');
+  await seedDemoExtras();
   await db.close(); process.exit(0);
 }
 
@@ -109,6 +180,8 @@ await db.transaction(async () => {
     .run('Ikaze kuri Explore Rwanda', 'Welcome to Explore Rwanda', 'Aya ni amakuru y’icyitegererezo yo kwerekana urubuga.', 'This platform currently shows demonstration data.');
 });
 
+await seedExperiences();
+await seedDemoExtras();
 console.log('\n[seed] Demo data created (all flagged is_demo).');
 console.log('  Demo organizers : organizer1@demo.explore-rwanda.test , organizer2@demo.explore-rwanda.test');
 console.log('  Demo travelers  : alice@ / bosco@ / chantal@demo.explore-rwanda.test');

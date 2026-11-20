@@ -65,7 +65,7 @@ const empty = { title: '', description: '', destination_id: '', category_id: '',
 export function TripForm({ admin }: { admin?: boolean }) {
   const { id } = useParams(); const nav = useNavigate(); const { t, lang, tx, money } = useI18n(); const toast = useToast(); const { ask, dialog } = useConfirm();
   const base = admin ? '/admin/trips' : '/organizer/trips';
-  const dests = useLoad(() => api.get<{ items: Destination[] }>('/destinations'), []);
+  const dests = useLoad(() => api.get<{ items: Destination[] }>('/destinations?sort=name'), []);
   const cats = useLoad(() => api.get<{ items: Category[] }>('/categories'), []);
   const orgs = useLoad(() => (admin ? api.get<{ items: any[] }>('/admin/organizers') : Promise.resolve({ items: [] })), []);
   const [f, setF] = useState<any>(empty); const [err, setErr] = useState<Record<string, string>>({}); const [trip, setTrip] = useState<Trip | null>(null); const [busy, setBusy] = useState(false);

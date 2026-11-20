@@ -84,6 +84,7 @@ CREATE TABLE IF NOT EXISTS destinations (
   info_rw TEXT,
   info_en TEXT,
   is_published INTEGER NOT NULL DEFAULT 1 CHECK (is_published IN (0,1)),
+  is_free INTEGER NOT NULL DEFAULT 0 CHECK (is_free IN (0,1)), -- free to visit (no entry fee)
   is_demo INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -255,6 +256,36 @@ CREATE TABLE IF NOT EXISTS hub_fares (
   updated_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),
   PRIMARY KEY (destination_id, hub_id)
+);
+
+-- "Things to do" cards on the home page (e.g. milking cows in Bigogwe, boating on Lake Kivu).
+-- Created by an administrator (organizer_id NULL) or by an organizer (their own cards only).
+CREATE TABLE IF NOT EXISTS experiences (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title_en TEXT NOT NULL,
+  title_rw TEXT NOT NULL,
+  location TEXT NOT NULL,
+  destination_id INTEGER REFERENCES destinations(id) ON DELETE SET NULL,
+  category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+  organizer_id INTEGER REFERENCES organizers(id) ON DELETE CASCADE,
+  price_from INTEGER NOT NULL CHECK (price_from >= 0),
+  duration TEXT,
+  initial_rating INTEGER CHECK (initial_rating BETWEEN 1 AND 5), -- set by the organizer/admin; averaged with traveller reviews
+  image_path TEXT,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  is_published INTEGER NOT NULL DEFAULT 1 CHECK (is_published IN (0,1)),
+  is_demo INTEGER NOT NULL DEFAULT 0,
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_experiences_org ON experiences(organizer_id);
+-- An organizer vouching for a "Things to do" card (one per organizer per card; not their own cards).
+CREATE TABLE IF NOT EXISTS experience_recommendations (
+  experience_id INTEGER NOT NULL REFERENCES experiences(id) ON DELETE CASCADE,
+  organizer_id INTEGER NOT NULL REFERENCES organizers(id) ON DELETE CASCADE,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (experience_id, organizer_id)
 );
 
 CREATE TABLE IF NOT EXISTS announcements (

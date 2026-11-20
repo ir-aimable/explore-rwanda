@@ -99,7 +99,7 @@ function RecCard({ r }: { r: Rec }) {
 
 function BotFace() { return <span className="bot-face"><Robot size={34} small /></span>; }
 
-export function Assistant({ initial, examples = true }: { initial?: string; examples?: boolean }) {
+export function Assistant({ initial, examples = true, compact }: { initial?: string; examples?: boolean; compact?: boolean }) {
   const { t, lang } = useI18n();
   const [turns, setTurns] = useState<Turn[]>([]);
   const [text, setText] = useState('');
@@ -123,8 +123,8 @@ export function Assistant({ initial, examples = true }: { initial?: string; exam
 
   const exs = [t('ai.ex1'), t('ai.ex2'), t('ai.ex3'), t('ai.ex4'), t('ai.ex5'), t('ai.ex6')];
   return (
-    <div className="ai-shell">
-      <div className="ai-panel">
+    <div className={`ai-shell ${compact ? 'compact' : ''}`}>
+      {!compact && <div className="ai-panel">
         <Robot size={170} />
         <h2>{t('ai.panel_title')}</h2>
         <p>{t('ai.panel_sub')}</p>
@@ -134,7 +134,7 @@ export function Assistant({ initial, examples = true }: { initial?: string; exam
           <li><Icon name="wallet" />{t('ai.panel.3')}</li>
         </ul>
         <button className="btn btn-outline-light" onClick={() => ask(exs[0])} disabled={busy}>{t('ai.try')}</button>
-      </div>
+      </div>}
       <div className="ai-main">
         {plan.length > 0 && (
           <div className="plan-bar">
@@ -168,8 +168,8 @@ export function Assistant({ initial, examples = true }: { initial?: string; exam
           <div ref={endRef} />
         </div>
         <form className="ask-bar" onSubmit={(e) => { e.preventDefault(); ask(text); }}>
-          <label className="sr-only" htmlFor="ai-q">{t('ai.title')}</label>
-          <input id="ai-q" value={text} onChange={(e) => setText(e.target.value)} placeholder={t('ai.placeholder')} maxLength={500} autoComplete="off" />
+          <label className="sr-only" htmlFor={compact ? 'ai-q-dock' : 'ai-q'}>{t('ai.title')}</label>
+          <input id={compact ? 'ai-q-dock' : 'ai-q'} value={text} onChange={(e) => setText(e.target.value)} placeholder={t('ai.placeholder')} maxLength={500} autoComplete="off" />
           <button className="icon-btn" disabled={busy || !text.trim()} aria-label={t('ai.send')}><Icon name="send" size={17} /></button>
         </form>
         <p className="small muted" style={{ margin: 0 }}>{t('ai.footer')}</p>

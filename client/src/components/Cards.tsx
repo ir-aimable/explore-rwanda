@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n';
-import type { Destination, Trip } from '../types';
+import type { Destination, Experience, Trip } from '../types';
 import { Cover, destImage } from './Cover';
 import { Icon } from './Icon';
-import { Status } from './ui';
+import { Stars, Status } from './ui';
 
 export function Rating({ value, count }: { value: number | null; count?: number }) {
   if (!value) return null;
@@ -41,12 +41,47 @@ export function DestinationCard({ d, compact }: { d: Destination; compact?: bool
   const cats = d.categories.map((c) => (lang === 'rw' ? c.name_rw : c.name_en)).join(' · ');
   return (
     <Link to={`/destinations/${d.id}`} className="card dest-card">
-      <Cover src={d.image_path} srcs={[destImage(d.slug)]} slug={d.categories[0]?.slug || 'nature'} seed={d.id + 3} alt={d.name} />
+      <Cover src={d.image_path} srcs={[destImage(d.slug)]} slug={d.categories[0]?.slug || 'nature'} seed={d.id + 3} alt={d.name}>
+        {d.is_free && <span className="free-tag" title={t('dest.free_hint')}>{t('dest.free')}</span>}
+      </Cover>
       <div className="body">
         <h3>{d.name}</h3>
         <span className="sub">{cats || d.region}</span>
         {!compact && <div className="meta-line"><Icon name="pin" size={14} />{d.region}</div>}
         {d.available_trips > 0 && <span className="spots"><Icon name="mountain" size={14} />{t('dest.open_trips', { n: d.available_trips })}</span>}
+      </div>
+    </Link>
+  );
+}
+
+/** Numbered "Things to do" card: an activity mapped to a destination. Clicking it opens the destination
+ * on its open trips for that activity, where the traveller can register. */
+export function ExperienceCard({ e, n }: { e: Experience; n: number }) {
+  const { t, lang, money } = useI18n();
+  const title = lang === 'rw' ? e.title_rw : e.title_en;
+  const to = e.destination ? `/destinations/${e.destination.id}${e.category ? `?activity=${e.category.slug}` : ''}` : `/trips?q=${encodeURIComponent(e.location)}`;
+  const recBy = e.recommended_by.join(', ') + (e.recommendations > e.recommended_by.length ? ` +${e.recommendations - e.recommended_by.length}` : '');
+  return (
+    <Link to={to} className="card exp-card">
+      <Cover src={e.image_path} srcs={[destImage(e.destination?.slug)]} slug={e.category?.slug || 'nature'} seed={e.id + 7} alt={title}>
+        {e.category && <span className="exp-cat">{lang === 'rw' ? e.category.name_rw : e.category.name_en}</span>}
+        {e.recommendations > 0 && <span className="exp-rec" title={t('exp.recommended_by', { names: recBy })}><Icon name="checkCircle" size={13} />{t('exp.recommended_n', { n: e.recommendations })}</span>}
+      </Cover>
+      <div className="body">
+        <span className="exp-rank" aria-hidden="true">{n}</span>
+        <span className="exp-loc"><Icon name="pin" size={12} />{e.location}</span>
+        <h3>{title}</h3>
+        {e.avg_rating != null && (
+          <div className="exp-stars" aria-label={t('exp.rating_aria', { r: e.avg_rating.toFixed(1), n: e.rating_count })}>
+            <Stars n={e.avg_rating} /><b>{e.avg_rating.toFixed(1)}</b><span className="muted">({e.rating_count})</span>
+          </div>
+        )}
+        <div className="exp-meta">
+          {e.open_trips > 0 ? <span className="exp-open"><Icon name="calendar" size={13} /> {t('dest.open_trips', { n: e.open_trips })}</span> : <span className="small muted">{t('exp.no_open')}</span>}
+          {e.duration && <span className="small muted"><Icon name="clock" size={13} /> {e.duration}</span>}
+          {e.is_demo && <span className="small muted">{t('c.demo')}</span>}
+        </div>
+        <div className="exp-price">{e.price_from === 0 ? <b>{t('c.free')}</b> : <>{t('exp.from')} <b>{money(e.price_from)}</b></>}</div>
       </div>
     </Link>
   );

@@ -15,7 +15,7 @@ export interface Cost { id: number; cost_type: string; label: string | null; amo
 export interface Category { id: number; slug: string; name_rw: string; name_en: string }
 export interface Destination {
   id: number; name: string; slug: string; region: string; description_rw: string; description_en: string; latitude: number | null; longitude: number | null;
-  image_path: string | null; info_rw?: string | null; info_en?: string | null; is_demo: boolean; categories: Category[]; costs: Cost[]; available_trips: number; organized_trips?: number; is_published?: number;
+  image_path: string | null; info_rw?: string | null; info_en?: string | null; is_demo: boolean; is_free?: boolean; categories: Category[]; costs: Cost[]; available_trips: number; organized_trips?: number; is_published?: number;
 }
 export interface Rec {
   id: number; title: string; link: string; destination: string; region: string; category_slug: string; category_name_rw: string; category_name_en: string;
@@ -51,4 +51,20 @@ export interface RouteInfo {
 export interface User {
   id: number; full_name: string; email: string; phone: string | null; role: 'traveler' | 'organizer' | 'admin'; preferred_language: 'rw' | 'en';
   organizer: { id: number; display_name: string; status: string } | null; application: { id: number; status: string; organizer_name: string; review_note: string | null } | null; unread_notifications: number;
+}
+
+/** A "Things to do" card on the home page. */
+export interface Experience {
+  id: number; title_en: string; title_rw: string; location: string; price_from: number; duration: string | null;
+  image_path: string | null; sort_order: number; is_published: boolean; is_demo: boolean;
+  destination: { id: number; name: string; slug: string; published: boolean } | null;
+  category: Category | null;
+  organizer: { id: number; display_name: string } | null;
+  /** Starting rating from the organizer/admin: 3 recommended, 4 strongly recommended, 5 highly recommended. */
+  initial_rating: number | null;
+  /** Average of the starting rating and every traveller review of this activity at the destination; null when there are none. */
+  avg_rating: number | null; rating_count: number; review_count: number;
+  recommendations: number; recommended_by: string[]; recommended_by_me: boolean;
+  /** Open trips for this activity at the destination. */
+  open_trips: number;
 }

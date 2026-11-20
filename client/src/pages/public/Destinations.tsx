@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { DestinationCard, TripCard } from '../../components/Cards';
 import { Cover, HeroImage, destImage } from '../../components/Cover';
 import { Icon } from '../../components/Icon';
@@ -10,9 +10,9 @@ import { api, qs } from '../../services/api';
 import type { Category, Destination, Trip } from '../../types';
 
 export function Destinations() {
-  const { t, lang } = useI18n(); const [q, setQ] = useState(''); const [cat, setCat] = useState('');
+  const { t, lang } = useI18n(); const [q, setQ] = useState(''); const [cat, setCat] = useState(''); const [free, setFree] = useState(false);
   const cats = useLoad(() => api.get<{ items: Category[] }>('/categories'), []);
-  const list = useLoad(() => api.get<{ items: Destination[] }>(`/destinations${qs({ q, category: cat })}`), [q, cat]);
+  const list = useLoad(() => api.get<{ items: Destination[] }>(`/destinations${qs({ q, category: cat, free: free ? 1 : undefined })}`), [q, cat, free]);
   return (
     <>
       <section className="banner">
@@ -29,6 +29,9 @@ export function Destinations() {
         <div className="chip-tabs" role="group" aria-label={t('trips.activity')}>
           <button aria-pressed={cat === ''} onClick={() => setCat('')}>{t('c.all')}</button>
           {cats.data?.items.map((c) => <button key={c.id} aria-pressed={cat === c.slug} onClick={() => setCat(c.slug)}>{lang === 'rw' ? c.name_rw : c.name_en}</button>)}
+        </div>
+        <div className="row" style={{ justifyContent: 'center', marginBottom: 10 }}>
+          <button type="button" className={`free-toggle ${free ? 'on' : ''}`} aria-pressed={free} onClick={() => setFree(!free)}><Icon name="tag" size={15} />{t('dest.free_only')}</button>
         </div>
         <p className="small muted center" style={{ margin: '0 auto 18px' }}>{t('dest.sub')}</p>
         <Loader loading={list.loading} error={list.error} reload={list.reload}>
@@ -50,6 +53,9 @@ export function DestinationDetail() {
   const { id } = useParams(); const { t, lang, money, tx, fmtDate } = useI18n();
   const { data, loading, error, reload } = useLoad(() => api.get<DestDetail>(`/destinations/${id}`), [id]);
   const [photo, setPhoto] = useState<number | null>(null);
+  // Coming from a "Things to do" card: show that activity's trips first and scroll to them
+  const [sp, setSp] = useSearchParams(); const activity = sp.get('activity') || '';
+  useEffect(() => { if (activity && data) document.getElementById('open-trips')?.scrollIntoView({ block: 'start' }); }, [activity, !!data]);
   return (
     <div className="container section-tight">
       <p><Link className="see-all" to="/destinations"><Icon name="arrowLeft" size={15} /> {t('nav.destinations')}</Link></p>
@@ -57,7 +63,12 @@ export function DestinationDetail() {
         {data && (() => {
           const d = data.destination; const rating = data.rating; const images = data.images || [];
           const map = d.latitude != null ? `https://www.google.com/maps/search/?api=1&query=${d.latitude},${d.longitude}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.name + ' Rwanda')}`;
-          const open = data.trips.filter((x) => x.is_open); const other = data.trips.filter((x) => !x.is_open);
+          const allOpen = data.trips.filter((x) => x.is_open);
+          const actTrips = activity ? data.trips.filter((x) => x.category.slug === activity) : [];
+          const actName = actTrips[0] ? (lang === 'rw' ? actTrips[0].category.name_rw : actTrips[0].category.name_en) : activity;
+          const filtered = !!activity && actTrips.some((x) => x.is_open);
+          const open = filtered ? allOpen.filter((x) => x.category.slug === activity) : allOpen;
+          const other = data.trips.filter((x) => !x.is_open && (!filtered || x.category.slug === activity));
           // "Good to know": one tip per line, in the current language (falls back to the other one)
           const info = ((lang === 'rw' ? d.info_rw || d.info_en : d.info_en || d.info_rw) || '').split('\n').map((l) => l.replace(/^[-•*]\s*/, '').trim()).filter(Boolean);
           const shown = photo != null ? images[photo] : null;
@@ -71,7 +82,7 @@ export function DestinationDetail() {
                   <p><a className="dest-rating-link" href="#reviews"><Stars n={rating.avg} /> <strong>{rating.avg.toFixed(1)}</strong> <span className="muted small">({t('trip.reviews_n', { n: rating.count })})</span></a></p>
                 )}
                 <p>{lang === 'rw' ? d.description_rw : d.description_en}</p>
-                <div className="pills" style={{ marginBottom: 12 }}>{d.categories.map((c) => <span key={c.id} className="pill">{lang === 'rw' ? c.name_rw : c.name_en}</span>)}</div>
+                <div className="pills" style={{ marginBottom: 12 }}>{d.is_free && <span className="pill pill-free"><Icon name="tag" size={12} />{t('dest.free_visit')}</span>}{d.categories.map((c) => <span key={c.id} className="pill">{lang === 'rw' ? c.name_rw : c.name_en}</span>)}</div>
                 {d.costs.length > 0 && (<div className="card card-pad" style={{ marginBottom: 12 }}><h4>{t('dest.entry_cost')}</h4>
                   {d.costs.map((c, i) => <div key={i} className="small">{tx('cost.' + c.cost_type)}: <strong>{c.amount != null ? money(c.amount) : t('trip.cost_unknown')}</strong> <span className="muted">({tx('src.' + c.source_type)}{c.source_note ? ' – ' + c.source_note : ''})</span></div>)}</div>)}
                 <div className="row">
@@ -106,6 +117,10 @@ export function DestinationDetail() {
 
             <section id="open-trips" className="section-tight dest-section">
               <h2>{t('dest.open_now')}{open.length > 0 && <span className="count-badge">{open.length}</span>}</h2>
+              {activity && (<div className="notice small activity-note">
+                {filtered ? t('exp.showing_activity', { a: actName }) : t('exp.no_activity_trips', { a: actName })}
+                {filtered && allOpen.length > open.length && <button type="button" className="btn btn-ghost btn-sm" onClick={() => setSp({}, { replace: true })}>{t('exp.show_all', { n: allOpen.length })}</button>}
+              </div>)}
               {open.length ? <div className="grid grid-cards">{open.map((x) => <TripCard key={x.id} trip={x} />)}</div> : <div className="notice">{t('dest.no_trips')}</div>}
               {other.length > 0 && (<>
                 <h3 style={{ marginTop: 28 }}>{t('dest.other_trips')}</h3>

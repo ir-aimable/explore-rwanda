@@ -1,5 +1,6 @@
 import { lazy, type ComponentType } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { AssistantLauncher } from './components/AssistantLauncher';
 import { DashLayout, PublicLayout, RequireAuth, RequireRole, type DashLink } from './layouts/Layouts';
 import Home from './pages/public/Home';
 
@@ -20,8 +21,8 @@ function page<M, K extends keyof M>(loader: () => Promise<M>, name: K) {
   return lazy(() => loader().then((m) => ({ default: m[name] as unknown as ComponentType<any> })));
 }
 
-const { AdminHome, AdminDestinations, TransportPrices, AdminSupport, Announcements, Applications, AuditLog, Categories, Organizers, ReviewsReports, SettingsPage, Users } = {
-  AdminHome: page(load.admin, 'AdminHome'), AdminDestinations: page(load.admin, 'AdminDestinations'), TransportPrices: page(load.admin, 'TransportPrices'),
+const { AdminDatabase, AdminHome, AdminDestinations, TransportPrices, AdminSupport, Announcements, Applications, AuditLog, Categories, Organizers, ReviewsReports, SettingsPage, Users } = {
+  AdminDatabase: page(load.admin, 'AdminDatabase'), AdminHome: page(load.admin, 'AdminHome'), AdminDestinations: page(load.admin, 'AdminDestinations'), TransportPrices: page(load.admin, 'TransportPrices'),
   AdminSupport: page(load.admin, 'AdminSupport'), Announcements: page(load.admin, 'Announcements'), Applications: page(load.admin, 'Applications'),
   AuditLog: page(load.admin, 'AuditLog'), Categories: page(load.admin, 'Categories'), Organizers: page(load.admin, 'Organizers'),
   ReviewsReports: page(load.admin, 'ReviewsReports'), SettingsPage: page(load.admin, 'SettingsPage'), Users: page(load.admin, 'Users'),
@@ -35,7 +36,7 @@ const { MyRegistrations, MyReviews, MySupport, SavedTrips, TravelerHome } = {
   MyRegistrations: page(load.traveler, 'MyRegistrations'), MyReviews: page(load.traveler, 'MyReviews'), MySupport: page(load.traveler, 'MySupport'),
   SavedTrips: page(load.traveler, 'SavedTrips'), TravelerHome: page(load.traveler, 'TravelerHome'),
 };
-const Notifications = page(load.shared, 'Notifications'), ProfileForm = page(load.shared, 'ProfileForm');
+const Notifications = page(load.shared, 'Notifications'), ProfileForm = page(load.shared, 'ProfileForm'), ManageExperiences = page(load.shared, 'ManageExperiences');
 const Destinations = page(load.destinations, 'Destinations'), DestinationDetail = page(load.destinations, 'DestinationDetail');
 const { About, BecomeOrganizer, Contact, ForgotPassword, Login, NotFound, OrganizerProfile, Planner, Register, ResetPassword } = {
   About: page(load.pages, 'About'), BecomeOrganizer: page(load.pages, 'BecomeOrganizer'), Contact: page(load.pages, 'Contact'),
@@ -55,16 +56,16 @@ const travelerLinks: DashLink[] = [
   { icon: 'grid', to: '/traveler', label: 'dash.overview', end: true }, { icon: 'clipboard', to: '/traveler/registrations', label: 'tr.registrations' }, { icon: 'heart', to: '/traveler/saved', label: 'tr.saved' }, { icon: 'star', to: '/traveler/reviews', label: 'tr.reviews' },
   { icon: 'bell', to: '/traveler/notifications', label: 'dash.notifications' }, { icon: 'help', to: '/traveler/support', label: 'dash.support' }, { icon: 'user', to: '/traveler/profile', label: 'dash.profile' }];
 const organizerLinks: DashLink[] = [
-  { icon: 'grid', to: '/organizer', label: 'dash.overview', end: true }, { icon: 'mountain', to: '/organizer/trips', label: 'org.my_trips' }, { icon: 'plus', to: '/organizer/trips/new', label: 'org.create_trip' }, { icon: 'clipboard', to: '/organizer/registrations', label: 'org.registrations' },
+  { icon: 'grid', to: '/organizer', label: 'dash.overview', end: true }, { icon: 'mountain', to: '/organizer/trips', label: 'org.my_trips' }, { icon: 'compass', to: '/organizer/experiences', label: 'exp.manage' }, { icon: 'plus', to: '/organizer/trips/new', label: 'org.create_trip' }, { icon: 'clipboard', to: '/organizer/registrations', label: 'org.registrations' },
   { icon: 'star', to: '/organizer/reviews', label: 'org.reviews' }, { icon: 'bell', to: '/organizer/notifications', label: 'dash.notifications' }, { icon: 'user', to: '/organizer/profile', label: 'dash.profile' }, { icon: 'shield', to: '/traveler/profile', label: 'dash.change_password' }];
 const adminLinks: DashLink[] = [
   { icon: 'grid', to: '/admin', label: 'dash.overview', end: true }, { icon: 'users', to: '/admin/users', label: 'ad.users', group: 'ad.users' }, { icon: 'flag', to: '/admin/applications', label: 'ad.applications', group: 'ad.users' }, { icon: 'shield', to: '/admin/organizers', label: 'ad.organizers', group: 'ad.users' },
-  { icon: 'pin', to: '/admin/destinations', label: 'ad.destinations', group: 'ad.trips' }, { icon: 'map', to: '/admin/transport', label: 'ad.transport', group: 'ad.trips' }, { icon: 'mountain', to: '/admin/trips', label: 'ad.trips', group: 'ad.trips' }, { icon: 'clipboard', to: '/admin/registrations', label: 'ad.registrations', group: 'ad.trips' },
+  { icon: 'pin', to: '/admin/destinations', label: 'ad.destinations', group: 'ad.trips' }, { icon: 'map', to: '/admin/transport', label: 'ad.transport', group: 'ad.trips' }, { icon: 'mountain', to: '/admin/trips', label: 'ad.trips', group: 'ad.trips' }, { icon: 'compass', to: '/admin/experiences', label: 'exp.manage', group: 'ad.trips' }, { icon: 'clipboard', to: '/admin/registrations', label: 'ad.registrations', group: 'ad.trips' },
   { icon: 'star', to: '/admin/reviews', label: 'ad.reviews', group: 'ad.settings' }, { icon: 'help', to: '/admin/support', label: 'ad.support', group: 'ad.settings' }, { icon: 'tag', to: '/admin/categories', label: 'ad.categories', group: 'ad.settings' }, { icon: 'megaphone', to: '/admin/announcements', label: 'ad.announcements', group: 'ad.settings' },
-  { icon: 'history', to: '/admin/audit', label: 'ad.audit', group: 'ad.settings' }, { icon: 'settings', to: '/admin/settings', label: 'ad.settings', group: 'ad.settings' }, { icon: 'bell', to: '/admin/notifications', label: 'dash.notifications', group: 'ad.settings' }, { icon: 'user', to: '/admin/profile', label: 'dash.profile', group: 'ad.settings' }];
+  { icon: 'history', to: '/admin/audit', label: 'ad.audit', group: 'ad.settings' }, { icon: 'layers', to: '/admin/database', label: 'ad.database', group: 'ad.settings' }, { icon: 'settings', to: '/admin/settings', label: 'ad.settings', group: 'ad.settings' }, { icon: 'bell', to: '/admin/notifications', label: 'dash.notifications', group: 'ad.settings' }, { icon: 'user', to: '/admin/profile', label: 'dash.profile', group: 'ad.settings' }];
 
 export default function App() {
-  return (
+  return (<>
     <Routes>
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} /><Route path="/destinations" element={<Destinations />} /><Route path="/destinations/:id" element={<DestinationDetail />} />
@@ -86,7 +87,7 @@ export default function App() {
       <Route element={<RequireRole roles={['organizer']} />}>
         <Route path="/organizer" element={<DashLayout links={organizerLinks} title="Organizer" />}>
           <Route index element={<OrganizerHome />} /><Route path="trips" element={<ManageTrips />} /><Route path="trips/new" element={<TripForm />} /><Route path="trips/:id/edit" element={<TripForm />} />
-          <Route path="trips/:id/registrations" element={<TripRegistrations />} /><Route path="registrations" element={<AllRegistrations />} /><Route path="reviews" element={<OrganizerReviews />} />
+          <Route path="trips/:id/registrations" element={<TripRegistrations />} /><Route path="experiences" element={<ManageExperiences />} /><Route path="registrations" element={<AllRegistrations />} /><Route path="reviews" element={<OrganizerReviews />} />
           <Route path="notifications" element={<Notifications />} /><Route path="profile" element={<OrganizerProfileEdit />} />
         </Route>
       </Route>
@@ -95,12 +96,13 @@ export default function App() {
         <Route path="/admin" element={<DashLayout links={adminLinks} title="Admin" />}>
           <Route index element={<AdminHome />} /><Route path="users" element={<Users />} /><Route path="applications" element={<Applications />} /><Route path="organizers" element={<Organizers />} />
           <Route path="destinations" element={<AdminDestinations />} /><Route path="transport" element={<TransportPrices />} /><Route path="trips" element={<ManageTrips admin />} /><Route path="trips/new" element={<TripForm admin />} /><Route path="trips/:id/edit" element={<TripForm admin />} />
-          <Route path="trips/:id/registrations" element={<TripRegistrations admin />} /><Route path="registrations" element={<AllRegistrations admin />} /><Route path="reviews" element={<ReviewsReports />} />
-          <Route path="support" element={<AdminSupport />} /><Route path="categories" element={<Categories />} /><Route path="announcements" element={<Announcements />} /><Route path="audit" element={<AuditLog />} />
+          <Route path="trips/:id/registrations" element={<TripRegistrations admin />} /><Route path="experiences" element={<ManageExperiences admin />} /><Route path="registrations" element={<AllRegistrations admin />} /><Route path="reviews" element={<ReviewsReports />} />
+          <Route path="support" element={<AdminSupport />} /><Route path="categories" element={<Categories />} /><Route path="announcements" element={<Announcements />} /><Route path="audit" element={<AuditLog />} /><Route path="database" element={<AdminDatabase />} />
           <Route path="settings" element={<SettingsPage />} /><Route path="notifications" element={<Notifications />} /><Route path="profile" element={<ProfileForm />} />
         </Route>
       </Route>
       <Route path="/dashboard" element={<Navigate to="/" replace />} />
     </Routes>
-  );
+    <AssistantLauncher />
+  </>);
 }

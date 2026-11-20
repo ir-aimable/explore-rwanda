@@ -179,6 +179,15 @@ const saveDestCats = async (id: number, ids: number[]) => {
   const ins = db.prepare('INSERT OR IGNORE INTO destination_categories (destination_id,category_id) VALUES (?,?)');
   for (const c of ids) { if (await db.prepare('SELECT 1 FROM categories WHERE id=?').get(c)) await ins.run(id, c); }
 };
+/** "Free to visit" is also recorded as a RWF 0 entry fee, so cost breakdowns and the assistant count entry as free.
+ *  Turning it off removes only that automatic record. */
+export const FREE_ENTRY_NOTE = 'Free to visit (set by an administrator)';
+async function syncFreeEntry(id: number, free: boolean) {
+  if (free) {
+    await db.prepare("DELETE FROM cost_records WHERE destination_id=? AND trip_id IS NULL AND cost_type='entry_fee'").run(id);
+    await db.prepare("INSERT INTO cost_records (destination_id,cost_type,label,amount,source_type,source_note) VALUES (?, 'entry_fee','Entry fee',0,'official',?)").run(id, FREE_ENTRY_NOTE);
+  } else await db.prepare("DELETE FROM cost_records WHERE destination_id=? AND trip_id IS NULL AND cost_type='entry_fee' AND source_note=?").run(id, FREE_ENTRY_NOTE);
+}
 const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 adminRouter.get('/destinations', async (_req, res) => {
   const items = await db.prepare('SELECT * FROM destinations ORDER BY name').all() as any[];
@@ -191,9 +200,10 @@ adminRouter.post('/destinations', validateBody(destinationSchema), async (req, r
   const b = req.body;
   let slug = slugify(b.name); if (await one('SELECT 1 x FROM destinations WHERE slug=?', slug)) slug += '-' + Date.now().toString(36);
   const id = await db.transaction(async () => {
-    const r = await db.prepare('INSERT INTO destinations (name,slug,region,description_rw,description_en,info_rw,info_en,latitude,longitude,is_published) VALUES (?,?,?,?,?,?,?,?,?,?)')
-      .run(b.name, slug, b.region, b.description_rw, b.description_en, b.info_rw || null, b.info_en || null, b.latitude ?? null, b.longitude ?? null, b.is_published ? 1 : 0);
+    const r = await db.prepare('INSERT INTO destinations (name,slug,region,description_rw,description_en,info_rw,info_en,latitude,longitude,is_published,is_free) VALUES (?,?,?,?,?,?,?,?,?,?,?)')
+      .run(b.name, slug, b.region, b.description_rw, b.description_en, b.info_rw || null, b.info_en || null, b.latitude ?? null, b.longitude ?? null, b.is_published ? 1 : 0, b.is_free ? 1 : 0);
     await saveDestCats(Number(r.lastInsertRowid), b.category_ids);
+    if (b.is_free) await syncFreeEntry(Number(r.lastInsertRowid), true);
     return Number(r.lastInsertRowid);
   });
   await audit(req, req.user!, 'destination_create', 'destination', id, { name: b.name });
@@ -201,11 +211,12 @@ adminRouter.post('/destinations', validateBody(destinationSchema), async (req, r
 });
 adminRouter.put('/destinations/:id', validateBody(destinationSchema), async (req, res) => {
   const b = req.body; const id = Number(req.params.id);
-  if (!await one('SELECT 1 x FROM destinations WHERE id=?', id)) throw notFound();
+  const cur = await one('SELECT is_free FROM destinations WHERE id=?', id); if (!cur) throw notFound();
   await db.transaction(async () => {
-    await db.prepare("UPDATE destinations SET name=?,region=?,description_rw=?,description_en=?,info_rw=?,info_en=?,latitude=?,longitude=?,is_published=?,updated_at=datetime('now') WHERE id=?")
-      .run(b.name, b.region, b.description_rw, b.description_en, b.info_rw || null, b.info_en || null, b.latitude ?? null, b.longitude ?? null, b.is_published ? 1 : 0, id);
+    await db.prepare("UPDATE destinations SET name=?,region=?,description_rw=?,description_en=?,info_rw=?,info_en=?,latitude=?,longitude=?,is_published=?,is_free=?,updated_at=datetime('now') WHERE id=?")
+      .run(b.name, b.region, b.description_rw, b.description_en, b.info_rw || null, b.info_en || null, b.latitude ?? null, b.longitude ?? null, b.is_published ? 1 : 0, b.is_free ? 1 : 0, id);
     await saveDestCats(id, b.category_ids);
+    if (!!cur.is_free !== b.is_free) await syncFreeEntry(id, b.is_free);
   });
   await audit(req, req.user!, 'destination_update', 'destination', id, { name: b.name });
   res.json({ ok: true });
@@ -241,6 +252,59 @@ adminRouter.delete('/destinations/:id/gallery/:imageId', async (req, res) => {
   await db.prepare('DELETE FROM destination_images WHERE id=?').run(img.id); await removeUpload(img.path);
   await audit(req, req.user!, 'destination_gallery_remove', 'destination', img.destination_id);
   res.json({ ok: true });
+});
+
+// ---------- My database: read-only browser of every table ----------
+// Secrets are never sent: password hashes, reset-token hashes and linked Google account ids are replaced by "hidden".
+const HIDDEN_COLUMNS = new Set(['password_hash', 'token_hash', 'google_sub']);
+const DB_PAGE = 50;
+async function dbTables() {
+  return (await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '\\_%' ESCAPE '\\' ORDER BY name").all() as any[]).map((r) => r.name as string);
+}
+/** Table name and columns, checked against the real schema (names are interpolated into SQL, so only known ones pass). */
+async function dbTable(name: string) {
+  if (!(await dbTables()).includes(name)) throw notFound();
+  const cols = (await db.prepare(`PRAGMA table_info("${name}")`).all() as any[]).map((c) => ({ name: c.name as string, type: (c.type || '') as string, pk: c.pk > 0, hidden: HIDDEN_COLUMNS.has(c.name) }));
+  return { name, cols };
+}
+const q = (c: string) => `"${c.replace(/"/g, '""')}"`;
+const maskRow = (row: any) => { for (const k of Object.keys(row)) if (HIDDEN_COLUMNS.has(k) && row[k] != null) row[k] = 'hidden'; return row; };
+function dbWhere(cols: { name: string; hidden: boolean }[], search: string) {
+  if (!search) return { sql: '', args: [] as string[] };
+  const visible = cols.filter((c) => !c.hidden);
+  return { sql: 'WHERE ' + visible.map((c) => `CAST(${q(c.name)} AS TEXT) LIKE ?`).join(' OR '), args: visible.map(() => `%${search}%`) };
+}
+adminRouter.get('/database', async (_req, res) => {
+  const items = [];
+  for (const name of await dbTables()) items.push({ name, rows: (await one(`SELECT COUNT(*) c FROM ${q(name)}`)).c as number });
+  res.json({ items, hidden_columns: [...HIDDEN_COLUMNS] });
+});
+adminRouter.get('/database/:table', async (req, res) => {
+  const { name, cols } = await dbTable(String(req.params.table));
+  const search = String(req.query.q || '').trim().slice(0, 100);
+  const sortCol = cols.find((c) => c.name === req.query.sort && !c.hidden)?.name;
+  const dir = req.query.dir === 'asc' ? 'ASC' : 'DESC';
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const w = dbWhere(cols, search);
+  const total = (await one(`SELECT COUNT(*) c FROM ${q(name)} ${w.sql}`, ...w.args)).c as number;
+  const rows = await db.prepare(`SELECT * FROM ${q(name)} ${w.sql} ORDER BY ${sortCol ? q(sortCol) : 'rowid'} ${dir} LIMIT ${DB_PAGE} OFFSET ${(page - 1) * DB_PAGE}`).all(...w.args);
+  res.json({ table: name, columns: cols, rows: rows.map(maskRow), total, page, pages: Math.max(1, Math.ceil(total / DB_PAGE)) });
+});
+/** Whole table (secrets hidden) as CSV, honouring the current search. */
+adminRouter.get('/database/:table/csv', async (req, res) => {
+  const { name, cols } = await dbTable(String(req.params.table));
+  const w = dbWhere(cols, String(req.query.q || '').trim().slice(0, 100));
+  const rows = (await db.prepare(`SELECT * FROM ${q(name)} ${w.sql} ORDER BY rowid`).all(...w.args)).map(maskRow);
+  // Text starting with = + - @ is prefixed with ' so spreadsheets don't run it as a formula (numbers are left alone)
+  const cell = (v: unknown) => {
+    const s = v == null ? '' : String(v); const formula = typeof v === 'string' && /^[=+\-@]/.test(s) && isNaN(Number(s));
+    return formula || /[",\n\r]/.test(s) ? `"${(formula ? "'" : '') + s.replace(/"/g, '""')}"` : s;
+  };
+  const csv = [cols.map((c) => cell(c.name)).join(','), ...rows.map((r) => cols.map((c) => cell(r[c.name])).join(','))].join('\r\n');
+  await audit(req, req.user!, 'database_export', 'table', undefined, { table: name, rows: rows.length });
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${name}.csv"`);
+  res.send('﻿' + csv);
 });
 
 // ---------- Categories ----------

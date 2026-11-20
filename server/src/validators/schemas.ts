@@ -65,7 +65,18 @@ export const destinationSchema = z.object({
   info_rw: z.string().trim().max(3000).nullable().optional(), info_en: z.string().trim().max(3000).nullable().optional(),
   latitude: z.coerce.number().min(-90).max(90).nullable().optional(),
   longitude: z.coerce.number().min(-180).max(180).nullable().optional(),
-  is_published: z.boolean().default(true), category_ids: z.array(z.coerce.number().int()).default([]),
+  is_published: z.boolean().default(true), is_free: z.boolean().default(false), category_ids: z.array(z.coerce.number().int()).default([]),
+});
+const optId = z.preprocess((v) => (v === '' || v === undefined ? null : v), z.coerce.number().int().positive().nullable());
+export const experienceSchema = z.object({
+  title_en: str(3, 120), title_rw: str(3, 120), location: str(2, 80),
+  price_from: z.coerce.number().int().min(0).max(100_000_000),
+  duration: z.string().trim().max(40).nullable().optional(),
+  destination_id: z.coerce.number({ invalid_type_error: 'destination_required' }).int().positive('destination_required'), category_id: optId.optional(),
+  sort_order: z.coerce.number().int().min(0).max(999).default(0),
+  // 3 = recommended, 4 = strongly recommended, 5 = highly recommended; null = no starting rating
+  initial_rating: z.preprocess((v) => (v === '' || v === undefined ? null : v), z.coerce.number().int().min(3).max(5).nullable()),
+  is_published: z.boolean().default(true),
 });
 export const categorySchema = z.object({ slug: z.string().trim().regex(/^[a-z0-9-]{2,40}$/), name_rw: str(2, 80), name_en: str(2, 80), is_active: z.boolean().default(true) });
 export const costSchema = z.object({
