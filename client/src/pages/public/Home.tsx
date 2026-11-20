@@ -22,11 +22,11 @@ function ThingsToDo() {
   if (!data?.items.length) return null;
   return (
     <section className="section container things" style={{ paddingTop: 0 }} aria-labelledby="ttd-h">
-      <div className="section-head"><div><h2 id="ttd-h">{t('exp.title')}</h2><p className="muted" style={{ margin: '6px 0 0' }}>{t('exp.sub')}</p></div></div>
+      <div className="section-head"><h2 id="ttd-h" className="exp-heading">{t('exp.title')}</h2></div>
       <div className="exp-wrap">
-        {!edge.start && <button type="button" className="exp-arrow prev" onClick={() => scroll(-1)} aria-label={t('c.prev')}><Icon name="arrowLeft" size={20} /></button>}
+        {!edge.start && <button type="button" className="exp-arrow prev" onClick={() => scroll(-1)} aria-label={t('c.prev')}><Icon name="arrowLeft" size={22} /></button>}
         <div className="exp-rail" ref={rail} onScroll={sync}>{data.items.map((e, i) => <ExperienceCard key={e.id} e={e} n={i + 1} />)}</div>
-        {!edge.end && <button type="button" className="exp-arrow next" onClick={() => scroll(1)} aria-label={t('c.next')}><Icon name="arrowRight" size={20} /></button>}
+        {!edge.end && <button type="button" className="exp-arrow next" onClick={() => scroll(1)} aria-label={t('c.next')}><Icon name="arrowRight" size={22} /></button>}
       </div>
     </section>
   );

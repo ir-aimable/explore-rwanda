@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { api } from '../services/api';
-import type { AssistantReply, PlaceInfo, Rec, RouteInfo } from '../types';
-import { Cover } from './Cover';
+import type { AssistantReply, DestInfo, PlaceInfo, Rec, RouteInfo, TripInfo } from '../types';
+import { Cover, destImage } from './Cover';
 import { Icon, Robot } from './Icon';
-import { Spinner } from './ui';
+import { Spinner, Stars, Status } from './ui';
 
 interface Turn { role: 'user' | 'bot'; text?: string; reply?: AssistantReply; error?: boolean }
 
@@ -97,6 +97,54 @@ function RecCard({ r }: { r: Rec }) {
   );
 }
 
+/** A destination in the chat: photo with FREE tag, entry fee, rating, open trips and its things to do. */
+function DestInfoCard({ d }: { d: DestInfo }) {
+  const { t, lang, fmtDate, money } = useI18n();
+  return (
+    <Link to={d.link} className="dest-info">
+      <Cover src={d.image_path} srcs={[destImage(d.slug)]} slug={d.categories[0]?.slug || 'nature'} seed={d.id + 3} alt="">
+        {d.is_free && <span className="free-tag">{t('dest.free')}</span>}
+      </Cover>
+      <div className="dest-info-body">
+        <h4>{d.name}</h4>
+        <div className="meta-line"><Icon name="pin" size={13} />{d.region}</div>
+        {d.rating != null && <div className="meta-line"><Stars n={d.rating} /> {d.rating.toFixed(1)} <span className="muted">({d.review_count})</span></div>}
+        <div className="meta-line"><Icon name="tag" size={13} />{d.is_free ? t('dest.free_visit') : d.entry?.amount != null ? t('ai.entry_fee', { p: money(d.entry.amount) }) : t('ai.entry_unknown')}</div>
+        <div className="meta-line"><Icon name="calendar" size={13} />{d.open_trips ? t('ai.dest_trips', { n: d.open_trips, d: fmtDate(d.next_trip!), p: money(d.cheapest_trip!) }) : t('exp.no_open')}</div>
+        {d.categories.length > 0 && <div className="pills" style={{ marginTop: 4 }}>{d.categories.map((c) => <span key={c.slug} className="pill pill-grey">{lang === 'rw' ? c.name_rw : c.name_en}</span>)}</div>}
+        <span className="see-all small">{t('ai.view_destination')} <Icon name="arrowRight" size={13} /></span>
+      </div>
+    </Link>
+  );
+}
+
+/** Every detail of one trip, grouped the way travellers ask about them. */
+function TripInfoCard({ x }: { x: TripInfo }) {
+  const { t, lang, fmtDate, money, tx } = useI18n();
+  const row = (icon: Parameters<typeof Icon>[0]['name'], label: string, value: React.ReactNode) => value ? <div className="ti-row"><Icon name={icon} size={15} /><div><span className="muted small">{label}</span><div>{value}</div></div></div> : null;
+  return (
+    <div className="trip-info">
+      <div className="ti-head"><div><h4>{x.title}</h4><div className="small muted">{x.destination} · {lang === 'rw' ? x.category_rw : x.category_en}</div></div>
+        <span className="price-tag">{x.price === 0 ? t('c.free') : money(x.price)}</span></div>
+      <div className="ti-grid">
+        {row('calendar', t('ai.ti_when'), `${fmtDate(x.trip_date)} · ${x.start_time}${x.duration_hours ? ` · ${t('ai.ti_hours', { n: x.duration_hours })}` : ''}`)}
+        {row('pin', t('ai.ti_meet'), `${x.meeting_point} (${x.starting_location})`)}
+        {row('users', t('ai.ti_spaces'), x.is_open ? t('ai.ti_spaces_left', { n: x.remaining_spaces, c: x.capacity }) : <Status kind="st" value={x.status} />)}
+        {row('clock', t('ai.ti_deadline'), x.registration_deadline.replace('T', ' '))}
+        {row('checkCircle', t('ai.ti_included'), x.included.join(', '))}
+        {row('x', t('ai.ti_excluded'), x.excluded.join(', '))}
+        {row('map', t('cost.transport'), x.transport_info)}
+        {row('leaf', t('cost.food'), x.food_info)}
+        {row('clipboard', t('ai.ti_bring'), x.bring_items)}
+        {row('mountain', t('ai.ti_difficulty'), x.difficulty ? tx('trip.diff.' + x.difficulty, x.difficulty) : null)}
+        {row('shield', t('ai.ti_cancel'), x.cancellation_policy)}
+        {row('star', t('ai.ti_organizer'), <>{x.organizer}{x.verified ? ' ✓' : ''}{x.rating ? <> · <Stars n={x.rating} /> {x.rating.toFixed(1)}</> : null}</>)}
+      </div>
+      <Link className="btn btn-sm" to={x.link}>{x.is_open ? t('ai.ti_register') : t('ai.view_trip')} <Icon name="arrowRight" size={14} /></Link>
+    </div>
+  );
+}
+
 function BotFace() { return <span className="bot-face"><Robot size={34} small /></span>; }
 
 export function Assistant({ initial, examples = true, compact }: { initial?: string; examples?: boolean; compact?: boolean }) {
@@ -154,6 +202,8 @@ export function Assistant({ initial, examples = true, compact }: { initial?: str
                 {m.reply.understood.length > 0 && <div className="understood small" style={{ marginTop: 8 }}><span className="muted">{t('ai.understood')}:</span>{m.reply.understood.map((u) => <span key={u} className="pill pill-grey">{u}</span>)}</div>}
                 {m.reply.clarification && <div className="chips" style={{ marginTop: 8 }}>{m.reply.clarification.options.map((o) => <button key={o} className="chip" disabled={busy || i !== turns.length - 1} onClick={() => ask(o)}>{o}</button>)}</div>}
                 {m.reply.route && <RouteCard r={m.reply.route} />}
+                {(m.reply.dest_cards?.length ?? 0) > 0 && <div className="dest-info-list">{m.reply.dest_cards!.map((d) => <DestInfoCard key={d.id} d={d} />)}</div>}
+                {m.reply.trip_detail && <TripInfoCard x={m.reply.trip_detail} />}
                 {!m.reply.route && m.reply.place && <PlaceLine p={m.reply.place} />}
                 {m.reply.trips.map((r) => <RecCard key={r.id} r={r} />)}
                 {(m.reply.nearby?.length ?? 0) > 0 && <><p className="small" style={{ marginTop: 12, marginBottom: 0 }}><strong>{m.reply.nearby_title}</strong></p>{m.reply.nearby!.map((r) => <RecCard key={'n' + r.id} r={r} />)}</>}

@@ -6,6 +6,10 @@ import { placeTerms } from '../geo/rwanda.js';
 export interface Lexicon {
   categories: { slug: string; names: string[] }[];
   locations: { term: string; canonical: string }[]; // normalized term -> display name
+  /** Destination records: normalized name or distinctive word -> destination name (for "tell me about X"). */
+  destinations?: { term: string; name: string }[];
+  /** Upcoming trips: id, title and its significant words (for "what's included in the Lake Kivu boat trip?"). */
+  trips?: { id: number; title: string; words: string[] }[];
 }
 
 export interface DateRange { dateFrom: string; dateTo: string; weekdays?: number[]; label: string; labelKey: string; exact?: boolean }
@@ -27,7 +31,12 @@ export interface Intent {
   lowCost: boolean;
   easy: boolean; challenging: boolean;
   wantsAvailability: boolean;
-  action: 'search' | 'greeting' | 'blocked_action' | 'blocked_private' | 'help' | 'small_talk' | 'recommend' | 'route_info' | 'place_info' | 'unknown';
+  action: 'search' | 'greeting' | 'blocked_action' | 'blocked_private' | 'help' | 'small_talk' | 'recommend' | 'route_info' | 'place_info'
+    | 'destination_info' | 'trip_info' | 'unknown';
+  /** Destination question: one destination by name (details), or a list filtered by free / cheap / activity / area. */
+  destName?: string; destAspect?: DestAspect; destFree?: boolean;
+  /** Question about one trip's details; tripId when the message names the trip, else the last trips shown. */
+  tripId?: number; tripAspect?: TripAspect;
   /** Transport question ("bus fare from Kigali to Huye", "how do I get to Kitabi"): place names as written/resolved. */
   routeFrom?: string; routeTo?: string;
   /** Location question ("where is Kitabi", "Kitabi iherereye he"). */
@@ -36,6 +45,8 @@ export interface Intent {
   detected: string[];     // human-readable list of what was understood
 }
 
+export type DestAspect = 'about' | 'entry' | 'activities' | 'reviews' | 'list';
+export type TripAspect = 'about' | 'included' | 'meeting' | 'bring' | 'difficulty' | 'cancellation' | 'organizer' | 'schedule' | 'spaces' | 'food';
 export type Social = 'greeting' | 'how_are_you' | 'feeling_good' | 'thanks' | 'bye' | 'who' | 'affirm' | 'compliment';
 // Conversational cues (English + Kinyarwanda). Matched on normalized tokens, so "how's" becomes "how s".
 const SOCIAL: [Social, RegExp][] = [
@@ -310,11 +321,15 @@ export function parseIntent(raw: string, lex: Lexicon, today = todayStr()): Inte
   const multiWordPlaces = sortedLoc.filter((l) => l.term.includes(' '));
   const outsidePlaces = multiWordPlaces.reduce((acc, l) => acc.replace(new RegExp(`(^| )${l.term}( |$)`, 'g'), ' '), t);
   const activityAsked = !!intent.category && (CATEGORY_WORDS[intent.category] ?? [intent.category]).some((w) => new RegExp(`(^| )${w}( |$)`).test(outsidePlaces));
+  intent.lowCost = /\b(cheap|cheapest|low cost|low-cost|affordable|budget friendly|inexpensive|bidahenze|bihendutse|hahendutse|hahendukiye|igiciro gito)\b/.test(t) || /\blow ?cost\b/.test(t);
+  if (intent.lowCost) intent.detected.push('low_cost');
+  const info = parseInfoQuestion(t, intent, lex);
+  if (info) { Object.assign(intent, info); intent.detected.push(info.action === 'trip_info' ? 'trip_info' : 'destination'); return intent; }
+  // "Free trips": trips whose price is 0
+  if (FREE_WORDS.test(t) && TRIP_WORDS.test(t) && intent.budget === undefined) { intent.budget = 0; intent.budgetType = 'activity'; intent.detected.push('budget'); }
   const geo = parseGeoQuestion(t, sortedLoc, activityAsked || !!intent.transportIncluded);
   if (geo) { Object.assign(intent, geo); intent.detected.push(geo.action === 'route_info' ? 'route' : 'place'); return intent; }
 
-  intent.lowCost = /\b(cheap|cheapest|low cost|low-cost|affordable|budget friendly|inexpensive|bidahenze|bihendutse|igiciro gito)\b/.test(t) || /\blow ?cost\b/.test(t);
-  if (intent.lowCost) intent.detected.push('low_cost');
   intent.easy = /\b(easy|beginner|beginners|family|families|kids|children|relaxed|byoroshye|abana)\b/.test(t);
   intent.challenging = /\b(challenging|hard|difficult|tough|adventurous|bigoye)\b/.test(t);
   intent.wantsAvailability = /\b(available|availability|still have|spaces|seats|spots|open|ahari|umwanya|imyanya)\b/.test(t);
@@ -352,7 +367,8 @@ export function mergeContext(cur: Intent, prev?: Partial<{ budget: number; categ
   return m;
 }
 
-export function buildLexicon(cats: any[], dests: any[], trips: { starting_location: string; meeting_point: string }[]): Lexicon {
+export function buildLexicon(cats: any[], dests: any[], trips: { starting_location: string; meeting_point: string }[],
+  upcoming: { id: number; title: string }[] = []): Lexicon {
   // Also bus-stop names that are everyday English words ("save money", "base price"): never treated as a place in a search.
   const GENERIC = new Set(['national', 'park', 'lake', 'eco', 'ibere', 'rya', 'rwanda', 'area', 'hill', 'forest', 'the', 'and', 'base', 'save', 'sake']);
   const locs = new Map<string, string>();
@@ -370,10 +386,90 @@ export function buildLexicon(cats: any[], dests: any[], trips: { starting_locati
   // Common Rwandan place aliases that only help when a matching record exists
   const alias: Record<string, string> = { gisenyi: 'Rubavu', rubavu: 'Rubavu', kibuye: 'Karongi', karongi: 'Karongi', ruhengeri: 'Musanze', volcanoes: 'Musanze', kivu: 'Lake Kivu' };
   for (const [k, v] of Object.entries(alias)) { if (![...locs.values()].some((c) => norm(c).includes(norm(v)))) continue; add(k, v); }
+  // Destinations by full name and by each distinctive word ("kivu", "akagera", "bigogwe")
+  const destTerms = new Map<string, string>();
+  for (const d of dests) {
+    const full = tokens(d.name); if (full) destTerms.set(full, d.name);
+    for (const w of full.split(' ')) if (w.length >= 4 && !GENERIC.has(w) && !destTerms.has(w)) destTerms.set(w, d.name);
+  }
   return {
     categories: cats.map((c) => ({ slug: c.slug, names: [c.name_en, c.name_rw, c.slug] })),
     locations: [...locs.entries()].map(([term, canonical]) => ({ term, canonical })),
+    destinations: [...destTerms.entries()].map(([term, name]) => ({ term, name })).sort((a, b) => b.term.length - a.term.length),
+    trips: upcoming.map((x) => ({ id: x.id, title: x.title, words: titleWords(x.title) })).filter((x) => x.words.length >= 2),
   };
+}
+
+// ---- Destination and trip-detail questions ---------------------------------------------------------
+const TITLE_STOP = new Set(['trip', 'trips', 'tour', 'with', 'from', 'demo', 'and', 'the', 'day', 'days', 'into', 'over', 'for', 'experience', 'urugendo']);
+/** Significant words of a trip title ("Lake Kivu Boat Trip (Demo)" -> lake, kivu, boat). */
+function titleWords(title: string) { return [...new Set(tokens(title).split(' ').filter((w) => w.length >= 4 && !TITLE_STOP.has(w)))]; }
+const TRIP_WORDS = /\b(trip|trips|tour|tours|urugendo|ingendo|excursion|outing|outings)\b/;
+const DEST_WORDS = /\b(destinations?|places?|spots?|sites?|attractions?|ahantu|ahasurwa|aho gusura|aho nasura|ibyiza nyaburanga)\b/;
+const FREE_WORDS = /\b(free|for free|free of charge|no entry fee|without paying|costs? nothing|ku buntu|ubuntu|nta mafaranga)\b/;
+const PLACES_LEFT = /\b(how many (places|spots)|(places|spots) (left|remaining|available))\b/;
+const ABOUT = /\b(tell me (more )?about|what is|what s|whats|info(rmation)? (on|about)|details (of|about|on)|describe|know about|more about|mbwira (ibya|kuri|ibyerekeye)|ibyerekeye|amakuru (ya|y|kuri))\b/;
+const ENTRY = /\b(entry|entrance|admission|park fees?|entry fees?|fees?|kwinjira|is (it|this|that) free|free to (visit|enter)|do (i|we) (have to |need to )?pay|paying)\b/;
+const DO_THERE = /\b(what (can|could|should) (i|we|you|one) do|things to do|what to do|activities|nakora iki|twakora iki|ibikorwa|ibyo gukora)\b/;
+const REVIEWS = /\b(reviews?|ratings?|rated|worth (it|visiting|a visit)|is it good|amanota|ibitekerezo)\b/;
+const NOT_DEST = /\b(bus|bisi|fare|fares|how (do|can|would) (i|we) get|how to get|where is|where s|wheres|directions)\b/;
+const TRIP_ASPECTS: [TripAspect, RegExp][] = [
+  ['meeting', /\b(meeting point|meet(ing)? (place|where)|where (do|will|should|shall|are) (i|we) (meet|meeting)|pick ?up (point|place|location)|duhurira he|aho duhurira|tuzahurira he)\b/],
+  ['bring', /\b(what (should|do|to|must) (i |we )?(bring|pack|carry|wear)|what to (bring|pack|wear)|packing list|nitwaze iki|nzane iki|nitwaza iki|nzitwaza iki)\b/],
+  ['cancellation', /\b(cancel|cancellation|refund|refunds|guhagarika|kureka urugendo)\b/],
+  ['difficulty', /\b(how (hard|difficult|easy|tough|tiring) is|difficulty|fitness level|is it (hard|difficult|easy|tough)|biragoye|biroroshye)\b/],
+  ['organizer', /\b(who (is |are )?(organi[sz]es|organi[sz]ing|runs|leads|guides|the organi[sz]ers?)|organi[sz]er of|uwateguye|uwutegura|ninde wateguye)\b/],
+  ['spaces', /\b(how many (spaces|seats|spots|places)( are)?( still)? (left|remaining|available)|(spaces|seats|spots) left|is it (full|still open)|still (open|available)|any (spaces|seats|spots) left|imyanya ingahe|hasigaye imyanya)\b/],
+  ['schedule', /\b(what time|when does (it|the trip) (start|leave|depart|begin|end|return)|start(ing)? time|departure time|how long (is|does|will)|duration|deadline|register by|last day to register|saa ngahe|bitangira ryari|bimara igihe kingana iki)\b/],
+  ['included', /\b(included|include|includes|covered|not included|excluded|exclude|excludes|what does (it|the price) (cover|include)|harimo iki|bikubiyemo|ibirimo)\b/],
+  ['food', /\b(food|lunch|meals?|ibiryo|ifunguro)\b/],
+];
+const PREFS_GIVEN = (i: Intent) => !!(i.category || i.location || i.budget !== undefined || i.date || i.people || i.origin);
+
+/** The upcoming trip a message names: most of its title's significant words appear in the message, including at least
+ *  one word beyond the destination's own name ("Lake Kivu" alone is the destination, "Lake Kivu boat trip" is the trip). */
+function tripIn(t: string, lex: Lexicon, destName?: string) {
+  const words = new Set(t.split(' '));
+  const destWords = new Set((lex.destinations || []).filter((d) => d.name === destName).flatMap((d) => d.term.split(' ')));
+  let best: { id: number; score: number } | undefined;
+  for (const x of lex.trips || []) {
+    const hits = x.words.filter((w) => words.has(w));
+    const score = hits.length / x.words.length;
+    if (hits.length >= 2 && score >= 0.6 && hits.some((w) => !destWords.has(w)) && (!best || score > best.score)) best = { id: x.id, score };
+  }
+  return best?.id;
+}
+/** The destination a message names (longest name or distinctive word first). */
+function destIn(t: string, lex: Lexicon) {
+  return (lex.destinations || []).find((d) => new RegExp(`(^| )${d.term}( |$)`).test(t))?.name;
+}
+
+/** Questions about destinations ("any free destinations?", "tell me about Lake Kivu", "is Akagera free?")
+ *  and about a trip's details ("what's included?", "where do we meet for the Lake Kivu boat trip?"). */
+export function parseInfoQuestion(t: string, i: Intent, lex: Lexicon): Pick<Intent, 'action' | 'destName' | 'destAspect' | 'destFree' | 'tripId' | 'tripAspect'> | undefined {
+  if (NOT_DEST.test(t)) return undefined;
+  const aspect = TRIP_ASPECTS.find(([, re]) => re.test(t))?.[0];
+  const destName = destIn(t, lex);
+  const tripId = tripIn(t, lex, destName);
+  // A named trip: any detail question (or "tell me about it")
+  if (tripId && (aspect || ABOUT.test(t) || !(i.budget !== undefined || i.date || i.people))) return { action: 'trip_info', tripId, tripAspect: aspect ?? 'about' };
+  // A detail question with no new search criteria: about the trips just shown (resolved from the session)
+  if (aspect && aspect !== 'food' && !PREFS_GIVEN(i) && !DEST_WORDS.test(t.replace(PLACES_LEFT, ' '))) return { action: 'trip_info', tripAspect: aspect };
+  if (aspect === 'food' && /\b(is|are|will|do|does|included|provided)\b/.test(t) && !PREFS_GIVEN(i)) return { action: 'trip_info', tripAspect: 'food' };
+
+  const free = FREE_WORDS.test(t);
+  const tripish = TRIP_WORDS.test(t) || i.budget !== undefined || !!i.date || !!i.people;
+  if (destName && !tripish) {
+    const destAspect = ENTRY.test(t) || free ? 'entry' : DO_THERE.test(t) ? 'activities' : REVIEWS.test(t) ? 'reviews' : ABOUT.test(t) ? 'about' : undefined;
+    if (destAspect) return { action: 'destination_info', destName, destAspect };
+  }
+  if (tripish) return undefined;
+  // "places to visit in Kigali", "destinations for hiking" ("how many places left" is about trip seats, not places)
+  const listWords = DEST_WORDS.test(t.replace(PLACES_LEFT, ' '));
+  // "anything free?", "where can I go for free?"
+  const freeQuestion = free && /\b(any|anything|which|what|list|show|visit|go|see|explore|where|gusura|kujya|kureba|he|hehe)\b/.test(t);
+  if (listWords || freeQuestion) return { action: 'destination_info', destAspect: 'list', destFree: free || undefined };
+  return undefined;
 }
 
 // ---- Location and transport questions -------------------------------------------------------------

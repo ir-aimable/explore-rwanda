@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Client, T, closeServer, db, rows, setFixedNow, writeReport } from './harness.js';
-import { extractBudget, extractDate, extractPeople, parseIntent } from '../services/ai/nlp.js';
+import { extractBudget, extractDate, extractPeople, parseIntent, buildLexicon } from '../services/ai/nlp.js';
 import { fareForKm, findPlace, roadKm } from '../services/geo/rwanda.js';
 
 // Pin "now" to Wednesday 2026-11-04 12:00 Kigali so date logic is deterministic.
@@ -826,6 +826,25 @@ test('nlp unit checks', async () => {
     assert.equal(r('Hari ingendo mu Kuboza?'), '2026-12-01..2026-12-31'); assert.equal(r('trips in march'), '2027-03-01..2027-03-31');
     assert.equal(r('december 2027'), '2027-12-01..2027-12-31'); assert.equal(r('may I join?'), undefined); assert.equal(r('in may'), '2027-05-01..2027-05-31');
     assert.equal(r('14 december'), '2026-12-14..2026-12-14');
+  });
+  await T('NLP-05', 'Destination and trip-detail questions', '"any free destinations?", "tell me about Lake Kivu" (not the boat trip), "is Akagera free?", "what\'s included in the Lake Kivu boat trip?", follow-ups, trip searches unaffected', async () => {
+    const lex = buildLexicon([{ slug: 'hiking', name_en: 'Hiking', name_rw: 'Gutembera' }, { slug: 'boating', name_en: 'Boating', name_rw: 'Ubwato' }],
+      [{ name: 'Lake Kivu', region: 'Western Province' }, { name: 'Akagera National Park', region: 'Eastern Province' }], [],
+      [{ id: 7, title: 'Lake Kivu Boat Trip (Demo)' }, { id: 9, title: 'Akagera Day Safari (Demo)' }]);
+    const p = (q: string) => parseIntent(q, lex);
+    assert.deepEqual([p('any free destinations?').action, p('any free destinations?').destAspect, p('any free destinations?').destFree], ['destination_info', 'list', true]);
+    assert.equal(p('Ahasurwa ku buntu').destFree, true);
+    assert.deepEqual([p('Tell me about Lake Kivu').action, p('Tell me about Lake Kivu').destName], ['destination_info', 'Lake Kivu']);
+    assert.equal(p('is Akagera free?').destAspect, 'entry'); assert.equal(p('Mbwira ibya Akagera').destName, 'Akagera National Park');
+    assert.equal(p('places for hiking').category, 'hiking'); assert.equal(p('places for hiking').destAspect, 'list');
+    assert.deepEqual([p("what's included in the Lake Kivu boat trip?").action, p("what's included in the Lake Kivu boat trip?").tripId, p("what's included in the Lake Kivu boat trip?").tripAspect], ['trip_info', 7, 'included']);
+    assert.equal(p('what should I bring for the akagera day safari?').tripAspect, 'bring');
+    assert.deepEqual([p('Where do we meet?').action, p('Where do we meet?').tripId], ['trip_info', undefined]);
+    assert.equal(p('Harimo iki?').tripAspect, 'included');
+    // Searches, bus fares and "where is" keep working
+    assert.equal(p('trips to Lake Kivu').action, 'search'); assert.equal(p('hiking this weekend under 10k').action, 'search');
+    assert.equal(p('any spaces left this weekend?').action, 'search');
+    assert.equal(p('where is Lake Kivu?').action, 'place_info');
   });
 });
 

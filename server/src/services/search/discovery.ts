@@ -3,6 +3,7 @@
 import { db } from '../../database/db.js';
 import { buildLexicon, norm, RELATED, type Intent, type Lexicon } from '../ai/nlp.js';
 import { listPublicTrips } from './tripService.js';
+import { todayStr } from '../../lib/time.js';
 import { findPlace, roadKm } from '../geo/rwanda.js';
 import { estimateFare, HUB_RADIUS_KM, loadTransport, resolveOrigin, type TransportData, type TransportEstimate } from '../geo/transport.js';
 
@@ -96,7 +97,10 @@ export async function getLexicon(): Promise<Lexicon> {
   const trips = await db.prepare("SELECT DISTINCT starting_location, meeting_point FROM trips WHERE status='published'").all() as any[];
   // Starting locations added by admins in the transport table are places too
   for (const h of await db.prepare('SELECT name FROM transport_hubs').all() as any[]) trips.push({ starting_location: h.name, meeting_point: '' });
-  const lex = buildLexicon(cats, dests, trips);
+  // Trips that can still be asked about: upcoming, published, organizer approved
+  const upcoming = await db.prepare(`SELECT t.id,t.title FROM trips t JOIN organizers o ON o.id=t.organizer_id
+    WHERE t.status='published' AND o.status='approved' AND t.trip_date>=?`).all(todayStr()) as any[];
+  const lex = buildLexicon(cats, dests, trips, upcoming);
   lexCache = { at: Date.now(), lex };
   return lex;
 }

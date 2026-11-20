@@ -6,6 +6,7 @@ import { applySession, hasSearch, toSession, type Session } from './session.js';
 import { hintText, msg, reasonText, socialOpener, understoodText, whenPhrase } from './messages.js';
 import { chatReply, rephrase } from './ollama.js';
 import { placeReply, routeReply } from './geoReply.js';
+import { destinationReply, tripReply } from './infoReply.js';
 import { findPlace } from '../geo/rwanda.js';
 import { todayStr } from '../../lib/time.js';
 import { extractDate } from './nlp.js';
@@ -33,6 +34,8 @@ export async function buildSuggestions(lang: Lang, exclude?: string): Promise<st
   out.push(lang === 'rw' ? `Ingendo ziri munsi ya RWF ${cap5.toLocaleString('en-US')}` : `Trips under RWF ${cap5.toLocaleString('en-US')}`);
   const dest = (open[0] as any).destination.name;
   if (out.length < 4) out.push(lang === 'rw' ? `Ingendo zijya ${dest}` : `Trips to ${dest}`);
+  // Explore Rwanda is about cheap places: offer free destinations when there are any
+  if (await db.prepare('SELECT 1 x FROM destinations WHERE is_free=1 AND is_published=1').get()) out.splice(Math.min(out.length, 3), 0, lang === 'rw' ? 'Ahasurwa ku buntu' : 'Free destinations');
   return out.slice(0, 4);
 }
 
@@ -126,6 +129,12 @@ export async function runAssistant(message: string, lang: Lang, ctx?: Session) {
   // Where a place is / bus fares between places: answered from the map and the RURA tariff; the active search is kept.
   if (intent.action === 'route_info') return { ...base, ...empty, understood: [], ...(await routeReply(intent, lang, kept)) };
   if (intent.action === 'place_info') return { ...base, ...empty, understood: [], ...(await placeReply(intent, lang, kept)) };
+  // Destinations (free / cheap / by activity or area, or one destination in detail) and one trip's details.
+  if (intent.action === 'destination_info') {
+    const { recs, ...r } = await destinationReply(intent, lang, kept) as Awaited<ReturnType<typeof destinationReply>> & { recs?: DiscoveryResult['trips'] };
+    return { ...base, ...empty, understood: [], ...r, trips: (recs || []).map((t) => localizeRec(t, lang)) };
+  }
+  if (intent.action === 'trip_info') return { ...base, ...empty, understood: [], ...(await tripReply(intent, lang, kept)) };
   if (!searching && intent.action !== 'recommend') return { ...base, ...empty, message: msg.unknown(lang), suggestions: await buildSuggestions(lang) };
 
   const session = toSession(intent);

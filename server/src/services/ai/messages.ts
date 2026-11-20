@@ -181,16 +181,16 @@ export const msg = {
     return `${lines.join(' ')} ${ASK(lang)} ${L(lang, 'Dore ibitekerezo bike:', 'Here are a few ideas:')}`;
   },
   help: (lang: Lang) => L(lang,
-    'Nshimishijwe no kugufasha! Mbwira mu magambo yawe icyo ushaka: igikorwa (urugero gutembera ku musozi, koga, inyamaswa), ahantu, itariki n’amafaranga ufite. Nzakwereka ingendo zifunguye, ibiciro n’imyanya isigaye. (Sinshobora guhindura amakuru cyangwa kwemeza abiyandikishije.)',
-    'Happy to help! Just tell me in your own words what you are looking for: an activity (hiking, swimming, safari…), a place, a date and your budget. I will show you open trips with real prices and spaces left. (I cannot change data or approve registrations.)'),
+    'Nshimishijwe no kugufasha! Mbwira mu magambo yawe icyo ushaka: igikorwa (urugero gutembera ku musozi, koga, inyamaswa), ahantu, itariki n’amafaranga ufite. Nzakwereka ingendo zifunguye, ibiciro n’imyanya isigaye. Unambaze no ku hantu (urugero “Ahasurwa ku buntu”, “Mbwira ibya Lake Kivu”) cyangwa ibijyanye n’urugendo (ibirimo, aho muhurira, ibyo kwitwaza). (Sinshobora guhindura amakuru cyangwa kwemeza abiyandikishije.)',
+    'Happy to help! Just tell me in your own words what you are looking for: an activity (hiking, swimming, safari…), a place, a date and your budget. I will show you open trips with real prices and spaces left. You can also ask about destinations (“any free destinations?”, “tell me about Lake Kivu”) or a trip’s details (what’s included, where to meet, what to bring). (I cannot change data or approve registrations.)'),
   recommend: (lang: Lang, n: number) => (n
     ? L(lang,
       `Dore ingendo ${n} nkugiriye inama, zifunguye kandi zifite imyanya. Nshobora kuzitoranya neza nimbwira igikorwa, itariki cyangwa amafaranga ufite.`,
       `Here ${n === 1 ? 'is a trip' : `are ${n} trips`} I would recommend right now, open and with spaces left. Tell me an activity, a date or your budget and I can narrow it down.`)
     : L(lang, 'Ubu nta rugendo rufunguye ruhari.', 'There are no open trips right now.')),
   unknown: (lang: Lang) => L(lang,
-    'Simbyumvise neza 🤔, ariko nakwishimira kugufasha gutegura urugendo! Nshobora gushaka ingendo hakurikijwe igikorwa, ahantu, itariki cyangwa amafaranga. Gerageza kimwe muri ibi:',
-    'I am not sure I understood that 🤔, but I would love to help you plan something! I can find trips by activity, place, date or budget. Try one of these:'),
+    'Simbyumvise neza 🤔, ariko nakwishimira kugufasha gutegura urugendo! Nshobora gushaka ingendo hakurikijwe igikorwa, ahantu, itariki cyangwa amafaranga, no kukubwira ibyerekeye ahantu ho gusura. Gerageza kimwe muri ibi:',
+    'I am not sure I understood that 🤔, but I would love to help you plan something! I can find trips by activity, place, date or budget, and tell you about destinations, including free ones. Try one of these:'),
   suggestionsTitle: (lang: Lang) => L(lang, 'Ushobora kandi kugerageza:', 'You could also try:'),
   clarify: (lang: Lang) => ({
     question: L(lang,

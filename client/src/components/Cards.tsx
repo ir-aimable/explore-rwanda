@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import type { Destination, Experience, Trip } from '../types';
@@ -54,35 +55,47 @@ export function DestinationCard({ d, compact }: { d: Destination; compact?: bool
   );
 }
 
+/** Hearted "Things to do" cards, kept in this browser only (a per-visitor convenience; it can come back empty). */
+const FAV_KEY = 'er_fav_experiences';
+function readFavs(): number[] { try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch { return []; } }
+function useFav(id: number) {
+  const [on, setOn] = useState(() => readFavs().includes(id));
+  const toggle = () => {
+    const next = !on; setOn(next);
+    try { const cur = readFavs().filter((x) => x !== id); localStorage.setItem(FAV_KEY, JSON.stringify(next ? [...cur, id] : cur)); } catch { /* storage unavailable */ }
+  };
+  return [on, toggle] as const;
+}
+
 /** Numbered "Things to do" card: an activity mapped to a destination. Clicking it opens the destination
  * on its open trips for that activity, where the traveller can register. */
 export function ExperienceCard({ e, n }: { e: Experience; n: number }) {
   const { t, lang, money } = useI18n();
+  const [fav, toggleFav] = useFav(e.id);
   const title = lang === 'rw' ? e.title_rw : e.title_en;
   const to = e.destination ? `/destinations/${e.destination.id}${e.category ? `?activity=${e.category.slug}` : ''}` : `/trips?q=${encodeURIComponent(e.location)}`;
   const recBy = e.recommended_by.join(', ') + (e.recommendations > e.recommended_by.length ? ` +${e.recommendations - e.recommended_by.length}` : '');
   return (
-    <Link to={to} className="card exp-card">
-      <Cover src={e.image_path} srcs={[destImage(e.destination?.slug)]} slug={e.category?.slug || 'nature'} seed={e.id + 7} alt={title}>
-        {e.category && <span className="exp-cat">{lang === 'rw' ? e.category.name_rw : e.category.name_en}</span>}
-        {e.recommendations > 0 && <span className="exp-rec" title={t('exp.recommended_by', { names: recBy })}><Icon name="checkCircle" size={13} />{t('exp.recommended_n', { n: e.recommendations })}</span>}
-      </Cover>
-      <div className="body">
-        <span className="exp-rank" aria-hidden="true">{n}</span>
-        <span className="exp-loc"><Icon name="pin" size={12} />{e.location}</span>
-        <h3>{title}</h3>
-        {e.avg_rating != null && (
-          <div className="exp-stars" aria-label={t('exp.rating_aria', { r: e.avg_rating.toFixed(1), n: e.rating_count })}>
-            <Stars n={e.avg_rating} /><b>{e.avg_rating.toFixed(1)}</b><span className="muted">({e.rating_count})</span>
-          </div>
-        )}
-        <div className="exp-meta">
-          {e.open_trips > 0 ? <span className="exp-open"><Icon name="calendar" size={13} /> {t('dest.open_trips', { n: e.open_trips })}</span> : <span className="small muted">{t('exp.no_open')}</span>}
-          {e.duration && <span className="small muted"><Icon name="clock" size={13} /> {e.duration}</span>}
-          {e.is_demo && <span className="small muted">{t('c.demo')}</span>}
+    <div className="exp-card">
+      <Link to={to} className="exp-link">
+        <Cover src={e.image_path} srcs={[destImage(e.destination?.slug)]} slug={e.category?.slug || 'nature'} seed={e.id + 7} alt={title}>
+          {e.recommendations > 0 && <span className="exp-rec" title={t('exp.recommended_by', { names: recBy })}><Icon name="checkCircle" size={14} />{t('exp.recommended_n', { n: e.recommendations })}</span>}
+        </Cover>
+        <div className="body">
+          <span className="exp-rank" aria-hidden="true">{n}</span>
+          <span className="exp-loc">{e.location}</span>
+          <h3>{title}</h3>
+          {e.avg_rating != null && (
+            <div className="exp-stars" aria-label={t('exp.rating_aria', { r: e.avg_rating.toFixed(1), n: e.rating_count })}>
+              <span>{e.avg_rating.toFixed(1)}</span><Stars n={e.avg_rating} /><span className="muted">({e.rating_count.toLocaleString('en-US')})</span>
+            </div>
+          )}
+          <div className="exp-price">{e.price_from === 0 ? <b>{t('c.free')}</b> : <>{t('exp.from')} <b>{money(e.price_from)}</b></>}</div>
         </div>
-        <div className="exp-price">{e.price_from === 0 ? <b>{t('c.free')}</b> : <>{t('exp.from')} <b>{money(e.price_from)}</b></>}</div>
-      </div>
-    </Link>
+      </Link>
+      <button type="button" className={`exp-fav ${fav ? 'on' : ''}`} aria-pressed={fav} aria-label={fav ? t('exp.unsave') : t('exp.save')} onClick={toggleFav}>
+        <Icon name="heart" size={18} fill={fav} />
+      </button>
+    </div>
   );
 }

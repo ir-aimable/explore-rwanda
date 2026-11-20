@@ -41,6 +41,24 @@ export interface AssistantReply {
   destinations_note?: string; hints: string[]; clarification?: { question: string; options: string[] }; suggestions?: string[]; engine: string; context: unknown;
   /** Bus journey (official RURA fares) and where a place is, for transport / location questions. */
   route?: RouteInfo; place?: PlaceInfo;
+  /** Destinations answered about ("any free destinations?", "tell me about Lake Kivu"). */
+  dest_cards?: DestInfo[];
+  /** Every detail of one trip ("what's included?", "where do we meet?"). */
+  trip_detail?: TripInfo;
+}
+export interface DestInfo {
+  id: number; name: string; slug: string; region: string; link: string; image_path: string | null;
+  is_free: boolean; entry: { amount: number | null; source: string } | null; categories: { slug: string; name_en: string; name_rw: string }[];
+  rating: number | null; review_count: number; open_trips: number; next_trip: string | null; cheapest_trip: number | null;
+  things: { title: string; price_from: number }[];
+}
+export interface TripInfo {
+  id: number; title: string; link: string; destination: string; category_en: string; category_rw: string;
+  trip_date: string; start_time: string; duration_hours: number | null; price: number;
+  starting_location: string; meeting_point: string; organizer: string; verified: boolean;
+  remaining_spaces: number; capacity: number; status: string; is_open: boolean; registration_deadline: string;
+  included: string[]; excluded: string[]; transport_info: string | null; food_info: string | null; bring_items: string | null;
+  difficulty: string | null; cancellation_policy: string | null; rating: number | null; review_count: number; description: string;
 }
 export interface PlaceInfo { name: string; district: string; province: 'Kigali' | 'Northern' | 'Southern' | 'Eastern' | 'Western'; lat: number; lng: number }
 export interface RouteInfo {

@@ -85,7 +85,9 @@ export function applySession(cur: Intent, prev?: Session): Turn {
 
   // 1) Answer to the question asked in the previous reply
   // (a location or fare question is a question of its own, not an answer)
-  if (prev.pending && prev.pending.kind !== 'route_origin' && cur.action !== 'route_info' && cur.action !== 'place_info') {
+  // A one- or two-word reply such as "Destination" (a button under the question) is still an answer, not a destination question.
+  const shortListReply = cur.action === 'destination_info' && cur.destAspect === 'list' && cur.raw.trim().split(/\s+/).length <= 2;
+  if (prev.pending && prev.pending.kind !== 'route_origin' && (shortListReply || !['route_info', 'place_info', 'destination_info', 'trip_info'].includes(cur.action))) {
     const a = answerPending(cur.raw, prev.pending, cur);
     if (a) {
       turn.answered = prev.pending.kind;
