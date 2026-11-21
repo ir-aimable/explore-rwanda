@@ -18,14 +18,13 @@ export interface AboutContent {
   values: { title: string; items: Item[] };
   contribution: { title: string; intro: string; items: Item[]; outro: string };
   promise: { title: string; big: string; text: string; tagline: string };
-  join: { title: string; travellers: { title: string; text: string }; organizers: { title: string; text: string }; ctaDest: string; ctaTrips: string; ctaOrg: string };
 }
 
 const en: AboutContent = {
   nav: [
     { id: 'who', label: 'Who we are' }, { id: 'story', label: 'Our story' }, { id: 'vision', label: 'Vision & mission' },
     { id: 'offer', label: 'What we offer' }, { id: 'how', label: 'How it works' }, { id: 'audience', label: 'Who it’s for' },
-    { id: 'trust', label: 'Trust & safety' }, { id: 'values', label: 'Values' }, { id: 'join', label: 'Join us' },
+    { id: 'trust', label: 'Trust & safety' }, { id: 'values', label: 'Values' },
   ],
   hero: {
     kicker: 'Explore more. Go together.',
@@ -169,19 +168,13 @@ const en: AboutContent = {
     text: 'We are here to make discovering it easier, connecting people through experiences and helping every journey begin with an opportunity.',
     tagline: 'Explore more. Go together.',
   },
-  join: {
-    title: 'Join the Explore Rwanda community',
-    travellers: { title: 'For travellers', text: 'Your next experience might be closer than you think. Discover destinations, explore available trips and find people who share your passion for exploration.' },
-    organizers: { title: 'For organizers', text: 'Are you a tour organizer, travel agency or local experience provider? Join our growing network and make your experiences more visible to potential travellers.' },
-    ctaDest: 'Discover destinations', ctaTrips: 'Explore trips', ctaOrg: 'Become an organizer',
-  },
 };
 
 const rw: AboutContent = {
   nav: [
     { id: 'who', label: 'Abo turi bo' }, { id: 'story', label: 'Impamvu twashyizweho' }, { id: 'vision', label: 'Icyerekezo n’inshingano' },
     { id: 'offer', label: 'Ibyo dutanga' }, { id: 'how', label: 'Uko ikora' }, { id: 'audience', label: 'Abo tugenewe' },
-    { id: 'trust', label: 'Icyizere n’umutekano' }, { id: 'values', label: 'Indangagaciro' }, { id: 'join', label: 'Injira' },
+    { id: 'trust', label: 'Icyizere n’umutekano' }, { id: 'values', label: 'Indangagaciro' },
   ],
   hero: {
     kicker: 'Vumbura byinshi. Mutemberane.',
@@ -324,12 +317,6 @@ const rw: AboutContent = {
     big: 'U Rwanda ruragutegereje kugira ngo uruvumbure.',
     text: 'Turi hano kugira ngo koroshya kumenya ubwiza bwarwo, guhuza abantu binyuze mu bikorwa bitandukanye no gufasha buri rugendo gutangirira ku mahirwe.',
     tagline: 'Vumbura byinshi. Mutemberane.',
-  },
-  join: {
-    title: 'Injira mu muryango wa Explore Rwanda',
-    travellers: { title: 'Ku bagenzi', text: 'Urugendo rukurikira ushobora kurukora rutari kure nk’uko ubyibwira. Menya ahantu nyaburanga, ingendo zihari n’abandi bantu mukunda ibintu bimwe.' },
-    organizers: { title: 'Ku bategura ingendo', text: 'Waba utegura ingendo, ufite ikigo cy’ubukerarugendo cyangwa utanga serivisi zijyanye n’ubukerarugendo? Injira mu muryango wacu kugira ngo ibikorwa byawe birusheho kumenyekana.' },
-    ctaDest: 'Menya ahantu nyaburanga', ctaTrips: 'Shaka ingendo', ctaOrg: 'Iyandikishe nk’utegura ingendo',
   },
 };
 

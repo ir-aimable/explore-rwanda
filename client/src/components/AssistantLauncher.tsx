@@ -7,6 +7,10 @@ import { Spinner } from './ui';
 // The chat code loads only when the visitor first opens it.
 const Assistant = lazy(() => import('./Assistant').then((m) => ({ default: m.Assistant })));
 
+const ASK_EVENT = 'er:ask-assistant';
+/** Opens the floating assistant from anywhere (e.g. the hero's "Ask AI" button), asking `question` when given. */
+export function askAssistant(question?: string) { window.dispatchEvent(new CustomEvent(ASK_EVENT, { detail: question?.trim() || '' })); }
+
 /**
  * Floating "Ask Explore Rwanda Assistant" button, bottom-right on every page except the admin dashboard
  * (and /planner, which already shows the full assistant). The chat stays mounted once opened, so closing
@@ -17,6 +21,12 @@ export function AssistantLauncher() {
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [send, setSend] = useState<{ text: string; n: number } | undefined>();
+  useEffect(() => {
+    const on = (e: Event) => { const q = (e as CustomEvent<string>).detail; setMounted(true); setOpen(true); if (q) setSend({ text: q, n: Date.now() }); };
+    window.addEventListener(ASK_EVENT, on);
+    return () => window.removeEventListener(ASK_EVENT, on);
+  }, []);
   const hidden = pathname === '/admin' || pathname.startsWith('/admin/') || pathname === '/planner';
 
   useEffect(() => {
@@ -38,7 +48,7 @@ export function AssistantLauncher() {
             <strong className="grow">{t('ai.title')}</strong>
             <button type="button" className="icon-btn" onClick={() => setOpen(false)} aria-label={t('c.close')}><Icon name="x" size={18} /></button>
           </div>
-          <Suspense fallback={<div className="ai-pop-load"><Spinner /></div>}><Assistant compact /></Suspense>
+          <Suspense fallback={<div className="ai-pop-load"><Spinner /></div>}><Assistant compact send={send} /></Suspense>
         </div>
       )}
       <button type="button" className={`ai-fab ${open ? 'open' : ''}`} aria-expanded={open} aria-label={open ? t('c.close') : label}

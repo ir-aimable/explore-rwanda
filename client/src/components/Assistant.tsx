@@ -147,7 +147,7 @@ function TripInfoCard({ x }: { x: TripInfo }) {
 
 function BotFace() { return <span className="bot-face"><Robot size={34} small /></span>; }
 
-export function Assistant({ initial, examples = true, compact }: { initial?: string; examples?: boolean; compact?: boolean }) {
+export function Assistant({ initial, examples = true, compact, send }: { initial?: string; examples?: boolean; compact?: boolean; send?: { text: string; n: number } }) {
   const { t, lang } = useI18n();
   const [turns, setTurns] = useState<Turn[]>([]);
   const [text, setText] = useState('');
@@ -167,6 +167,9 @@ export function Assistant({ initial, examples = true, compact }: { initial?: str
     setBusy(false);
   }
   useEffect(() => { if (initial && !started.current) { started.current = true; ask(initial); } /* eslint-disable-next-line */ }, [initial]);
+  // A question sent from outside the chat (the hero's "Ask AI" button); each one is asked once
+  const lastSend = useRef(0);
+  useEffect(() => { if (send && send.n !== lastSend.current) { lastSend.current = send.n; ask(send.text); } /* eslint-disable-next-line */ }, [send?.n]);
   useEffect(() => { if (turns.length > 1) endRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, [turns]);
 
   const exs = [t('ai.ex1'), t('ai.ex2'), t('ai.ex3'), t('ai.ex4'), t('ai.ex5'), t('ai.ex6')];

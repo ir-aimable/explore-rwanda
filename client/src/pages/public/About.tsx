@@ -174,26 +174,6 @@ export function About() {
           <span className="t-script kicker">{c.promise.tagline}</span>
         </div>
       </section>
-
-      {/* Join */}
-      <section id="join" className="container section">
-        <Head icon="users" title={c.join.title} center />
-        <div className="grid grid-2">
-          <article className="card card-pad ab-join">
-            <span className="ab-ico lg"><Icon name="mountain" size={26} /></span>
-            <h3>{c.join.travellers.title}</h3><p>{c.join.travellers.text}</p>
-            <div className="row">
-              <Link className="btn" to="/destinations"><Icon name="map" size={16} /> {c.join.ctaDest}</Link>
-              <Link className="btn btn-ghost" to="/trips"><Icon name="compass" size={16} /> {c.join.ctaTrips}</Link>
-            </div>
-          </article>
-          <article className="card card-pad ab-join">
-            <span className="ab-ico lg gold"><Icon name="flag" size={26} /></span>
-            <h3>{c.join.organizers.title}</h3><p>{c.join.organizers.text}</p>
-            <div className="row"><Link className="btn btn-gold" to="/become-organizer">{c.join.ctaOrg} <Icon name="arrowRight" size={16} /></Link></div>
-          </article>
-        </div>
-      </section>
     </div>
   );
 }

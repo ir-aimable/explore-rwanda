@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { TripCard } from '../../components/Cards';
 import { Empty, Loader } from '../../components/ui';
 import { useLoad } from '../../hooks/useLoad';
 import { useI18n } from '../../i18n';
 import { api, qs } from '../../services/api';
 import type { Category, Trip } from '../../types';
-import { SearchSuggest } from './Home';
+import { SearchSuggest } from '../../components/SearchSuggest';
 import { HeroImage } from '../../components/Cover';
 import { Icon } from '../../components/Icon';
 import { Link } from 'react-router-dom';
 
 export default function Trips() {
-  const { t, lang } = useI18n(); const [sp, setSp] = useSearchParams();
+  const { t, lang } = useI18n(); const [sp, setSp] = useSearchParams(); const nav = useNavigate();
   const [q, setQ] = useState(sp.get('q') || '');
   const get = (k: string) => sp.get(k) || '';
   const [onlyOpen, setOnlyOpen] = useState(true);
@@ -35,7 +35,7 @@ export default function Trips() {
       </section>
       <div className="container">
         <form className="card filter-bar overlap" onSubmit={(e) => { e.preventDefault(); update('q', q); }} role="search">
-          <div className="fb-q"><Icon name="search" /><label htmlFor="tq" className="sr-only">{t('c.search')}</label><SearchSuggest id="tq" value={q} onChange={setQ} placeholder={t('trips.search_ph')} /></div>
+          <div className="fb-q"><Icon name="search" /><label htmlFor="tq" className="sr-only">{t('c.search')}</label><SearchSuggest id="tq" value={q} onChange={setQ} placeholder={t('trips.search_ph')} anchor=".fb-q" onPick={(x) => nav(x.link)} /></div>
           <select aria-label={t('trips.activity')} value={get('category')} onChange={(e) => update('category', e.target.value)}><option value="">{t('c.all')} · {t('trips.activity')}</option>{cats.data?.items.map((c) => <option key={c.id} value={c.slug}>{lang === 'rw' ? c.name_rw : c.name_en}</option>)}</select>
           <input className="fb-price" aria-label={t('trips.max_price')} placeholder={t('trips.max_price')} inputMode="numeric" value={get('max_price')} onChange={(e) => update('max_price', e.target.value.replace(/\D/g, ''))} />
           <input type="date" aria-label={t('trips.date')} value={get('date')} onChange={(e) => update('date', e.target.value)} />
